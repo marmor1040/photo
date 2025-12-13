@@ -1,0 +1,114 @@
+'''
+Created on 8 juin 2011
+
+@author: to07184
+'''
+from multiprocessing import Process, Pipe
+from PyQt4 import QtCore, QtGui
+import time,glob
+import os.path as osp
+
+class chargeImages:
+    def __init__(self,rep):
+        pc1,self.cc1 = Pipe()
+        self.pc2,cc2 = Pipe()
+        self.process = Process(target=charge,args=(rep,pc1,cc2,))
+        
+    def start(self):
+        print('start')
+        self.process.start()  
+    
+    def getImage(self,nom):
+        print(nom,'envoye')
+        self.cc1.send(nom)
+        image = self.pc2.recv()
+        return image
+
+import os.path as osp
+import time,pickle
+from PyQt4.uic import loadUiType
+from PyQt4.QtCore import QString
+from PyQt4 import QtGui
+import parametres,Image
+
+FormClass, BaseClass = loadUiType(osp.join(osp.dirname(osp.realpath(__file__)),
+                                           'fen_photo.ui'))
+def start(rep):
+    pc1,cc1 = Pipe()
+    pc2,cc2 = Pipe()
+    process = Process(target=charge,args=(rep,pc1,cc2))
+    process.start()
+    return cc1,pc2
+
+def charge(rep,pc1,cc2):
+    tab={}
+    for f in glob.glob(rep+'*.JPG'):
+        t0=time.time()
+        #tab[osp.basename(f)]=QtGui.QImage(QtCore.QString(f),'JPG')
+        tab[osp.basename(f)] = Image.open(f)
+        print(time.time()-t0)
+    while True:
+        nom = pc1.recv()
+        cc2.send(tab[nom])
+        #cc2.send(nom)
+
+def getImage(nom,cc1,pc2):
+    cc1.send(nom)
+    image=pc2.recv()
+    print(image)
+    return image
+    
+class FenetrePhoto(BaseClass, FormClass):    
+    def __init__(self,parent=None):
+        BaseClass.__init__(self, parent)
+        self.setupUi(self)
+        self.setGeometry(*parametres.photo)
+        self.show()
+    
+    def affiche(self,image):
+        pix = QtGui.QPixmap.fromImage(image)
+        self.deplace(pix)
+        
+    def deplace(self,pm):
+        taille = self.label.frameRect().size()
+        p_larg = taille.width()
+        p_haut = taille.height()
+        pr = float(p_larg)/float(p_haut)
+        ir = float(parametres.photo[2])/float(parametres.photo[3])
+        if ir>pr :
+            w = p_larg
+            h = int(w/ir)
+            x = 0
+            y = (p_haut-h)/2
+        else :
+            h = p_haut
+            w = int(h*ir)
+            x = (p_larg-w)/2
+            y = 0
+        self.label.move(x,y)
+        self.label.resize(w,h)
+        self.label.setPixmap(pm.scaledToHeight(h))
+
+from PyQt4.QtGui import QApplication
+if __name__ == '__main__':
+    app = QApplication([])
+    app.setStyle("plastique")
+    cc1,pc2 = start('../photos/')
+    image=getImage('Croatie0011.JPG',cc1,pc2)
+    ihm=FenetrePhoto()
+    ihm.affiche(image)
+    app.exec_()
+    #print getImage('Vietnam_20110426_0201.JPG',cc1,pc2)
+    #print getImage('Vietnam_20110426_0202.JPG',cc1,pc2)
+        
+#    parent_conn, child_conn = Pipe()
+#    t0=time.time()
+#    p = Process(target=f, args=(child_conn,))
+#    p.start()
+#    print time.time()-t0
+#    time.sleep(1)
+#    t0=time.time()
+#    print parent_conn.recv()   # prints "[42, None, 'hello']"
+#    print time.time()-t0
+#    p.join()
+

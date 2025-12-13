@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Miniatures</class>
+ <widget class="QMainWindow" name="Miniatures">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>421</width>
+    <height>299</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>Tri Photos</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QScrollArea" name="scrollArea">
+      <property name="frameShadow">
+       <enum>QFrame::Sunken</enum>
+      </property>
+      <property name="lineWidth">
+       <number>1</number>
+      </property>
+      <property name="widgetResizable">
+       <bool>true</bool>
+      </property>
+      <widget class="QWidget" name="scrollWidget">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>419</width>
+         <height>263</height>
+        </rect>
+       </property>
+       <layout class="QGridLayout" name="gridLayout">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <item row="0" column="0">
+         <layout class="QGridLayout" name="images">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <item row="0" column="0">
+           <layout class="QFormLayout" name="formLayout">
+            <property name="fieldGrowthPolicy">
+             <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+            </property>
+           </layout>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="commentaire">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>421</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>Fichier</string>
+    </property>
+    <addaction name="separator"/>
+    <addaction name="actionQuitter"/>
+   </widget>
+   <widget class="QMenu" name="menuInfos">
+    <property name="title">
+     <string>Infos</string>
+    </property>
+    <addaction name="actionModifierInfos"/>
+    <addaction name="actionSauverInfos"/>
+    <addaction name="separator"/>
+   </widget>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>?</string>
+    </property>
+    <addaction name="actionAide"/>
+   </widget>
+   <widget class="QMenu" name="menuPhoto">
+    <property name="title">
+     <string>Photo</string>
+    </property>
+    <addaction name="actionDetruire"/>
+    <addaction name="actionRenommage_auto"/>
+    <addaction name="separator"/>
+    <addaction name="actionCopier_retouche"/>
+   </widget>
+   <widget class="QMenu" name="menuSelection_2">
+    <property name="title">
+     <string>Selection</string>
+    </property>
+    <addaction name="actionNouvelleSelection"/>
+    <addaction name="actionSauverSelection"/>
+    <addaction name="separator"/>
+    <addaction name="actionChargerSelection"/>
+    <addaction name="actionSauverSelectionSous"/>
+    <addaction name="actionDetruireSelection"/>
+    <addaction name="separator"/>
+    <addaction name="actionGenererSelection"/>
+   </widget>
+   <widget class="QMenu" name="menuPanorama">
+    <property name="title">
+     <string>Panorama</string>
+    </property>
+    <addaction name="actionRenommer_panorama"/>
+    <addaction name="actionDeplacer_panorama"/>
+    <addaction name="actionDetectionAutomatique"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuSelection_2"/>
+   <addaction name="menuInfos"/>
+   <addaction name="menuPhoto"/>
+   <addaction name="menuPanorama"/>
+   <addaction name="menu"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Ignored" vsizetype="Ignored">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+  </widget>
+  <action name="actionChoisir_repertoire">
+   <property name="text">
+    <string>Choisir repertoire / filtre ...</string>
+   </property>
+  </action>
+  <action name="actionQuitter">
+   <property name="text">
+    <string>Quitter</string>
+   </property>
+  </action>
+  <action name="actionChargerSelection">
+   <property name="text">
+    <string>Charger ...</string>
+   </property>
+  </action>
+  <action name="actionSauverSelection">
+   <property name="text">
+    <string>Sauver</string>
+   </property>
+  </action>
+  <action name="actionModifierFiltre">
+   <property name="text">
+    <string>Modifier ...</string>
+   </property>
+  </action>
+  <action name="actionPreferences">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Préférences ...</string>
+   </property>
+  </action>
+  <action name="actionModifierInfos">
+   <property name="text">
+    <string>Modifier ...</string>
+   </property>
+  </action>
+  <action name="actionGenererSelection">
+   <property name="text">
+    <string>Générer ...</string>
+   </property>
+  </action>
+  <action name="actionDiaporama">
+   <property name="text">
+    <string>Diaporama ...</string>
+   </property>
+  </action>
+  <action name="actionDeplacer_panorama">
+   <property name="text">
+    <string>Deplacer panorama</string>
+   </property>
+  </action>
+  <action name="actionCopier_retouche">
+   <property name="text">
+    <string>Copier retouche</string>
+   </property>
+  </action>
+  <action name="actionDetectionAutomatique">
+   <property name="text">
+    <string>Détection automatique</string>
+   </property>
+  </action>
+  <action name="actionAide">
+   <property name="text">
+    <string>Aide</string>
+   </property>
+  </action>
+  <action name="actionDetruire">
+   <property name="text">
+    <string>Détruire les photos selectionnés ...</string>
+   </property>
+  </action>
+  <action name="actionRenommer">
+   <property name="text">
+    <string>Renommer ...</string>
+   </property>
+  </action>
+  <action name="actionTrierParDate">
+   <property name="text">
+    <string>Trier par date </string>
+   </property>
+  </action>
+  <action name="actionSauverSelectionSous">
+   <property name="text">
+    <string>Sauver sous ...</string>
+   </property>
+  </action>
+  <action name="actionNouvelleSelection">
+   <property name="text">
+    <string>Nouvelle</string>
+   </property>
+  </action>
+  <action name="actionDetruireSelection">
+   <property name="text">
+    <string>Détruire ...</string>
+   </property>
+  </action>
+  <action name="actionDeplacer">
+   <property name="text">
+    <string>Déplacer</string>
+   </property>
+  </action>
+  <action name="actionSauverInfos">
+   <property name="text">
+    <string>Sauver</string>
+   </property>
+  </action>
+  <action name="actionRenommer_panorama">
+   <property name="text">
+    <string>Renommer panorama</string>
+   </property>
+  </action>
+  <action name="actionRenommage_auto">
+   <property name="text">
+    <string>Renommage automatique</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>Miniatures</sender>
+   <signal>destroyed()</signal>
+   <receiver>Miniatures</receiver>
+   <slot>deleteLater()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>337</x>
+     <y>294</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>337</x>
+     <y>294</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

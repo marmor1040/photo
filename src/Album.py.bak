@@ -1,0 +1,528 @@
+# -*- coding: latin-1
+
+from .ZB_info import ZBinfo
+import Photo,scanRep
+import os.path as osp
+import os,glob,shutil,pickle
+import win32api, win32con
+import Exif
+from PyQt4.QtCore import Qt
+
+class Album():
+    def __init__(self,rep,ihm_arbo,verif_album=False):
+        # lien vers l'ihm pour la progressbar
+        if rep[-1] != '/':
+            self.__repertoire = rep +"/"
+        self.__infos = None
+        self.__exifs = None
+        self.__dates = []
+        self.__liste_jpg = []
+        self.__liste_jpg_thumbs = []
+        self.listeJPG()
+        self.listeJPGThumbs()
+        self.lireDates()
+        self.lireExifs()
+        self.lireInfos()
+        self.__ihm = ihm_arbo
+        self.__infos_sauvees = True
+        if verif_album:
+            self.refresh()
+        
+    def refresh(self):
+        self.__liste_jpg = []
+        jpg = self.getFirstPhoto()
+        if jpg:
+            self.creerDossiers()
+            self.recuperationPhotos()
+            if not self.miniaturesOk():
+                self.majMiniatures()
+        else:
+            self.detruireDossiers()
+    
+    def change(self,rep):
+        self.__repertoire = rep
+        self.__infos = {}
+        self.__exifs = {}
+        self.__dates = []
+        self.__liste_jpg = []
+        self.__liste_jpg_thumbs = []
+        if rep:
+            self.creerDossiers()
+    
+    def creerDossiers(self):
+        if not osp.isdir(self.repTriPhotos()):
+            creer(self.repTriPhotos())
+            win32api.SetFileAttributes(self.repTriPhotos(),win32con.FILE_ATTRIBUTE_HIDDEN)
+            creer(self.repThumbs())
+            creer(self.repPano())
+            creer(self.repRecup())
+            creer(self.repRetouche())
+            creer(self.repSelections())
+    
+    def detruireDossiers(self):
+        if not self.getFirstPhoto():
+            detruire(self.repTriPhotos())
+            detruire(self.repThumbs())
+            detruire(self.repPano())
+            detruire(self.repRecup())
+            detruire(self.repRetouche())
+            detruire(self.repSelections())
+    
+    def basename(self):
+        if self.__repertoire[-1] == '/':
+            rep = self.__repertoire[:-1]
+        else:
+            rep = self.__repertoire
+        return osp.basename(rep)
+            
+    def majMiniatures(self):
+        l = self.listeJPG()
+        l.sort()
+        if self.__ihm:
+            self.__ihm.initProgressBar(len(l))
+        n=0
+        for im in l:
+            name = osp.basename(im)
+            if self.__ihm:
+                stop = self.__ihm.avanceProgressBar(n,name)
+                if stop: break
+            th = self.repThumbs()+name
+            if not osp.isfile(th) or not self.getExif(name):
+                # creation de la miniature qui n'existe pas
+                # exif
+                exif_im = Exif.loadExif(im)
+                exif_ht = Exif.getHt(exif_im)
+                if 'pivoter' in exif_ht:
+                    pivoter = exif_ht['pivoter']
+                    if pivoter: # orient = 90 ou -90
+                        exif_im,exif_ht = Photo.fairePivoterPhoto(im,exif_ht,exif_im)
+                self.__exifs[name] = exif_ht
+                # date
+                date = exif_ht['date']
+                if not date in self.__dates:
+                    self.__dates.append(date)
+                # infos
+                self.__infos[name] = {"etoiles" : 0,"traitee":False,"cochee":False,"pano":False,"retouche":False}
+                # thumb
+                if not osp.isfile(th):
+                    Photo.creerThumbnail(im,th,exif_im)
+                    win32api.SetFileAttributes(th,win32con.FILE_ATTRIBUTE_HIDDEN)
+                    self.ajouteJPGThumbs(th)
+            n+=1
+        # destruction des miniatures en trop
+        min_trop = self.miniaturesEnTrop()
+        if min_trop:
+            self.detruirePhotos(lbasename(min_trop))
+        self.sauveExifs()
+        self.sauveDates()
+        self.sauveInfos()
+
+        if self.__ihm:
+            self.__ihm.stopProgressBar()
+            
+#     def getInfos(self):
+#         return self.__infos
+#     
+#     
+#     def getInfo(self,nom):
+#         if '/' in nom:
+#             nom = osp.basename(nom)
+#         return self.__infos.get(nom)
+#     
+#     
+        
+#
+#  Infos
+#
+    def fichierInfos(self):
+        return self.repTriPhotos()+'Infos.dat'
+    
+    def lireInfos(self):
+        f = self.fichierInfos()
+        if osp.isfile(f):
+            f = open(f,'r')
+            self.__infos = pickle.load(f)
+            f.close()
+        else:
+            self.__infos = {}
+        #print self.__liste_jpg
+        #print self.__infos
+        #self.verif_infos()
+        
+    def verif_infos(self):
+        if self.__infos:
+            if len(self.__infos[list(self.__infos.keys())[0]]) < 5:
+                for nom,ht in self.__infos.items():
+                    if not "etoiles" in list(ht.keys()):
+                        self.__infos[nom]["etoiles"] = 0
+                    if not "traitee" in list(ht.keys()):
+                        self.__infos[nom]["traitee"] = False
+                    if not "cochee" in list(ht.keys()):
+                        self.__infos[nom]["cochee"] = False
+                    if not "pano" in list(ht.keys()):
+                        self.__infos[nom]["pano"] = False
+                    if not "retouche" in list(ht.keys()):
+                        self.__infos[nom]["retouche"] = False
+                self.sauveInfos()
+            
+    def sauveInfos(self):
+        try:
+            f = open(self.fichierInfos(),'w')
+            pickle.dump(self.__infos,f)
+            f.close()
+            self.__infos_sauvees = True
+        except:
+            pass
+    
+    def getInfos(self):
+        return self.__infos
+    
+    def getInfo(self,nom):
+        try:
+            if '/' in nom:
+                nom = osp.basename(nom)
+            return self.__infos[nom]
+        except:
+            print("Info",nom,"introuvable")
+            return {"etoiles" : 0,"traitee":False,"cochee":False,"pano":False,"retouche":False}
+    
+    def setInfo(self,nom,cle,val):
+        if nom not in self.__infos:
+            self.__infos[nom] = {"etoiles" : 0,"traitee":False,"cochee":False,"pano":False,"retouche":False}
+        self.__infos[nom][cle] = val
+        self.__infos_sauvees = False
+        
+    def infosSauvees(self):
+        return self.__infos_sauvees
+
+#
+# selection
+#   
+
+    def repSelections(self):
+        return self.repTriPhotos()+'Selections/'
+    
+    def listeSelections(self):
+        return lbasename(glob.glob(self.repSelections()+'*.sel'))
+    
+    def sauveSelection(self,fich,liste_photos):
+        if not fich.endswith('.sel'): fich += '.sel'
+        with open(fich,'w') as f:
+            for p in liste_photos:
+                f.write(p+"\n")
+    
+    def lireSelection(self,fich):
+        if not '/' in fich: fich = self.repSelections() + fich
+        with open(fich,'r') as f:
+            return [s.replace("\n","") for s in f.readlines()]
+        
+#
+#  Exifs
+#
+    def lireExifs(self):
+        if osp.isfile(self.fichierExifs()):
+            f = open(self.fichierExifs(),'r')
+            self.__exifs = pickle.load(f)
+            f.close()
+        else:
+            self.__exifs = {}
+        
+    def getExifs(self):
+        return self.__exifs
+    
+    def getExif(self,nom):
+        try:
+            if '/' in nom:
+                nom = osp.basename(nom)
+            return self.__exifs[nom]
+        except:
+            print("Exif",nom,"introuvable")
+            return None
+    
+    def setExifs(self,ht):
+        self.__exifs = ht
+        
+    def fichierExifs(self):
+        return self.repTriPhotos()+'Exifs.dat'
+    
+    def sauveExifs(self): 
+        f = open(self.fichierExifs(),'w')
+        pickle.dump(self.__exifs,f)
+        f.close() 
+
+    def ajouteExif(self,chemin_photo):
+        exif_im = Exif.loadExif(chemin_photo)
+        self.__exifs[osp.basename(chemin_photo)] = Exif.getHt(exif_im)
+    
+#
+#  Dates
+#
+    def lireDates(self):
+        if osp.isfile(self.fichierDates()):
+            f = open(self.fichierDates(),'r')
+            self.__dates = pickle.load(f)
+            f.close()
+        else:
+            self.__dates = []
+                
+    def getDates(self):
+        if not self.__dates:
+            self.lireDates()
+        return self.__dates
+        
+    def recreerDates(self):
+        self.__dates = []
+        for name,exif in self.__exifs.items():
+            date = exif['date']
+            if not date in self.__dates:
+                self.__dates.append(date)
+                    
+    def getListeDates(self):
+        from datetime import date
+        vdates = set(self.getDates())
+        if 'unknown' in vdates:
+            vdates.remove('unknown')
+            add = ['unknown']
+        else:
+            add = []
+        d = [date(int(l[2]),int(l[1]),int(l[0])) for l in [k.split('/') for k in vdates]]
+        d.sort()
+        return [g.strftime("%d/%m/%Y") for g in d] + add
+        
+    def sauveDates(self): 
+        f = open(self.fichierDates(),'w')
+        pickle.dump(self.__dates,f)
+        f.close()
+        
+    def fichierDates(self):
+        return self.repTriPhotos()+'Dates.dat'
+    
+#
+#  Gestion des répertoires
+#
+    def repertoire(self):
+        return self.__repertoire
+    
+    def estUnAlbum(self):
+        return bool(self.__repertoire and osp.isdir(self.__repertoire) and self.listeJPG() and osp.isdir(self.repTriPhotos()))
+    
+    def repTriPhotos(self):
+        return self.__repertoire+'TriPhotos/'
+   
+    def repThumbs(self):
+        return self.repTriPhotos()+'Thumbs/'
+   
+    def repPano(self):
+        return self.repTriPhotos()+'Pano/'
+
+    def listePano(self):
+        return scanRep.listeFichiers(self.repPano(),'JPG')
+        #return os.listdir(self.repPano())
+
+    def repRecup(self):
+        return self.repTriPhotos()+'Recuperation/'
+
+    def listeRecup(self):
+        return scanRep.listeFichiers(self.repRecup(),'JPG')
+        #return os.listdir(self.repRecup())
+
+    def repRetouche(self):
+        return self.repTriPhotos()+'Retouche/'
+    
+    def listeRetouche(self):
+        return scanRep.listeFichiers(self.repRetouche(),'JPG')
+        #return os.listdir(self.repRetouche())
+
+    def getFirstPhoto(self):
+        return scanRep.first(self.__repertoire,'.JPG')
+    
+    def listeJPG(self,chemin=True):
+        if self.__repertoire and not self.__liste_jpg:
+            self.__liste_jpg = scanRep.listeFichiers(self.__repertoire,'JPG')
+        if chemin:
+            return self.__liste_jpg
+        else:
+            return lbasename(self.__liste_jpg)
+    
+    def retireJPG(self,photo):
+        l = self.__liste_jpg
+        if photo in l:
+            l.pop(l.index(photo))
+    
+    def listeJPGTrieParDate(self,chemin=True):
+        ltri=[]
+        for path_photo in self.listeJPG(chemin):
+            exif = self.getExif(path_photo)
+            ltri.append((Exif.getChTriDate(exif),path_photo))
+        ltri.sort()
+        return [v[1] for v in ltri]
+            
+    def reinitListeJPG(self):
+        self.__liste_jpg = []
+        self.__liste_jpg_thumbs = []
+    
+    def listeJPGThumbs(self):
+        if not self.__liste_jpg_thumbs:
+            self.__liste_jpg_thumbs = scanRep.listeFichiers(self.repThumbs(),'JPG')
+        return self.__liste_jpg_thumbs
+    
+    def getJPGThumb(self,nom):
+        return self.repThumbs()+nom
+        
+    def ajouteJPGThumbs(self,photo):
+        self.__liste_jpg_thumbs.append(photo)
+    
+    def retireJPGThumbs(self,photo):
+        l = self.__liste_jpg_thumbs
+        if photo in l:
+            l.pop(l.index(photo))
+    
+    def miniaturesOk(self):
+        s = set(lbasename(self.listeJPG()))
+        sm = set(lbasename(self.listeJPGThumbs()))
+        nb = len(self.__exifs)
+        return s == sm == nb
+    
+    def miniaturesEnTrop(self):
+        s = set(lbasename(self.listeJPG()))
+        sm = set(lbasename(self.listeJPGThumbs()))
+        return sm.difference(s)
+    
+    def listeJPGRecup(self):
+        return glob.glob(self.repRecup()+'*.JPG')
+    
+    def recuperationPhotos(self):
+        l = self.listeJPGRecup()
+        for f in l:
+            # deplacement avec indiçage
+            Photo.deplacerPhoto(f,self.__repertoire)
+    
+    def listeJPGFiltres(self,filtre):
+        lret = []
+        n=0
+        for chemin in self.listeJPG():
+            nom = osp.basename(chemin)
+            exif = self.__exifs[nom]
+            info = self.__infos[nom]
+            ok = filtre.isOk(chemin,info,exif,n)
+            if ok:
+                lret.append(chemin)
+            n+=1
+        return lret
+    
+    def listeJPGFiltresNom(self,filtre_nom):
+        import re
+        lret = []
+        filtre_nom = filtre_nom.replace('*',".*").replace('.',"\.").replace('?',".")
+        for chemin in self.listeJPG():
+            nom = osp.basename(chemin)
+            if re.findall(filtre_nom,nom):
+                lret.append(chemin)
+        return lret
+    
+    def reinitialiser(self):
+        detruire(self.repTriPhotos())
+    
+    def detruireMiniatures(self):
+        detruire(self.repThumbs())
+        self.__liste_jpg_thumbs = []
+        self.__exifs = {}
+        self.__dates = []
+        self.__infos = {}
+        creer(self.repThumbs())
+        
+    def deplacerPanorama(self,nom,str_num):
+        shutil.move(self.repertoire()+nom,self.repPano() + str_num + "_" + nom)
+            
+    def renommerPhoto(self,nom,nom1):
+        shutil.move(self.repertoire()+nom,self.repertoire()+nom1)
+        shutil.move(self.repThumbs()+nom,self.repThumbs()+nom1)
+        self.__liste_jpg.remove(self.repertoire()+nom)
+        self.__liste_jpg_thumbs.remove(self.repThumbs()+nom)
+        self.__liste_jpg.append(self.repertoire()+nom1)
+        self.__liste_jpg_thumbs.append(self.repThumbs()+nom1)
+        self.__exifs[nom1] = self.__exifs[nom]
+        self.__infos[nom1] = self.__infos[nom]
+        del self.__exifs[nom]
+        del self.__infos[nom]
+        self.sauveExifs()
+        self.sauveInfos()
+        
+#
+#  Ajout / retrait photos
+#
+    def detruirePhotos(self,lphotos):
+        for photo in lphotos:
+            try:
+                chemin_photo = self.repertoire()+photo
+                if osp.isfile(chemin_photo):
+                    os.remove(chemin_photo)
+                    self.retireJPG(chemin_photo)
+                chemin_min = self.repThumbs()+photo
+                if osp.isfile(chemin_min):
+                    os.remove(chemin_min)
+                    self.retireJPGThumbs(chemin_min)
+                if photo in self.__exifs:
+                    del self.__exifs[photo]
+                self.recreerDates()
+            except:
+                print('Erreur à la destruction de la photo :',photo)                
+        self.sauveExifs()
+        self.sauveDates()
+#
+#  Autres
+#
+
+    def nomCommun(self,rep=None):
+        # renvoi la partie commune des noms des photos d'un repertoire
+        if not rep:
+            l = lbasename(self.listeJPG())
+        else:
+            l = lbasename(glob.glob(rep+'/*.JPG'))
+        nom = ''
+        if l:
+            nom = l[0]
+            for n in l[1:]:
+                nom = chCom(nom,n)
+        return nom
+        
+    def __repr__(self):
+        def aj(l,b=True):
+            m = ""
+            if not l:return ""
+            for i in l:
+                if b: m += " "+osp.basename(i)+" "
+                else: m += " "+i+" "
+            return m
+        mess = osp.basename(self.__repertoire[:-1]) + "\n"
+        mess += aj(self.__liste_jpg) + "\n"
+        mess += aj(self.__liste_jpg_thumbs) + "\n"
+        mess += aj(list(self.__exifs.keys())) + "\n"
+        mess += aj(self.__dates,False) + "\n"
+        return mess
+        
+def creer(r):
+    if not osp.isdir(r):
+        os.mkdir(r)
+
+def detruire(r):
+    if osp.isdir(r):
+        shutil.rmtree(r)
+        
+def chCom(s,s1):
+    if s == s1[0:len(s)]:
+        return s
+    r = ''
+    for i in range(0,min(len(s),len(s1))):
+        if s[i] != s1[i]:
+            return r
+        else:
+            r += s[i]
+    return r
+
+def lbasename(l):
+    return [osp.basename(p) for p in l]
+
+if __name__ == "__main__":
+    a=Album("C:/Users/marc/Documents/Dossiers personnel/Mes images/EOS-77D/2020-03",None,True)
+    

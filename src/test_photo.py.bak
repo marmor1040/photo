@@ -1,0 +1,92 @@
+'''
+Created on 17 mai 2011
+
+@author: to07184
+'''
+
+import sys
+from PyQt4.QtGui import QApplication,QImage,QPixmap
+from PyQt4.QtCore import QString
+
+
+#from fen_visionneuse import Ui_Visionneuse as FormClass
+from PyQt4.QtGui import QWidget as BaseClass
+
+from PyQt4 import QtCore, QtGui
+
+def _translate(context, text, disambig):
+    return QtGui.QApplication.translate(context, text, disambig, QtGui.QApplication.UnicodeUTF8)
+
+class Ui_Visionneuse(object):
+    def setupUi(self, Visionneuse):
+        Visionneuse.setObjectName(QtCore.QString.fromUtf8("Visionneuse"))
+        Visionneuse.resize(564, 543)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(Visionneuse.sizePolicy().hasHeightForWidth())
+        Visionneuse.setSizePolicy(sizePolicy)
+        Visionneuse.setMouseTracking(True)
+        Visionneuse.setFocusPolicy(QtCore.Qt.StrongFocus)
+        self.label = QtGui.QLabel(Visionneuse)
+        self.label.setEnabled(True)
+        self.label.setGeometry(QtCore.QRect(0, 0, 49, 16))
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Ignored, QtGui.QSizePolicy.Ignored)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
+        self.label.setSizePolicy(sizePolicy)
+        self.label.setMouseTracking(True)
+        self.label.setFocusPolicy(QtCore.Qt.StrongFocus)
+        self.label.setFrameShape(QtGui.QFrame.Box)
+        self.label.setAlignment(QtCore.Qt.AlignCenter)
+        self.label.setObjectName(QtCore.QString.fromUtf8("label"))
+        self.retranslateUi(Visionneuse)
+        QtCore.QMetaObject.connectSlotsByName(Visionneuse)
+
+    def retranslateUi(self, Visionneuse):
+        Visionneuse.setWindowTitle(_translate("Visionneuse", "Form", None))
+        self.label.setText(_translate("Visionneuse", "TextLabel", None))
+
+
+class FenetreVisionneuse(BaseClass,Ui_Visionneuse):    
+    def __init__(self,photo):
+        BaseClass.__init__(self,None)
+        self.setupUi(self)
+        self.__image = QImage(QString(photo))
+        self.affichePhoto()
+        
+    def affichePhoto(self):
+        pm = QPixmap.fromImage(self.__image)
+        taille = self.size()
+        p_larg = taille.width()
+        p_haut = taille.height()
+        if p_larg != 0 and p_haut != 0 :
+            pr = float(p_larg)/float(p_haut)
+            ir = float(pm.width())/float(pm.height())
+            if ir>pr :
+                w = p_larg
+                h = int(p_larg/ir)
+            else :
+                h = p_haut
+                w = int(h*ir)
+        self.label.setPixmap(pm.scaled(w-2,h-2))
+        self.show()
+        
+    def resizeEvent(self,event):
+        self.__redraw = True
+        rect = self.geometry()
+        self.label.setGeometry(0,0,rect.width(),rect.height())
+        if self.__image: self.affichePhoto()
+        
+if __name__ == "__main__":
+    app = QApplication([])
+    app.setStyle("plastique")
+    if len(sys.argv) == 2:
+        print(sys.argv[1])
+        photo = sys.argv[1]
+    else:
+        photo = "C:/Users/marc/Documents/Dossiers personnel/Developpement logiciels/Workspace/Mot de passe/Placements/Boursorama/4.JPG"
+        photo = "C:/Users/marc/Documents/Dossiers personnel/Developpement logiciels/Workspace/Mot de passe/Placements/Boursorama/0.png"
+    ihmThumbs = FenetreVisionneuse(photo)
+    app.exec_()
