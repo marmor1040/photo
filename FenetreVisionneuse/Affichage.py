@@ -1,4 +1,4 @@
-## -*- coding: latin-1 -*-
+## -*- coding: utf-8 -*-
 #"""
 #Created on 5 juin 2011
 #
@@ -10,7 +10,7 @@ from multiprocessing import Process, Pipe
 import threading
 from PyQt5 import QtCore,QtWidgets
 from PyQt5.QtWidgets import QApplication,QDesktopWidget
-from PyQt5.QtCore import Qt,QPoint,QSize,QRect,pyqtSlot
+from PyQt5.QtCore import Qt,QPoint,QSize,QRect,pyqtSlot,pyqtSignal
 from PyQt5.QtCore import QObject
 from src import preferences as PREFERENCES
 from src.IhmDiaporama import FenetreDiaporama
@@ -21,6 +21,8 @@ from PyQt5 import QtWidgets
 from .ThreadChargement import ThreadPhoto
 
 class Affiche(ThreadPhoto,QObject):
+    value_changed = pyqtSignal(str,str)
+    
     def __init__(self,charge,Pout):
         ThreadPhoto.__init__(self)
         QObject.__init__(self,None)
@@ -66,7 +68,7 @@ class Affiche(ThreadPhoto,QObject):
                         etoiles += "*"
                     if not self.__pipe_out.poll():
                         # appel la methode affichePhoto de IhmVisionneuse
-                        self.emit(QtCore.SIGNAL("changed(str,str)"),nom,etoiles)
+                        self.value_changed.emit(nom,etoiles)
             elif '##reinitialise##' in nom:
                 #self.__ihm.label.clear()
                 self.__charge.clear()

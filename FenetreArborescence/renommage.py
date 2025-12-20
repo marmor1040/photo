@@ -1,4 +1,4 @@
-# -*- coding: latin-1 -*-
+# -*- coding: utf-8 -*-
 import os,shutil,math,time,re
 import os.path as osp
 from PyQt5 import QtCore, QtWidgets

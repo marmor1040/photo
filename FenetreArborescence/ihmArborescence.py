@@ -1,11 +1,11 @@
-# -*- coding: latin-1
+# -*- coding: utf-8
 """
 Created on 5 juin 2011
 
 @author: Bureau
 """
 import glob,os,math,shutil,sys,pickle
-from PyQt5 import QtCore,QtWidgets
+from PyQt5 import QtCore,QtWidgets,QtGui
 from PyQt5.QtCore import Qt,QObject
 from PyQt5.QtWidgets import QDesktopWidget,QMessageBox,QApplication
 from PyQt5.QtGui import QIcon,QImage,QPixmap
@@ -39,46 +39,46 @@ class Ihm(BaseClass,FormClass):
         self.__compression = compression.dataCompression(self)
         self.__cursor = self.cursor()
         self.__ctrl_x = None
-        QObject.connect(self.actionQuitter,QtCore.SIGNAL("triggered()"),self.quitter)
-        QObject.connect(self.cb_toutes,QtCore.SIGNAL("toggled(bool)"),self.choixToutes)
-        QObject.connect(self.gb_infos,QtCore.SIGNAL("toggled(bool)"),self.choixDetails)
-        QObject.connect(self.gb_dates,QtCore.SIGNAL("toggled(bool)"),self.choixDetails)
-        QObject.connect(self.gb_nums,QtCore.SIGNAL("toggled(bool)"),self.choixDetails)
-        QObject.connect(self.btAfficher,QtCore.SIGNAL("clicked()"),self.afficher)
-        QObject.connect(self.btAddWorkspace,QtCore.SIGNAL("clicked()"),self.addWorkspace)
-        QObject.connect(self.btRetirerWorkspace,QtCore.SIGNAL("clicked()"),self.retirerWorkspace)
-        QObject.connect(self.comboWorkspace,QtCore.SIGNAL("currentIndexChanged(QString)"),self.modifierChoixWorkspace)
-        QObject.connect(self.btRecreerMiniatures,QtCore.SIGNAL("clicked()"),self.recreerMiniatures)
-        QObject.connect(self.btDetruireTriPhotos,QtCore.SIGNAL("clicked()"),self.detruireTriPhotos)
-        QObject.connect(self.bt_annuler_progress,QtCore.SIGNAL("clicked()"),self.annulerProgress)
-        QObject.connect(self.tabWidget,QtCore.SIGNAL("currentChanged(int)"),self.tabChanged)
+        self.actionQuitter.triggered.connect(self.quitter)
+        self.cb_toutes.toggled.connect(self.choixToutes)
+        self.gb_infos.toggled.connect(self.choixDetails)
+        self.gb_dates.toggled.connect(self.choixDetails)
+        self.gb_nums.toggled.connect(self.choixDetails)
+        self.btAfficher.clicked.connect(self.afficher)
+        self.btAddWorkspace.clicked.connect(self.addWorkspace)
+        self.btRetirerWorkspace.clicked.connect(self.retirerWorkspace)
+        self.comboWorkspace.currentIndexChanged.connect(self.modifierChoixWorkspace)
+        self.btRecreerMiniatures.clicked.connect(self.recreerMiniatures)
+        self.btDetruireTriPhotos.clicked.connect(self.detruireTriPhotos)
+        self.bt_annuler_progress.clicked.connect(self.annulerProgress)
+        self.tabWidget.currentChanged.connect(self.tabChanged)
         # gestion repertoires
-        QObject.connect(self.btCreerRepertoire,QtCore.SIGNAL("clicked()"),self.creerRepertoire)
-        QObject.connect(self.btCtrlXRepertoire,QtCore.SIGNAL("clicked()"),self.ctrlXRepertoire)
-        QObject.connect(self.btDeplacerRepertoire,QtCore.SIGNAL("clicked()"),self.deplacerRepertoire)
-        QObject.connect(self.btSupprimerRepertoire,QtCore.SIGNAL("clicked()"),self.supprimerRepertoire)
-        QObject.connect(self.btViderRepertoire,QtCore.SIGNAL("clicked()"),self.viderRepertoire)
-        QObject.connect(self.btDeplacerImages,QtCore.SIGNAL("clicked()"),self.deplacerImages)
-        QObject.connect(self.btCopierImages,QtCore.SIGNAL("clicked()"),self.copierImages)
+        self.btCreerRepertoire.clicked.connect(self.creerRepertoire)
+        self.btCtrlXRepertoire.clicked.connect(self.ctrlXRepertoire)
+        self.btDeplacerRepertoire.clicked.connect(self.deplacerRepertoire)
+        self.btSupprimerRepertoire.clicked.connect(self.supprimerRepertoire)
+        self.btViderRepertoire.clicked.connect(self.viderRepertoire)
+        self.btDeplacerImages.clicked.connect(self.deplacerImages)
+        self.btCopierImages.clicked.connect(self.copierImages)
         # renommage
-        QObject.connect(self.btDetruire,QtCore.SIGNAL("clicked()"),self.detruireFichiers)
-        QObject.connect(self.btRefresh,QtCore.SIGNAL("clicked()"),self.refreshRenommage)
-        QObject.connect(self.btTester,QtCore.SIGNAL("clicked()"),self.testerRenommage)
-        QObject.connect(self.btValider,QtCore.SIGNAL("clicked()"),self.validerRenommage)
-        QObject.connect(self.btAide,QtCore.SIGNAL("clicked()"),self.aideRenommage)
-        QObject.connect(self.btAuto,QtCore.SIGNAL("clicked()"),self.autoRenommage)
+        self.btDetruire.clicked.connect(self.detruireFichiers)
+        self.btRefresh.clicked.connect(self.refreshRenommage)
+        self.btTester.clicked.connect(self.testerRenommage)
+        self.btValider.clicked.connect(self.validerRenommage)
+        self.btAide.clicked.connect(self.aideRenommage)
+        self.btAuto.clicked.connect(self.autoRenommage)
         # compression
-        QObject.connect(self.bt_repertoire,QtCore.SIGNAL("clicked()"),self.repertoireCompression)
+        self.bt_repertoire.clicked.connect(self.repertoireCompression)
         #QObject.connect(self.bt_filtre,QtCore.SIGNAL("clicked()"),self.choixFiltre)
-        QObject.connect(self.sb_reduction,QtCore.SIGNAL("valueChanged(int)"),self.afficheCompressionEstime)
-        QObject.connect(self.sb_qualite,QtCore.SIGNAL("valueChanged(int)"),self.afficheCompressionEstime)
-        QObject.connect(self.rb_toutes,QtCore.SIGNAL("toggled(bool)"),self.compressionToutes)
-        QObject.connect(self.rb_affichees,QtCore.SIGNAL("toggled(bool)"),self.compressionAffichees)
-        QObject.connect(self.rb_selection,QtCore.SIGNAL("toggled(bool)"),self.compressionSelection)
-        QObject.connect(self.bt_copie,QtCore.SIGNAL("toggled(bool)"),self.afficheCompressionEstime)
-        QObject.connect(self.bt_compression,QtCore.SIGNAL("toggled(bool)"),self.afficheCompressionEstime)
-        QObject.connect(self.btValiderCompression,QtCore.SIGNAL("clicked()"),self.validerCompression)
-        QObject.connect(self.btAfficherCompression,QtCore.SIGNAL("clicked()"),self.afficherCompression)
+        self.sb_reduction.valueChanged.connect(self.afficheCompressionEstime)
+        self.sb_qualite.valueChanged.connect(self.afficheCompressionEstime)
+        self.rb_toutes.toggled.connect(self.compressionToutes)
+        self.rb_affichees.toggled.connect(self.compressionAffichees)
+        self.rb_selection.toggled.connect(self.compressionSelection)
+        self.bt_copie.toggled.connect(self.afficheCompressionEstime)
+        self.bt_compression.toggled.connect(self.afficheCompressionEstime)
+        self.btValiderCompression.clicked.connect(self.validerCompression)
+        self.btAfficherCompression.clicked.connect(self.afficherCompression)
         # icon
         self.btRefresh.setStyleSheet("QPushButton{background: transparent;}")
         self.btRefresh.setIcon(QIcon(PREFERENCES.getIcon('refresh.png')))
@@ -93,13 +93,13 @@ class Ihm(BaseClass,FormClass):
         self.icon5.setStyleSheet("QPushButton{background: transparent;}")
         self.icon6.setStyleSheet("QPushButton{background: transparent;}")
         self.icon7.setStyleSheet("QPushButton{background: transparent;}")
-        self.icon1.setPixmap(QtWidgets.QPixmap(PREFERENCES.getIcon('vide.png')))
-        self.icon2.setPixmap(QtWidgets.QPixmap(PREFERENCES.getIcon('repImage.png')))
-        self.icon3.setPixmap(QtWidgets.QPixmap(PREFERENCES.getIcon('repVideo.png')))
-        self.icon4.setPixmap(QtWidgets.QPixmap(PREFERENCES.getIcon('album.png')))
-        self.icon5.setPixmap(QtWidgets.QPixmap(PREFERENCES.getIcon('album-attention.png')))
-        self.icon6.setPixmap(QtWidgets.QPixmap(PREFERENCES.getIcon('album-non-vide.png')))
-        self.icon7.setPixmap(QtWidgets.QPixmap(PREFERENCES.getIcon('album-non-vide.png')))
+        self.icon1.setPixmap(QtGui.QPixmap(PREFERENCES.getIcon('vide.png')))
+        self.icon2.setPixmap(QtGui.QPixmap(PREFERENCES.getIcon('repImage.png')))
+        self.icon3.setPixmap(QtGui.QPixmap(PREFERENCES.getIcon('repVideo.png')))
+        self.icon4.setPixmap(QtGui.QPixmap(PREFERENCES.getIcon('album.png')))
+        self.icon5.setPixmap(QtGui.QPixmap(PREFERENCES.getIcon('album-attention.png')))
+        self.icon6.setPixmap(QtGui.QPixmap(PREFERENCES.getIcon('album-non-vide.png')))
+        self.icon7.setPixmap(QtGui.QPixmap(PREFERENCES.getIcon('album-non-vide.png')))
         
         self.arborescence = MyTreeView(self)
         self.verticalLayoutArbo.insertWidget(0,self.arborescence)
@@ -289,7 +289,7 @@ class Ihm(BaseClass,FormClass):
         try:
             return self.comboWorkspace.currentText()
         except:
-            return QtCore.QString()
+            return ""
                           
     def retirerWorkspace(self):
         wksp = self.workspaceCourant()
@@ -297,7 +297,7 @@ class Ihm(BaseClass,FormClass):
         PREFERENCES.removeWorkspace(wksp)
     
     def addWorkspace(self):
-        wksp = str(QtWidgets.QFileDialog.getExistingDirectory(self,"R�pertoire des images",
+        wksp = str(QtWidgets.QFileDialog.getExistingDirectory(self,"Répertoire des images",
                                                           self.workspaceCourant(),    
                                                           QtWidgets.QFileDialog.ShowDirsOnly))
         if wksp:
@@ -511,9 +511,9 @@ class Ihm(BaseClass,FormClass):
             self.majIhmSelection()
             if jpg:
                 if osp.isfile(rep+'/TriPhotos/Thumbs/'+jpg):
-                    image = QImage(QString(rep+'/TriPhotos/Thumbs/'+jpg),'JPG')
+                    image = QImage(rep+'/TriPhotos/Thumbs/'+jpg,'JPG')
                 else:
-                    image = QImage(QString(select),'JPG')
+                    image = QImage(select,'JPG')
                     if image.width() > image.height():
                         image = image.scaledToWidth(PREFERENCES.LARGEUR_IMAGE)
                     else:
@@ -547,10 +547,10 @@ class Ihm(BaseClass,FormClass):
                 self.__compression.majFenetre(self.__album_selectionne)
          
     #
-    # gestion r�pertoires
+    # gestion répertoires
     #
     def creerRepertoire(self):
-        rep,nom_ok = QtWidgets.QInputDialog.getText(self,"Cr�er",'Nom du nouveau r�pertoire\n/<nom> pour cr�er � la racine',QtWidgets.QLineEdit.Normal,'')
+        rep,nom_ok = QtWidgets.QInputDialog.getText(self,"Créer",'Nom du nouveau répertoire\n/<nom> pour créer à la racine',QtWidgets.QLineEdit.Normal,'')
         if not nom_ok: return
         rep = str(rep)
         if rep[0] == '/':
@@ -571,11 +571,11 @@ class Ihm(BaseClass,FormClass):
         import win32api, win32con
         if not self.__ctrl_x or not self._selection:return
         msgBox = QMessageBox(self)
-        but_repertoire = msgBox.addButton(self.tr("R�pertoire"), QMessageBox.ActionRole)
+        but_repertoire = msgBox.addButton(self.tr("Répertoire"), QMessageBox.ActionRole)
         but_contenu = msgBox.addButton(self.tr("Contenu"), QMessageBox.ActionRole)
         but_abort = msgBox.addButton(self.tr("Annuler"),QMessageBox.RejectRole)
         msgBox.setText("D�placer "+osp.basename(self.__ctrl_x)+" dans "+osp.basename(self._selection))
-        msgBox.setInformativeText("D�placer le repertoire ou seulement le contenu ?")
+        msgBox.setInformativeText("Déplacer le repertoire ou seulement le contenu ?")
         ret = msgBox.exec_()
         #print self.__album_selectionne
         if msgBox.clickedButton() == but_repertoire:
@@ -600,7 +600,7 @@ class Ihm(BaseClass,FormClass):
                             print("deplacement impossible")
                             import traceback
                             print(traceback.format_exc(1))
-            # si des r�pertoire "TriPhotos" ont �t� copi�s, il faut les cacher
+            # si des répertoires "TriPhotos" ont été copiés, il faut les cacher
             for rep,subrep,files in os.walk(self._selection):
                 if osp.basename(rep) == "TriPhotos":
                     win32api.SetFileAttributes(rep,win32con.FILE_ATTRIBUTE_HIDDEN)
@@ -630,7 +630,7 @@ class Ihm(BaseClass,FormClass):
     
     def supprimerRepertoire(self,rep_a_detruire=None):
         if not rep_a_detruire:
-            ok = QMessageBox.question(self.btSupprimerRepertoire,"Destruirer�pertoire","Le r�pertoire "+osp.basename(self._selection)+" va �tre d�finitivement d�truit !!",QMessageBox.Ok |QMessageBox.Cancel)
+            ok = QMessageBox.question(self.btSupprimerRepertoire,r"Détruire répertoire","Le répertoire "+osp.basename(self._selection)+" va être définitivement détruit !!",QMessageBox.Ok |QMessageBox.Cancel)
             if not ok == QMessageBox.Ok: return
             rep_a_detruire = self._selection
         if os.path.isdir(rep_a_detruire):

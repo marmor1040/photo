@@ -1,4 +1,4 @@
-# -*- coding: latin-1
+# -*- coding: utf-8
 """
 Created on 5 juin 2011
 
@@ -34,15 +34,15 @@ class FenetreSelection(BaseClass,FormClass):
         self.afficheTaille()
         
     def initialiser(self):
-        QObject.connect(self.bt_repertoire,QtCore.SIGNAL("clicked()"),self.choixRepertoire)
-        QObject.connect(self.bt_filtre,QtCore.SIGNAL("clicked()"),self.choixFiltre)
-        QObject.connect(self.sb_reduction,QtCore.SIGNAL("valueChanged(int)"),self.afficheEstime)
-        QObject.connect(self.sb_qualite,QtCore.SIGNAL("valueChanged(int)"),self.afficheEstime)
-        QObject.connect(self.rb_toutes,QtCore.SIGNAL("toggled(bool)"),self.toutes)
-        QObject.connect(self.rb_affichees,QtCore.SIGNAL("toggled(bool)"),self.photosAffichees)
-        QObject.connect(self.rb_autres,QtCore.SIGNAL("toggled(bool)"),self.autres)
-        QObject.connect(self.bt_copie,QtCore.SIGNAL("toggled(bool)"),self.choixCopie)
-        QObject.connect(self.bt_compression,QtCore.SIGNAL("toggled(bool)"),self.choixCompression)
+        self.bt_repertoire.clicked.connect(self.choixRepertoire)
+        self.bt_filtre.clicked.connect(self.choixFiltre)
+        self.sb_reduction.valueChanged.connect(self.afficheEstime)
+        self.sb_qualite.valueChanged.connect(self.afficheEstime)
+        self.rb_toutes.toggled.connect(self.toutes)
+        self.rb_affichees.toggled.connect(self.photosAffichees)
+        self.rb_autres.toggled.connect(self.autres)
+        self.bt_copie.toggled.connect(self.choixCopie)
+        self.bt_compression.toggled.connect(self.choixCompression)
         self.okcancel.button(QDialogButtonBox.Ok).setEnabled(False)
         self.bt_copie.setChecked(True)
         self.bt_filtre.setEnabled(False)
@@ -91,7 +91,7 @@ class FenetreSelection(BaseClass,FormClass):
         
     def choixRepertoire(self):
         #print preferences.getRepertoireDefaut()[0]
-        rep = QtWidgets.QFileDialog.getExistingDirectory(self,"R�pertoire des images",
+        rep = QtWidgets.QFileDialog.getExistingDirectory(self,"Répertoire des images",
                                                           "",#str(preferences.getRepertoireDefaut()[0]),    
                                                           QtWidgets.QFileDialog.ShowDirsOnly)
         if rep:

@@ -1,4 +1,4 @@
-# -*- coding: latin-1
+# -*- coding: utf-8
 """
 Created on 5 juin 2011
 
@@ -42,7 +42,7 @@ class dataCompression:
         
     def choixRepertoire(self):
         #print preferences.getRepertoireDefaut()[0]
-        rep = QtWidgets.QFileDialog.getExistingDirectory(self.ihm,"R�pertoire des images","",QtWidgets.QFileDialog.ShowDirsOnly)
+        rep = QtWidgets.QFileDialog.getExistingDirectory(self.ihm,"Répertoire des images","",QtWidgets.QFileDialog.ShowDirsOnly)
         if rep:
             self.ihm.repertoire.setText(rep)
             self.repertoire = str(rep)
@@ -164,7 +164,7 @@ class dataCompression:
 #         
 #     def choixRepertoire(self):
 #         #print preferences.getRepertoireDefaut()[0]
-#         rep = QtWidgets.QFileDialog.getExistingDirectory(self,"R�pertoire des images",
+#         rep = QtWidgets.QFileDialog.getExistingDirectory(self,"Répertoire des images",
 #                                                           "",#str(preferences.getRepertoireDefaut()[0]),    
 #                                                           QtWidgets.QFileDialog.ShowDirsOnly)
 #         if rep:

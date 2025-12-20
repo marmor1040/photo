@@ -1,4 +1,4 @@
-# -*- coding: latin-1
+# -*- coding: utf-8
 """
 Created on 5 juin 2011
 
@@ -33,7 +33,7 @@ class FenetreRepertoire(BaseClass,FormClass):
         #self.setWindowFlags(Qt.FramelessWindowHint |Qt.WindowStaysOnTopHint)
                     
     def choixRepertoire(self):
-        rep = QtWidgets.QFileDialog.getExistingDirectory(self,"R�pertoire des images",
+        rep = QtWidgets.QFileDialog.getExistingDirectory(self,"Répertoire des images",
                                                           self.__defaut,    
                                                           QtWidgets.QFileDialog.ShowDirsOnly)
         if rep:

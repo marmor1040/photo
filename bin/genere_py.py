@@ -13,7 +13,8 @@ def comp(fich):
     compileUi(fich,f,True)
     print('ok')
 
-for f in glob.glob("../Ihm/*.ui"):
+print(glob.glob("Ihm/*.ui"))
+for f in glob.glob("Ihm/*.ui"):
     comp(f)
     
 #     comp('../Ihm/choix_filtre')

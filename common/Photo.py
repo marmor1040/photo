@@ -1,4 +1,4 @@
-# -*- coding: latin-1
+# -*- coding: utf-8
 """
 Created on 4 juin 2011
 
@@ -7,24 +7,28 @@ Created on 4 juin 2011
 import os,glob,shutil,pickle
 import os.path as osp
 from PIL import Image
-from common import Exif
+try:
+    from common import Exif
+    from src import preferences as PREFERENCES
+except:
+    import importlib,sys
+    sys.path.append("common")
+    sys.path.append("src")
+    Exif = importlib.import_module("Exif")
+    PREFERENCES = importlib.import_module("preferences")
 import win32api, win32con
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication,QMessageBox
-from src import preferences as PREFERENCES
 #from Album import Album
 
 def creerThumbnail(ch_photo,ch_thumbnail,exif_im=None):
     im = Image.open(ch_photo)
     try:
-        im.thumbnail((PREFERENCES.LARGEUR_IMAGE,PREFERENCES.LARGEUR_IMAGE), Image.ANTIALIAS)
+        im.thumbnail((PREFERENCES.LARGEUR_IMAGE,PREFERENCES.LARGEUR_IMAGE), Image.Resampling.LANCZOS)
     except:
         pass
-    if exif_im:
-        im.save(ch_thumbnail,"JPEG",exif=exif_im)
-    else:
-        im.save(ch_thumbnail,"JPEG")
+    im.save(ch_thumbnail,"JPEG")
     
 # def creerMiniatures(parent,album):
 #     sf

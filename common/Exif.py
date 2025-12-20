@@ -7,7 +7,12 @@ Created on 10 juil. 2011
 
 #import pyexiv2
 import piexif
-from src import preferences
+try:
+    from src import preferences
+except:
+    import importlib,sys
+    sys.path.append("src")
+    preferences = importlib.import_module("preferences")
 
 def loadExif(fn):
     return piexif.load(fn)
@@ -47,7 +52,10 @@ def getHt(exif=None,image=None):
         for tag in exif[ifd]:
             nom = piexif.TAGS[ifd][tag]["name"]
             if nom != "MakerNote":
-                ht_exif[nom] =  exif[ifd][tag]
+                try:
+                    ht_exif[nom] =  exif[ifd][tag].decode()
+                except:
+                    ht_exif[nom] =  exif[ifd][tag]
             if nom == "Orientation":
                 ht["ifd_orientation"] = ifd
                 ht["tag_orientation"] = tag
@@ -69,15 +77,18 @@ def getHt(exif=None,image=None):
             elif nom == 'flash':
                 val = getFlash(val)
             elif type(val) is tuple:
-                val = "%.2f" % (float(val[0])/val[1])
+                if val[1] != 0:
+                    val = "%.2f" % (float(val[0])/val[1])
+                else:
+                    val = f"{val[0]}"
             ht[nom] = val
         else:
             ht[nom] = "unknown"
     try:
         if ht["paysage"]:
-            ht['taille']="%ix%i" % (ht['tailleX'],ht['tailleY'])
+            ht['taille']=f"{ht['tailleX']}x{ht['tailleY']}"
         else:
-            ht['taille']="%ix%i" % (ht['tailleY'],ht['tailleX'])
+            ht['taille']=f"{ht['tailleY']}x{ht['tailleX']}"
         del ht['tailleY'] 
         del ht['tailleX']
     except: pass
@@ -171,9 +182,18 @@ if __name__ == "__main__":
 #          
     
     f = '../test/IMG_2497.JPG'
+    f="C:/Users/Marc/Pictures/selection_lou/lou_01_24-11-2024.JPG"
+    f="C:/Users/Marc/Pictures/Pixel 8a/PXL_20250123_204102548.jpg"
+    f="D:/Archive PC HP ne pas FAC/Mes images/1966-illim/1966-1980/0-gp10.JPG"
     print(f)
-    exif=loadExif(f)
-    ht = getHt(exif)
+    ex=loadExif(f)
+    print(ex)
+    from exif import Image
+    with open(f, 'rb') as image_file:
+        my_image = Image(image_file)
+        my_image.has_exif
+
+    ht = getHt(ex)
     #printExif(exif)
     print(ht)
     print(ht['orientation'])

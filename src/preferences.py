@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 import numpy,os
 import os.path as osp
-import pickle
+import json
 from PyQt5.QtCore import Qt,QRect
 
 PHOTO_PLEIN_ECRAN = True
@@ -70,13 +70,12 @@ def getWorkspaces():
     global LISTE_WORKSPACE
     if LISTE_WORKSPACE: return LISTE_WORKSPACE
     if osp.isfile(WORKSPACE_PATH):
-        f = open(WORKSPACE_PATH)
-        try:
-            LISTE_WORKSPACE = pickle.load(f)
-            f.close()
-            return LISTE_WORKSPACE
-        except:
-            f.close()
+        with open(WORKSPACE_PATH,'r') as f:
+            try:
+                LISTE_WORKSPACE = json.load(f)
+                return LISTE_WORKSPACE
+            except:
+                pass
     return ['Images']
 
 def addWorkspace(workspace):
@@ -84,31 +83,32 @@ def addWorkspace(workspace):
     if workspace in LISTE_WORKSPACE:
         LISTE_WORKSPACE.remove(workspace)
     LISTE_WORKSPACE.insert(0,workspace)
-    f = open(WORKSPACE_PATH,'w')
-    pickle.dump(LISTE_WORKSPACE,f)
-    f.close()
+    with open(WORKSPACE_PATH,'w') as f:
+        json.dump(LISTE_WORKSPACE,f)
 
 def removeWorkspace(workspace):
     global LISTE_WORKSPACE
     if workspace in LISTE_WORKSPACE:
         LISTE_WORKSPACE.remove(workspace)
-    f = open(WORKSPACE_PATH,'w')
-    pickle.dump(LISTE_WORKSPACE,f)
-    f.close()
+    with open(WORKSPACE_PATH,'w') as f:
+        json.dump(LISTE_WORKSPACE,f)
 
 def getFiltreDefaut():
     filtre = None
     if osp.isfile(FILTRE_PATH):
-        f = open(FILTRE_PATH)
-        filtre = pickle.load(f)
-        f.close()
+        with open(FILTRE_PATH,'r') as f:
+            try:
+                filtre = json.load(f)
+            except:
+                pass
     return filtre
         
 def setFiltreDefaut(filtre):
-    f = open(FILTRE_PATH,'w')
-    filtre.__album=None
-    pickle.dump(filtre,f)
-    f.close()
+    import pickle
+    with open(FILTRE_PATH,'w') as f:
+        filtre.__album=None
+        print("filtre non sauvegardé")
+        #pickle.dump(filtre,f)
 
 def isModeTri():
     return MODE==0

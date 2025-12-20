@@ -1,4 +1,4 @@
-## -*- coding: latin-1 -*-
+## -*- coding: utf-8 -*-
 #"""
 #Created on 5 juin 2011
 #
@@ -118,7 +118,7 @@ class Charge(ThreadPhoto):
         if liste_fichiers:
             ThreadPhoto.liste_fichiers = liste_fichiers
         else:
-            import scanRep
+            from common import scanRep
             ThreadPhoto.liste_fichiers = scanRep.listeFichiers(ThreadPhoto.rep_photos,'JPG',bPath=False)
         ThreadPhoto.nb = len(ThreadPhoto.liste_fichiers)
         #ThreadPhoto.liste_fichiers.sort()

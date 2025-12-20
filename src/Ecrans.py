@@ -1,4 +1,4 @@
-# -*- coding: latin-1
+# -*- coding: utf-8
 '''
 Created on 26 f�vr. 2020
 
@@ -14,7 +14,7 @@ class Affichage:
     
     def __init__(self,ihm,num_ecran,x0=0,y0=0,w0=100,h0=100,kw=None,kh=None,plein_ecran=False):
         if not Affichage.nb_ecran:
-            Affichage.nb_ecran = QDesktopWidget().numScreens()
+            Affichage.nb_ecran = 2 #QDesktopWidget().numScreens()
             Affichage.ecrans = [QDesktopWidget().screenGeometry(0)]
             if Affichage.nb_ecran > 1:
                 Affichage.ecrans.append(QDesktopWidget().screenGeometry(1))
@@ -77,7 +77,7 @@ class Affichage:
                 self.w = taille_ecran[2] * self.kw
             if self.kh:
                 self.h = taille_ecran[3] * self.kh
-            self.ihm.setGeometry(self.x,self.y,self.w,self.h)
+            self.ihm.setGeometry(int(self.x),int(self.y),int(self.w),int(self.h))
     
     def resize(self,x,y,w,h):
         self.x,self.y,self.w,self.h = x,y,w,h

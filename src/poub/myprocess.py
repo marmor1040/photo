@@ -66,7 +66,7 @@ class FenetrePhoto(BaseClass, FormClass):
         self.show()
     
     def affiche(self,image):
-        pix = QtWidgets.QPixmap.fromImage(image)
+        pix = QtGui.QPixmap.fromImage(image)
         self.deplace(pix)
         
     def deplace(self,pm):

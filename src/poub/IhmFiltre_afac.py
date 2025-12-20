@@ -1,4 +1,4 @@
-# -*- coding: latin-1
+# -*- coding: utf-8
 """
 Created on 5 juin 2011
 
@@ -260,7 +260,7 @@ class FenetreFiltre(BaseClass,FormClass):
         PREFERENCES.setRepertoireDefaut(self.__liste_rep,None)
     
     def choixRepertoire(self):
-        rep = str(QtWidgets.QFileDialog.getExistingDirectory(self,"R�pertoire des images",
+        rep = str(QtWidgets.QFileDialog.getExistingDirectory(self,"Répertoire des images",
                                                           self.repCourant(),    
                                                           QtWidgets.QFileDialog.ShowDirsOnly))
         if rep:

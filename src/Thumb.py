@@ -7,7 +7,7 @@ Created on 3 juin 2011
 
 from math import *
 import os.path as osp
-from PyQt5 import Qt
+from PyQt5.Qt import Qt
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import QObject
 from PyQt5.QtGui import QImage,QPixmap
@@ -92,13 +92,14 @@ class thumbnail():
 #                     self.__widget.panorama.setVisible(False)
 #                     self.__widget.retouche.setVisible(False)
 #                     self.__widget.traitee.setVisible(False)
-                QObject.connect(self.__widget.autre,QtCore.SIGNAL("stateChanged(int)"),self.clickAutre)
-                QObject.connect(self.__widget.traitee,QtCore.SIGNAL("stateChanged(int)"),self.clickTraite)
-                QObject.connect(self.__widget.panorama,QtCore.SIGNAL("stateChanged(int)"),self.clickPano)
-                QObject.connect(self.__widget.retouche,QtCore.SIGNAL("stateChanged(int)"),self.clickRetouche)
+                self.__widget.autre.stateChanged.connect(self.clickAutre)
+                self.__widget.traitee.stateChanged.connect(self.clickTraite)
+                self.__widget.panorama.stateChanged.connect(self.clickPano)
+                self.__widget.retouche.stateChanged.connect(self.clickRetouche)
                 
             self.__widget.frame.setForegroundRole(3)
-            self.__widget.setFocusPolicy(Qt.ClickFocus)
+            # migration Qt5 15/12/2025
+            #self.__widget.setFocusPolicy(Qt.ClickFocus)
             pix = QPixmap.fromImage(image)
             self.__widget.label.setPixmap(pix)
             self.creerToolTip()
@@ -222,7 +223,7 @@ class thumbnail():
             etoile = QImage(PREFERENCES.getIcon('3etoiles.bmp'),'BMP')
         else:
             etoile = QImage('')
-        pix = QtWidgets.QPixmap.fromImage(etoile)
+        pix = QPixmap.fromImage(etoile)
         self.__widget.etoile.setPixmap(pix)
 #         if not self.__ok: # pendant la création de la miniature
 #             self.__info.imposeEtoiles(n)

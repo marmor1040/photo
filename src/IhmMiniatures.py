@@ -1,4 +1,4 @@
-# -*- coding: latin-1
+# -*- coding: utf-8
 """
 Created on 3 juin 2011
 
@@ -105,29 +105,30 @@ class FenetreThumbs(BaseClass,FormClass):
     def initCallback(self):
         #QObject.connect(self.actionChoisir_repertoire,QtCore.SIGNAL("triggered()"),self.choisirRepertoireFiltre)
         # Fichier
-        QObject.connect(self.actionQuitter,QtCore.SIGNAL("triggered()"),self.quitter)
+        self.actionQuitter.triggered.connect(self.quitter)
         # Selection
-        QObject.connect(self.actionNouvelleSelection,QtCore.SIGNAL("triggered()"),self.nouvelleSelection)
-        QObject.connect(self.actionSauverSelection,QtCore.SIGNAL("triggered()"),self.sauverSelection)
-        QObject.connect(self.actionChargerSelection,QtCore.SIGNAL("triggered()"),self.chargerSelection)
-        QObject.connect(self.actionSauverSelectionSous,QtCore.SIGNAL("triggered()"),self.sauverSelectionSous)
-        QObject.connect(self.actionDetruireSelection,QtCore.SIGNAL("triggered()"),self.detruireSelection)
-        QObject.connect(self.actionGenererSelection,QtCore.SIGNAL("triggered()"),self.genererSelection)
+        self.actionNouvelleSelection.triggered.connect(self.nouvelleSelection)
+        self.actionSauverSelection.triggered.connect(self.sauverSelection)
+        self.actionChargerSelection.triggered.connect(self.chargerSelection)
+        self.actionSauverSelectionSous.triggered.connect(self.sauverSelectionSous)
+        self.actionDetruireSelection.triggered.connect(self.detruireSelection)
+        self.actionGenererSelection.triggered.connect(self.genererSelection)
         # Infos
-        QObject.connect(self.actionModifierInfos,QtCore.SIGNAL("triggered()"),self.modifierInfos)
-        QObject.connect(self.actionSauverInfos,QtCore.SIGNAL("triggered()"),self.sauverInfos)
-        QObject.connect(self.actionDetectionAutomatique,QtCore.SIGNAL("triggered()"),self.detectionAutomatique)
+        self.actionModifierInfos.triggered.connect(self.modifierInfos)
+        self.actionSauverInfos.triggered.connect(self.sauverInfos)
+        self.actionDetectionAutomatique.triggered.connect(self.detectionAutomatique)
         # Photos
-        QObject.connect(self.actionDetruire,QtCore.SIGNAL("triggered()"),self.detruirePhoto)
-        QObject.connect(self.actionRenommage_auto,QtCore.SIGNAL("triggered()"),self.renommageAuto)
+        self.actionDetruire.triggered.connect(self.detruirePhoto)
+        self.actionRenommage_auto.triggered.connect(self.renommageAuto)
         # Panorama
-        QObject.connect(self.actionRenommer_panorama,QtCore.SIGNAL("triggered()"),self.renommerPanorama)
-        QObject.connect(self.actionDeplacer_panorama,QtCore.SIGNAL("triggered()"),self.deplacePanorama)
-        QObject.connect(self.actionCopier_retouche,QtCore.SIGNAL("triggered()"),self.copieRetouche)
+        self.actionRenommer_panorama.triggered.connect(self.renommerPanorama)
+        self.actionDeplacer_panorama.triggered.connect(self.deplacePanorama)
+        self.actionCopier_retouche.triggered.connect(self.copieRetouche)
         # Aide
-        QObject.connect(self.actionAide,QtCore.SIGNAL("triggered()"),self.aide)
+        self.actionAide.triggered.connect(self.aide)
         # Etoile depuis le thread visionneuse
-        QObject.connect(self.obj_signal,QtCore.SIGNAL("afficheEtoiles(int)"),self.setEtoiles)
+        # en commentaire pendant la migration PyQt5 : TODO
+        # self.obj_signal.afficheEtoiles.connect(self.setEtoiles)
 
     def quitter(self):
         self.hide()
@@ -204,8 +205,8 @@ class FenetreThumbs(BaseClass,FormClass):
         nb_infos_aff = self.__liste_thumbs.getNbInfosAffiches()
         if isinstance(nb_trait_tot,int):
             delta = nb_trait_courant-nb_trait_tot
-            com = 'Nb photos affich�es (%i/%i)' % (nb_aff,nb_tot)
-            com += ' -  Trait�es (%i/%i)' % (nb_trait_aff+delta,nb_trait_courant)
+            com = 'Nb photos affichées (%i/%i)' % (nb_aff,nb_tot)
+            com += ' -  Traitées (%i/%i)' % (nb_trait_aff+delta,nb_trait_courant)
             com += ' -  0* (%i/%i)' % (nb_infos_aff[0],nb_infos_tot[0])
             com += ' - 1* (%i/%i)' % (nb_infos_aff[1],nb_infos_tot[1])
             com += ' - 2* (%i/%i)' % (nb_infos_aff[2],nb_infos_tot[2])
@@ -213,13 +214,13 @@ class FenetreThumbs(BaseClass,FormClass):
             com += '  -  Panorama (%i/%i)' % (nb_infos_aff[4],nb_infos_tot[4])
             com += '  -  Retouche (%i/%i)' % (nb_infos_aff[5],nb_infos_tot[5])
             com += '  -  Autre (%i/%i)' % (nb_infos_aff[6],nb_infos_tot[6])
-#            self.commentaire.setText('Total trait�es : %i / %i' % (nb_trait_courant,nb_tot)\
-#                                     +'  -  Affich�es trait�es : %i / %i' % (nb_trait_aff+delta,nb_aff)\
+#            self.commentaire.setText('Total traitées : %i / %i' % (nb_trait_courant,nb_tot)\
+#                                     +'  -  Affichées traitées : %i / %i' % (nb_trait_aff+delta,nb_aff)\
 #                                     +'  -  Etoiles : 0(%i)  1*(%i)  2**(%i)  3***(%i)  -  Panorama : %i  -  Retouche : %i  -  Autre : %i' % tuple(nb_infos))
             self.commentaire.setText(com)
             
     def appliquerInfos(self,info,toutes):
-        # applique le m�me info � toutes les miniatures
+        # applique le même info à toutes les miniatures
         self.__liste_thumbs.appliquerInfos(info,toutes)
         self.majTitre()
         #self.afficheCommentaire()
@@ -464,7 +465,7 @@ class FenetreThumbs(BaseClass,FormClass):
                 th.setNomPano("pano_" + str(num_pano))
             
     def deplacePanorama(self):
-        res = QtWidgets.QMessageBox.warning(self,"Panorama","Deplacer les panoramas dans le\nr�pertoire Pano ?",
+        res = QtWidgets.QMessageBox.warning(self,"Panorama","Deplacer les panoramas dans le\nrépertoire Pano ?",
                                         QtWidgets.QMessageBox.Yes|QtWidgets.QMessageBox.Cancel)
         if res == QtWidgets.QMessageBox.Yes:
             self.__liste_thumbs.deplacerPanorama()
@@ -472,7 +473,7 @@ class FenetreThumbs(BaseClass,FormClass):
             self.creerWidgetThumbs()
             
     def copieRetouche(self):
-        res = QtWidgets.QMessageBox.warning(self,"Retouche","Copier les retouches dans le\nr�pertoire Retouche ?",
+        res = QtWidgets.QMessageBox.warning(self,"Retouche","Copier les retouches dans le\nrépertoire Retouche ?",
                                         QtWidgets.QMessageBox.Yes|QtWidgets.QMessageBox.Cancel)
         if res == QtWidgets.QMessageBox.Yes:
             self.__liste_thumbs.copieRetouche(self.__album.repertoire(),self.__album.repRetouche())
@@ -495,7 +496,7 @@ class FenetreThumbs(BaseClass,FormClass):
         
     def detruirePhoto(self,force=False):
         if not force:
-            ok = QMessageBox.question(self,'Destruction des photos','Les fichiers selectionn�s seront d�finitivement d�truits',QMessageBox.Ok |QMessageBox.Cancel)
+            ok = QMessageBox.question(self,'Destruction des photos','Les fichiers selectionnés seront définitivement détruits',QMessageBox.Ok |QMessageBox.Cancel)
         if force or ok == QMessageBox.Ok:
             selection = copy.copy(self.getSelected())
             #deselectionner les elements sinon on cherche � les deselectionner � la prochaine selection
@@ -508,7 +509,7 @@ class FenetreThumbs(BaseClass,FormClass):
                 ptr = self.__liste_thumbs.detruire(p)
                 lnames.append(ptr.getName())
                 ptr.getWidget().hide()
-            self.rafraichirThumbs(sl[-1])     
+            #self.rafraichirThumbs(sl[-1])     
             #self.infosModifiees()
             #self.afficheCommentaire()
             # destruction des fichiers

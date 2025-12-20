@@ -11,6 +11,20 @@
             "program": "TriPhoto.py",
             "console": "integratedTerminal"
         },
+        {
+            "name": "PhotoSee",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "PhotoSee.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Ihm genere .py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "bin/genere_py.py",
+            "console": "integratedTerminal"
+        },
 
 
     ]

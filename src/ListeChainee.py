@@ -1,4 +1,4 @@
-# -*- coding: latin-1
+# -*- coding: utf-8
 '''
 Created on 17 mai 2011
 
@@ -107,13 +107,13 @@ class chainList:
             return None
     
     def nextPtr(self,ptr):  # ptr vers un element
-        if ptr != self.last():
-            return ptr.__next__
+        if ptr.value != self.last():
+            return ptr.next
         else:
             return None
         
     def previousPtr(self,ptr): # ptr vers un element
-        if ptr != self.first():
+        if ptr.value != self.first():
             return ptr.previous
         else:
             return None
@@ -181,8 +181,8 @@ class chainList:
         else:
             f = e
         if e.previous:
-            e.previous.next = f.__next__
-        if f.__next__:
+            e.previous.next = f.next
+        if f.next:
             f.next.previous = e.previous
         if j:
             ret = self.liste[i:j+1]

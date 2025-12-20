@@ -9,6 +9,8 @@ import copy,shutil
 from codecs import *
 import win32api, win32con
         
+Classe inutilisée
+
 class Info:
     def __init__(self,nom,etoile,comment,infos):
         self.__nom = nom

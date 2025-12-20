@@ -1,4 +1,4 @@
-# -*- coding: latin-1
+# -*- coding: utf-8
 """
 Created on 5 juin 2011
 
@@ -80,7 +80,7 @@ class MyTreeView(QTreeView):
         self.setMinimumSize(QtCore.QSize(300, 0))
         self.setExpandsOnDoubleClick(False)
         self.setObjectName(_fromUtf8("arborescence"))
-        QtCore.QObject.connect(self,QtCore.SIGNAL("clicked(QModelIndex)"),self.select)
+        self.clicked.connect(self.select)
         
     def currentChanged(self,current,previous):
         self._ihm_arbo.select(current)

@@ -1,4 +1,4 @@
-# -*- coding: latin-1
+# -*- coding: utf-8
 """
 Created on 5 juin 2011
 
@@ -21,8 +21,8 @@ class FenetreInfos(BaseClass,FormClass):
         
         self.buttonBox.setLocale(QLocale(QLocale.French))
         FenetreInfos.__fenetre_thumbs = parent
-        QObject.connect(self.bt_toutes,QtCore.SIGNAL("clicked()"),self.appliquerToutes)
-        QObject.connect(self.bt_selection,QtCore.SIGNAL("clicked()"),self.appliquerSelection)
+        self.bt_toutes.clicked.connect(self.appliquerToutes)
+        self.bt_selection.clicked.connect(self.appliquerSelection)
                     
     def appliquerToutes(self):
         FenetreInfos.__fenetre_thumbs.appliquerInfos(self.getInfos(),True)

@@ -1,4 +1,4 @@
-## -*- coding: latin-1 -*-
+## -*- coding: utf-8 -*-
 #"""
 #Created on 5 juin 2011
 #
@@ -11,12 +11,12 @@ from PyQt5.QtWidgets import QApplication,QMessageBox,QFileDialog
 from PyQt5.QtGui import QIcon,QPixmap
 from PyQt5.QtCore import Qt,QTimer
 from src import preferences as PREFERENCES
-import Ecrans
+from src import Ecrans
 from FenetreVisionneuse.ThumbVisionneuse import FenetreThumbVisionneuse
 from FenetreVisionneuse.ThreadChargement import Charge as ChargePhoto
-import Album
+from src import Album
 
-from fen_visionneuse import Ui_Visionneuse as FormClass
+from Ihm.fen_visionneuse import Ui_Visionneuse as FormClass
 from PyQt5.QtWidgets import QWidget as BaseClass
 from PyQt5 import QtWidgets
 
@@ -232,8 +232,8 @@ if __name__ == "__main__":
     print(rep_photo,nom_photo)
     app = QApplication([])
     app.setStyle("plastique")
-    os.chdir("C:/Users/marc/Documents/Dossiers personnel/Developpement logiciels/bin/TriPhoto")
-    print(os.getcwd()
+    os.chdir("C:/Users/marc/Pictures/tirage 2025")
+    print(os.getcwd())
     ihm = FenetrePhoto(None)
     ihm.initialiseEtAffiche(rep_photo,nom_photo)
     ret = app.exec_()

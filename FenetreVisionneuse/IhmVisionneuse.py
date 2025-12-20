@@ -1,4 +1,4 @@
-## -*- coding: latin-1 -*-
+## -*- coding: utf-8 -*-
 #"""
 #Created on 5 juin 2011
 #
@@ -22,7 +22,7 @@ from Ihm.fen_visionneuse import Ui_Visionneuse as FormClass
 from PyQt5.QtWidgets import QWidget as BaseClass
 from PyQt5 import QtWidgets
 
-class FenetreVisionneuse(BaseClass,FormClass):
+class FenetreVisionneuse(BaseClass,FormClass,QObject):
     def __init__(self,parent,chargement,sender,Pin,Pout):
         BaseClass.__init__(self,parent)
         self.setupUi(self)
@@ -61,7 +61,7 @@ class FenetreVisionneuse(BaseClass,FormClass):
 #         self.__miniature_aff = True
 
         self.__charge = chargement
-        QObject.connect(sender,QtCore.SIGNAL("changed(str,str)"),self.affichePhoto)
+        sender.value_changed.connect(self.affichePhoto)
         self.show()
 #         self.__Pin.send(self.x)
 #         self.__Pin.send(self.y)

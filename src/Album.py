@@ -1,7 +1,13 @@
-# -*- coding: latin-1
+# -*- coding: utf-8
 
-from .ZB_info import ZBinfo
-from common import Photo,scanRep,Exif
+try:
+    from common import Photo,scanRep,Exif
+except:
+    import importlib,sys
+    sys.path.append("common")
+    Photo = importlib.import_module("Photo")
+    scanRep = importlib.import_module("scanRep")
+    Exif = importlib.import_module("Exif")
 import os.path as osp
 import os,glob,shutil,pickle
 import win32api, win32con
@@ -137,16 +143,12 @@ class Album():
         return self.repTriPhotos()+'Infos.dat'
     
     def lireInfos(self):
-        f = self.fichierInfos()
-        if osp.isfile(f):
-            f = open(f,'r')
-            self.__infos = pickle.load(f)
-            f.close()
-        else:
+        import json
+        try:
+            with open(self.fichierInfos(),'r') as f:
+                self.__infos = json.load(f)
+        except:
             self.__infos = {}
-        #print self.__liste_jpg
-        #print self.__infos
-        #self.verif_infos()
         
     def verif_infos(self):
         if self.__infos:
@@ -165,13 +167,9 @@ class Album():
                 self.sauveInfos()
             
     def sauveInfos(self):
-        try:
-            f = open(self.fichierInfos(),'w')
-            pickle.dump(self.__infos,f)
-            f.close()
-            self.__infos_sauvees = True
-        except:
-            pass
+        import json
+        with open(self.fichierInfos(),'w') as f:
+            json.dump(self.__infos,f)
     
     def getInfos(self):
         return self.__infos
@@ -219,11 +217,11 @@ class Album():
 #  Exifs
 #
     def lireExifs(self):
-        if osp.isfile(self.fichierExifs()):
-            f = open(self.fichierExifs(),'r')
-            self.__exifs = pickle.load(f)
-            f.close()
-        else:
+        import json
+        try:
+            with open(self.fichierExifs(),'r') as f:
+                self.__exifs = json.load(f)
+        except:
             self.__exifs = {}
         
     def getExifs(self):
@@ -244,10 +242,10 @@ class Album():
     def fichierExifs(self):
         return self.repTriPhotos()+'Exifs.dat'
     
-    def sauveExifs(self): 
-        f = open(self.fichierExifs(),'w')
-        pickle.dump(self.__exifs,f)
-        f.close() 
+    def sauveExifs(self):
+        import json
+        with open(self.fichierExifs(),'w') as f:
+            json.dump(self.__exifs,f)
 
     def ajouteExif(self,chemin_photo):
         exif_im = Exif.loadExif(chemin_photo)
@@ -257,11 +255,10 @@ class Album():
 #  Dates
 #
     def lireDates(self):
-        if osp.isfile(self.fichierDates()):
-            f = open(self.fichierDates(),'r')
-            self.__dates = pickle.load(f)
-            f.close()
-        else:
+        try:
+            with open(self.fichierDates(),'rb') as f:
+                self.__dates = pickle.load(f)
+        except:
             self.__dates = []
                 
     def getDates(self):
@@ -289,9 +286,9 @@ class Album():
         return [g.strftime("%d/%m/%Y") for g in d] + add
         
     def sauveDates(self): 
-        f = open(self.fichierDates(),'w')
-        pickle.dump(self.__dates,f)
-        f.close()
+        import json
+        with open(self.fichierDates(),'w') as f:
+            json.dump(self.__dates,f)
         
     def fichierDates(self):
         return self.repTriPhotos()+'Dates.dat'
@@ -523,5 +520,9 @@ def lbasename(l):
     return [osp.basename(p) for p in l]
 
 if __name__ == "__main__":
-    a=Album("C:/Users/marc/Documents/Dossiers personnel/Mes images/EOS-77D/2020-03",None,True)
+    a=Album("C:/Users/Marc/Pictures/EOS_77D/2024-06",None,False)
+    print(a.repertoire())
+    print(a.estUnAlbum())
+    a.refresh()
+    print()
     

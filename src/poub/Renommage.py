@@ -1,4 +1,4 @@
-# -*- coding: latin-1 -*-
+# -*- coding: utf-8 -*-
 import sys,pickle,os
 import os.path as osp
 import shutil
@@ -56,7 +56,7 @@ class IhmRenommage(BaseClass,FormClass):
         self.splitter.setSizes([340,150])
         if not self.repertoire:
             self.repertoire = 'c:'
-        rep = str(QtWidgets.QFileDialog.getExistingDirectory (self.window,self.tr("Selection d'un r�pertoire"),
+        rep = str(QtWidgets.QFileDialog.getExistingDirectory (self.window,self.tr("Selection d'un répertoire"),
                                                  self.repertoire,
                                                  QtWidgets.QFileDialog.ShowDirsOnly))
         if not rep == '':
