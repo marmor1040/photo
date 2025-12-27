@@ -18,7 +18,10 @@ def loadExif(fn):
     return piexif.load(fn)
 
 def saveExif(fn,exif):
-    piexif.insert(piexif.dump(exif),fn)
+    try:
+        piexif.insert(piexif.dump(exif),fn)
+    except:
+        print("Erreur lors de l'enregistrement des EXIF dans ",fn)
 
 def printExif(exif):
     for ifd in ("0th", "Exif", "GPS", "1st"):

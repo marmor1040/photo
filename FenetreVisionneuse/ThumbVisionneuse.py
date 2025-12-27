@@ -26,6 +26,7 @@ class FenetreThumbVisionneuse(BaseClass,FormClass):
         self.lImageBt = []
         self.selectedName = None
         self.creationOk = False
+        self.estAffiche = False
         
     def vider(self):
         # destruction des widgets pr�c�dents
@@ -38,29 +39,31 @@ class FenetreThumbVisionneuse(BaseClass,FormClass):
                 w.deleteLater()
                 w.repaint()
                 
-    def creer(self,repertoire,liste_photos):
+    def creer(self,album):
         self.vider()
-        for p in liste_photos:
-            self.ajoutePhoto(repertoire,p)
+        for p in album.listeJPGThumbs():
+            self.ajoutePhoto(p)
             QApplication.instance().processEvents()
-        
+
     def setPosition(self,x,H):
         self.move(x,0)
         self.resize(200,H)
 
     def affiche(self,b):
-        if b and self.creationOk: self.show()
-        else: self.hide()
+        if b and self.creationOk: 
+            self.show()
+            self.estAffiche = True
+        else: 
+            self.hide()
+            self.estAffiche = False
         
-    def ajoutePhoto(self,rep,nom):
-        thumb = rep+"/TriPhotos/Thumbs/"+nom
-        if osp.isfile(thumb):
-            Photo = QImage(QString(thumb),'JPG')
-            pm = QPixmap.fromImage(Photo)
+    def ajoutePhoto(self,pThumb):
+        if osp.isfile(pThumb):
+            pm = QPixmap(pThumb)
             #print time.time()-t0
             #lbl = QLabel(nom)
             #self.images.addWidget(lbl)
-            ibt = imageButton(self.ihmVisionneuse,pm,nom)
+            ibt = imageButton(self.ihmVisionneuse,pm,pThumb.replace("TriPhotos/Thumbs/",""))
             self.images.addWidget(ibt.button)
             self.lImageBt.append(ibt)
             #print time.time()-t0

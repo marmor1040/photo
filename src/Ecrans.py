@@ -5,20 +5,31 @@ Created on 26 f�vr. 2020
 @author: marc
 '''
 from PyQt5.QtWidgets import QDesktopWidget
+from PyQt5.QtGui import QGuiApplication
 from PyQt5.QtCore import  Qt
 
 class Affichage:
     
     nb_ecran = None
     ecrans = None
+    _ihm_arbo = None
+    _ihm_miniatures = None
+    _ihm_visionneuse = None
+    ARBO = 1
+    MINIATURES = 2
+    VISIONNEUSE = 3
     
-    def __init__(self,ihm,num_ecran,x0=0,y0=0,w0=100,h0=100,kw=None,kh=None,plein_ecran=False):
+    def __init__(self,ihm,num_ecran,x0=0,y0=0,w0=100,h0=100,kw=None,kh=None,plein_ecran=False,type_ihm=None):
         if not Affichage.nb_ecran:
-            Affichage.nb_ecran = 2 #QDesktopWidget().numScreens()
-            Affichage.ecrans = [QDesktopWidget().screenGeometry(0)]
-            if Affichage.nb_ecran > 1:
-                Affichage.ecrans.append(QDesktopWidget().screenGeometry(1))
-        self.ihm = ihm
+            Affichage.ecrans = [screen.geometry() for screen in QGuiApplication.screens()]
+            Affichage.nb_ecran = len(Affichage.ecrans)
+        if type_ihm == Affichage.ARBO:
+            Affichage._ihm_arbo = ihm
+        elif type_ihm == Affichage.MINIATURES:
+            Affichage._ihm_miniatures = ihm
+        elif type_ihm == Affichage.VISIONNEUSE:
+            Affichage._ihm_visionneuse = ihm
+        self.type_ihm = type_ihm
         self.num_ecran = num_ecran
         self.kw = kw
         self.kh = kh
@@ -29,31 +40,16 @@ class Affichage:
         self.h = h0
         self.plein_ecran = plein_ecran
         self.affiche()
-        self.ihm.show()
-        
-#     def charger(self,):
-#         import pickle
-#         with open(self.fichier,"rb") as f:
-#             self.kw = pickle.load(f)
-#             self.kh = pickle.load(f)
-#             self.x = pickle.load(f)
-#             self.y = pickle.load(f)
-#             self.w = pickle.load(f)
-#             self.h = pickle.load(f)
-#             self.plein_ecran = pickle.load(f)
-#         
-#     def sauver(self):
-#         import pickle
-#         with open(self.fichier,"wb") as f:
-#             print self.kw,self.kh,self.x,self.y,self.w,self.h,self.plein_ecran
-#             pickle.dump(self.kw,f)
-#             pickle.dump(self.kh,f)
-#             pickle.dump(self.x,f)
-#             pickle.dump(self.y,f)
-#             pickle.dump(self.w,f)
-#             pickle.dump(self.h,f)
-#             pickle.dump(self.plein_ecran,f)            
+        self.ihm().show()         
             
+    def ihm(self):
+        if self.type_ihm == Affichage.ARBO:
+            return Affichage._ihm_arbo
+        elif self.type_ihm == Affichage.MINIATURES:
+            return Affichage._ihm_miniatures
+        elif self.type_ihm == Affichage.VISIONNEUSE:
+            return Affichage._ihm_visionneuse
+    
     def numEcran(self):
         if Affichage.nb_ecran > 1:
             return self.num_ecran-1
@@ -69,19 +65,24 @@ class Affichage:
     def affiche(self):
         taille_ecran = self.getTailleEcran()
         if self.plein_ecran:
-            self.ihm.setGeometry(*taille_ecran)
-            self.ihm.setWindowState(Qt.WindowFullScreen)
+            self.ihm().setGeometry(*taille_ecran)
+            self.ihm().setWindowState(Qt.WindowFullScreen)
         else:
-            self.ihm.setWindowState(Qt.WindowNoState)
+            self.ihm().setWindowState(Qt.WindowNoState)
             if self.kw:
                 self.w = taille_ecran[2] * self.kw
             if self.kh:
                 self.h = taille_ecran[3] * self.kh
-            self.ihm.setGeometry(int(self.x),int(self.y),int(self.w),int(self.h))
+            self.ihm().setGeometry(int(self.x),int(self.y),int(self.w),int(self.h))
     
     def resize(self,x,y,w,h):
         self.x,self.y,self.w,self.h = x,y,w,h
         
+    def changeEcrans(self):
+        self._ihm_visionneuse.changeEcran()
+        self._ihm_miniatures.changeEcran()
+        self._ihm_arbo.changeEcran()
+
     def changeEcran(self):
         if Affichage.nb_ecran > 1:
             taille_ecran = Affichage.ecrans[self.numEcran()].getRect()

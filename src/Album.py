@@ -23,6 +23,7 @@ class Album():
         self.__dates = []
         self.__liste_jpg = []
         self.__liste_jpg_thumbs = []
+        self.__index_photo = {}
         self.listeJPG()
         self.listeJPGThumbs()
         self.lireDates()
@@ -170,6 +171,7 @@ class Album():
         import json
         with open(self.fichierInfos(),'w') as f:
             json.dump(self.__infos,f)
+        self.__infos_sauvees = True
     
     def getInfos(self):
         return self.__infos
@@ -334,7 +336,7 @@ class Album():
     
     def listeJPG(self,chemin=True):
         if self.__repertoire and not self.__liste_jpg:
-            self.__liste_jpg = scanRep.listeFichiers(self.__repertoire,'JPG')
+            self.__liste_jpg,self.__index_photo = scanRep.listeFichiers(self.__repertoire,'JPG',bIndex=True)
         if chemin:
             return self.__liste_jpg
         else:
@@ -364,6 +366,9 @@ class Album():
     
     def getJPGThumb(self,nom):
         return self.repThumbs()+nom
+    
+    def getJPGPath(self,nom):
+        return osp.join(self.__repertoire,nom)
         
     def ajouteJPGThumbs(self,photo):
         self.__liste_jpg_thumbs.append(photo)
@@ -373,11 +378,14 @@ class Album():
         if photo in l:
             l.pop(l.index(photo))
     
+    def listeIndexJPG(self):
+        return self.__index_photo
+    
     def miniaturesOk(self):
         s = set(lbasename(self.listeJPG()))
         sm = set(lbasename(self.listeJPGThumbs()))
         nb = len(self.__exifs)
-        return s == sm == nb
+        return s == sm and len(s)== nb
     
     def miniaturesEnTrop(self):
         s = set(lbasename(self.listeJPG()))

@@ -21,18 +21,27 @@ def first(rep,suffixe=None):
     except StopIteration:
         return None
         
-def listeFichiers(rep,suf=None,bPath=True):
+def listeFichiers(rep,suf=None,bPath=True,bIndex=False):
     #t0 = time.time()
     if not osp.isdir(rep): return []
     l=[]
+    h={}
+    i=0
     for e in os.scandir(rep):
         if not suf or e.name[-3:].upper() == suf:
             if bPath:
-                l.append(osp.join(rep,e.name))
+                nom = osp.join(rep,e.name)
+                l.append(nom)
+                h[nom] = i
             else:
                 l.append(e.name)
+                h[e.name] = i
+            i+=1
     #print 'dur�e scandir =',time.time()-t0
-    return l
+    if bIndex:
+        return l,h
+    else:
+        return l
     
 if __name__ == '__main__':
     import time,glob,os

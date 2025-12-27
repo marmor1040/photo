@@ -19,7 +19,7 @@ from src.Album import Album
 import src.preferences as PREFERENCES
 
 class ListeThumbs():
-    def __init__(self,ihm_miniature,pipe_fen_photo):
+    def __init__(self,ihm_miniature,fenetre_photo=None):
         self.__ihm_min = ihm_miniature
         self.__liste = chainList()
         self.__nb_traitees= [None,None,None]
@@ -27,7 +27,7 @@ class ListeThumbs():
         self.__filtre = None
         self.__ihm_arbo = None
         self.__tri_date = None
-        thumbnail.pipe_fenetre_photo = pipe_fen_photo
+        self.__fenetre_photo = fenetre_photo
         
     def chargeThumbs(self,album,filtre,ihm_arbo,tri_date):
         self.__album = album
@@ -152,17 +152,13 @@ class ListeThumbs():
         l = self.__liste.getSelected()
         index = min(l) + 1
         if index < len(self.__liste):
-            self.unselectAll()
-            self.__liste.select(index,True)
-            self.__liste[index].select(True)
+            self.select(self.getPhoto(index))
         
     def selectPrevious(self):
         l = self.__liste.getSelected()
         index = min(l) - 1
         if index > -1:
-            self.unselectAll()
-            self.__liste.select(index,True)
-            self.__liste[index].select(True)
+            self.select(self.getPhoto(index))
 
     def getFirst(self):
         return self.__liste[0]
@@ -212,6 +208,7 @@ class ListeThumbs():
         self.unselectAll()
         self.__liste.select(thumb,True)
         thumb.select(True)
+        self.__fenetre_photo.affichePhoto(self.__album.getJPGPath(thumb.getName()))
         
     def ajouteSelect(self,thumb,entre=False):
         l = self.__liste.getSelected()

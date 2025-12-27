@@ -7,7 +7,6 @@ Created on 3 juin 2011
 
 import os.path as osp
 import os,glob,sys,time,copy,shutil
-import threading
 from PyQt5 import QtCore,QtWidgets
 from PyQt5.QtCore import Qt,QObject,pyqtSlot
 from PyQt5.QtWidgets import QDesktopWidget,QMessageBox,QInputDialog,QApplication
@@ -18,6 +17,7 @@ from .IhmInfos import FenetreInfos
 #from IhmFiltre import FenetreFiltre
 import FenetreArborescence
 import FenetreVisionneuse
+from FenetreVisionneuse.IhmVisionneuse import FenetreVisionneuse
 from .IhmSelection import FenetreSelection
 from .IhmDiaporama import FenetreDiaporama
 from common import Photo
@@ -28,51 +28,50 @@ from .Album import Album
 from Ihm.fen_miniatures import Ui_Miniatures as FormClass
 from PyQt5.QtWidgets import QMainWindow as BaseClass
 
-class Attente(threading.Thread):
-    def  __init__(self,fenetre,pout):
-        self.__fenetre = fenetre
-        self.__pout = pout
-        self.__continue = True
-        threading.Thread.__init__(self)
+# class Attente(threading.Thread):
+#     def  __init__(self,fenetre,pout):
+#         self.__fenetre = fenetre
+#         self.__pout = pout
+#         self.__continue = True
+#         threading.Thread.__init__(self)
         
-    def run(self):
-        while self.__continue:
-            nom = self.__pout.recv()
-            if nom == '##down##':
-                self.__fenetre.avanceDiaporama()
-            elif nom == '##up##':
-                self.__fenetre.reculeDiaporama()
-            if nom == '##quitter##':
-                #Le message quitter vient de la classe Quitter
-                self.__continue = False
-            if nom == '##0_Etoile##':
-                #on ne peut appeler directement self.__fenetre.setEtoiles car c'est un autre thread
-                self.__fenetre.obj_signal.emit(QtCore.SIGNAL("afficheEtoiles(int)"),0)
-            elif nom == '##1_Etoile##':
-                #on ne peut appeler directement self.__fenetre.setEtoiles car c'est un autre thread
-                self.__fenetre.obj_signal.emit(QtCore.SIGNAL("afficheEtoiles(int)"),1)
-            elif nom == '##2_Etoiles##':
-                #on ne peut appeler directement self.__fenetre.setEtoiles car c'est un autre thread
-                self.__fenetre.obj_signal.emit(QtCore.SIGNAL("afficheEtoiles(int)"),2)
-            elif nom == '##3_Etoiles##':
-                #on ne peut appeler directement self.__fenetre.setEtoiles car c'est un autre thread
-                self.__fenetre.obj_signal.emit(QtCore.SIGNAL("afficheEtoiles(int)"),3)
-            elif nom == '##change_ecran##':
-                self.__fenetre.changeEcran()
+#     def run(self):
+#         while self.__continue:
+#             nom = self.__pout.recv()
+#             if nom == '##down##':
+#                 self.__fenetre.avanceDiaporama()
+#             elif nom == '##up##':
+#                 self.__fenetre.reculeDiaporama()
+#             if nom == '##quitter##':
+#                 #Le message quitter vient de la classe Quitter
+#                 self.__continue = False
+#             if nom == '##0_Etoile##':
+#                 #on ne peut appeler directement self.__fenetre.setEtoiles car c'est un autre thread
+#                 self.__fenetre.obj_signal.emit(QtCore.SIGNAL("afficheEtoiles(int)"),0)
+#             elif nom == '##1_Etoile##':
+#                 #on ne peut appeler directement self.__fenetre.setEtoiles car c'est un autre thread
+#                 self.__fenetre.obj_signal.emit(QtCore.SIGNAL("afficheEtoiles(int)"),1)
+#             elif nom == '##2_Etoiles##':
+#                 #on ne peut appeler directement self.__fenetre.setEtoiles car c'est un autre thread
+#                 self.__fenetre.obj_signal.emit(QtCore.SIGNAL("afficheEtoiles(int)"),2)
+#             elif nom == '##3_Etoiles##':
+#                 #on ne peut appeler directement self.__fenetre.setEtoiles car c'est un autre thread
+#                 self.__fenetre.obj_signal.emit(QtCore.SIGNAL("afficheEtoiles(int)"),3)
+#             elif nom == '##change_ecran##':
+#                 self.__fenetre.changeEcran()
     
 #    def quitter(self):
 #        #Le message quitter vient de la fenetre de tri
 #        print 'quitter Attente'
                 
 class FenetreThumbs(BaseClass,FormClass):
-    def __init__(self,pipe_fen_photo,Pin_visio,Pout_visio):
+    def __init__(self):
         BaseClass.__init__(self)
         self.setupUi(self)
         self.obj_signal = QObject()
         self.initCallback()
         self.setFocusPolicy(Qt.TabFocus)
         self.__titre = None
-        self.__pipe_fenetre_photo = pipe_fen_photo
         self.__fenetre_infos = FenetreInfos(self)
         self.__fenetre_arbo = None
         self.__fenetre_selection = None
@@ -80,20 +79,22 @@ class FenetreThumbs(BaseClass,FormClass):
         self.__couper = None
         self.__quitter_ok = False
         self.__filtre_obligatoire = False
-        self.__pin_visio = Pin_visio
         self.__num_ecran = PREFERENCES.ECRAN_DEFAULT_MINIATURE
         self.__album = None
         self.__infos_sauvees = True
-        if Pout_visio:
-            self.__attente = Attente(self,Pout_visio)
-            self.__attente.start()
-        self.__largeur = PREFERENCES.LARGEUR_IMAGE + 40
-        self.__liste_thumbs = ListeThumbs(self,self.__pipe_fenetre_photo)            
+        self.__largeur = PREFERENCES.LARGEUR_IMAGE + 40 
+        self.__fenetre_photo = FenetreVisionneuse(None)        
+        self.__liste_thumbs = ListeThumbs(self,self.__fenetre_photo)    
+        self.__fenetre_photo.link(self.__liste_thumbs)        
         self.__fenetre_arbo = FenetreArborescence.Ihm(self)
-        self.__gestion_ecrans = Ecrans.Affichage(self,2,x0=330,y0=30,kw=0.83,kh=0.5)
-#         self.__gestion_ecrans.affiche()
+        self.__gestion_ecrans = Ecrans.Affichage(self,2,x0=330,y0=30,kw=0.83,kh=0.5,type_ihm=Ecrans.Affichage.MINIATURES)
+
+        # ss thread
+
+        self.__gestion_ecrans.affiche()
 # 
-#         self.show()
+        self.setGeometry(700,0,500,500)
+        #self.show()
         
     def changeEcran(self):
         self.__gestion_ecrans.changeEcran()
@@ -133,6 +134,9 @@ class FenetreThumbs(BaseClass,FormClass):
     def quitter(self):
         self.hide()
         if self.__album: self.__album.sauveInfos()
+        self.__fenetre_photo.close()
+        self.close()
+        self.__fenetre_arbo.close()
         
     def getListeAffichees(self):
         rep = self.__album.repertoire()
@@ -140,11 +144,11 @@ class FenetreThumbs(BaseClass,FormClass):
     
     def creerWidgetThumbs(self):
         liste_noms_thumbs = self.__liste_thumbs.getListePhotos()
-        self.__pipe_fenetre_photo.send('##photos##'+str(liste_noms_thumbs))
-        if len(self.__liste_thumbs) > 0:
-            self.__liste_thumbs.getFirst().select(True)
-        
-        # destruction des widgets pr�c�dents
+
+        #☺self.__pipe_fenetre_photo.send('##photos##'+str(liste_noms_thumbs))
+        #if len(self.__liste_thumbs) > 0:
+        #    self.__liste_thumbs.getFirst().select(True)
+        # destruction des widgets précédents
         nb = self.images.count()
         for i in range(nb):
             tn = self.images.takeAt(0)
@@ -165,6 +169,7 @@ class FenetreThumbs(BaseClass,FormClass):
                     nc = 0
                     nl += 1
                 ptr = self.__liste_thumbs.nextPtr(ptr)
+        self.__liste_thumbs.select(self.__liste_thumbs.getFirst())
         #self.afficheCommentaire()
        
     def rafraichirThumbs(self,min=None,max=None):
@@ -191,7 +196,8 @@ class FenetreThumbs(BaseClass,FormClass):
             QApplication.instance().processEvents()
     
     def reinitialise(self):
-        self.__pipe_fenetre_photo.send('##reinitialise##')
+        #self.__pipe_fenetre_photo.send('##reinitialise##')
+        pass
         
     def filtreObligatoire(self,b):
         self.__filtre_obligatoire = b
@@ -319,7 +325,7 @@ class FenetreThumbs(BaseClass,FormClass):
 #             self.appliquerFiltre(filtre)
     
     def appliquerFiltre(self,album,filtre,ihm_arbo,tri_par_date):
-        self.__pipe_fenetre_photo.send('##repertoire##'+album.repertoire())
+        #self.__pipe_fenetre_photo.send('##repertoire##'+album.repertoire())
         try:
             self.__album = album
             self.__liste_thumbs.chargeThumbs(album,filtre,ihm_arbo,tri_par_date)

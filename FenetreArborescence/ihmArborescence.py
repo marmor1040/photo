@@ -110,7 +110,7 @@ class Ihm(BaseClass,FormClass):
         self.progressBar.hide()
         self.bt_annuler_progress.hide()
         self.fichier_progress.hide()
-        self.__gestion_ecrans = Ecrans.Affichage(self,2,x0=0,y0=30,w0=500,kh=0.8)
+        self.__gestion_ecrans = Ecrans.Affichage(self,2,x0=0,y0=30,w0=500,kh=0.8,type_ihm=Ecrans.Affichage.ARBO)
         self._selection = None
         #self.__num_ecran = PREFERENCES.ECRAN_DEFAULT_ARBO
         self.comboWorkspace.addItems(PREFERENCES.getWorkspaces())

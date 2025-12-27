@@ -57,7 +57,7 @@ class widgetThumbnailHor(BaseClassHor, FormClassHor):
 
 class thumbnail():
     liste_thumbs = None
-    pipe_fenetre_photo = None
+    #pipe_fenetre_photo = None
     numero = 0
     ht = {}
     
@@ -76,9 +76,9 @@ class thumbnail():
         self.__nom_pano = ""
         
     def creerWidget(self, parent):
-        chemin = self.__album.getJPGThumb(self.__nom)
-        if chemin:
-            image = QImage((chemin),'JPG')
+        self.__chemin = self.__album.getJPGThumb(self.__nom)
+        if self.__chemin:
+            image = QImage((self.__chemin),'JPG')
             isHor = image.height()<image.width()
             if preferences.isModeVisionneuse():
                 self.__widget = widgetThumbnail(parent,self)
@@ -158,11 +158,12 @@ class thumbnail():
             else:
                 thumbnail.liste_thumbs.select(self)
             
-    def select(self,ok,affiche=True):
+    def select(self,ok):
         if ok:
             self.__widget.frame.setForegroundRole(0)
-            if affiche:
-                thumbnail.pipe_fenetre_photo.send('##affiche##'+self.__nom+';'+str(self.getEtoiles())+';'+str(self.getTraitee()))
+            # if affiche:
+            #     pass#self.__ihm_miniature.affichePhoto(self)
+            #     #thumbnail.pipe_fenetre_photo.send('##affiche##'+self.__nom+';'+str(self.getEtoiles())+';'+str(self.getTraitee()))
             self.__ihm_miniature.scrollArea.ensureWidgetVisible(self.__widget,0,500)
         elif self.__widget:
             self.__widget.frame.setForegroundRole(3)
@@ -222,7 +223,7 @@ class thumbnail():
         elif n == 3:
             etoile = QImage(PREFERENCES.getIcon('3etoiles.bmp'),'BMP')
         else:
-            etoile = QImage('')
+            etoile = QImage()
         pix = QPixmap.fromImage(etoile)
         self.__widget.etoile.setPixmap(pix)
 #         if not self.__ok: # pendant la création de la miniature
