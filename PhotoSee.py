@@ -53,32 +53,33 @@ class FenetrePhoto(BaseClass,FormClass):
         self.pixmap = None
         self.album = None
         self.miniatures_crees = False
-        self.affichage = Ecrans.Affichage(self,1,x0=100,y0=100,w0=500,h0=500,type_ihm=Ecrans.Affichage.VISIONNEUSE)
         self.scrollThumbs = FenetreThumbVisionneuse(self)
+        self.affichage = Ecrans.Affichage(self,1,x0=100,y0=100,w0=500,h0=500,type_ihm=Ecrans.Affichage.VISIONNEUSE)
         self.scrollThumbs.setPosition(self.affichage.w-200,self.affichage.h)
         self._occupe = False
         self.show()
     
     def initialiseEtAffiche(self,rep,photo):
-        self.repertoire = rep
-        self.album = Album(self.repertoire,None)
-        if not self.album.miniaturesOk():
-            bcreer = QMessageBox.question(None,"Création des miniatures", "voulez-vous créer les miniatures pour cet album ?", QMessageBox.Ok | QMessageBox.Cancel)
-            if bcreer == QMessageBox.Ok:
-                QApplication.setOverrideCursor(Qt.WaitCursor)
-                self.album.refresh()
-                QApplication.restoreOverrideCursor()
-        self.liste_photos = self.album.listeJPG()
-        self.index_photo = self.album.listeIndexJPG()
-        QApplication.setOverrideCursor(Qt.WaitCursor)
-        QApplication.instance().processEvents()
-        if photo:
-            self.affichePhoto(self.repertoire+'/'+photo)
-        else:
-            self.affichePhoto(self.liste_photos[0])
-        QApplication.instance().processEvents()
-        self.scrollThumbs.creer(self.album)
-        QApplication.restoreOverrideCursor()
+        if rep and osp.isdir(rep):
+            self.repertoire = rep
+            self.album = Album(self.repertoire,None)
+            if not self.album.miniaturesOk():
+                bcreer = QMessageBox.question(None,"Création des miniatures", "voulez-vous créer les miniatures pour cet album ?", QMessageBox.Ok | QMessageBox.Cancel)
+                if bcreer == QMessageBox.Ok:
+                    QApplication.setOverrideCursor(Qt.WaitCursor)
+                    self.album.refresh()
+                    QApplication.restoreOverrideCursor()
+            self.liste_photos = self.album.listeJPG()
+            self.index_photo = self.album.listeIndexJPG()
+            QApplication.setOverrideCursor(Qt.WaitCursor)
+            QApplication.instance().processEvents()
+            if photo:
+                self.affichePhoto(self.repertoire+'/'+photo)
+            else:
+                self.affichePhoto(self.liste_photos[0])
+            QApplication.instance().processEvents()
+            self.scrollThumbs.creer(self.album)
+            QApplication.restoreOverrideCursor()
         
     def affichePhoto(self,nom_photo=False,etoile=False):
         if nom_photo or self.photo_courante:
@@ -102,17 +103,19 @@ class FenetrePhoto(BaseClass,FormClass):
             QtWidgets.QMessageBox.warning(self.window(),'Aide',self.aide)
         if touche == Qt.Key_F2:
             self._occupe = True
+            self.hide() #pour eviter le warning de QT
             self.affichage.pleinEcran()
-            self.affichePhoto()
             rect = self.geometry()
             self.scrollThumbs.setPosition(rect.width()-200,rect.height())
+            self.show()
             self._occupe = False
         elif touche == Qt.Key_F3:
             self._occupe = True
+            self.hide() #pour eviter le warning de QT
             self.affichage.changeEcran()
-            self.affichePhoto()
             rect = self.geometry()
             self.scrollThumbs.setPosition(rect.width()-200,rect.height())
+            self.show()
             self._occupe = False
         elif touche == Qt.Key_F4:
             self._occupe = True
@@ -187,6 +190,7 @@ class FenetrePhoto(BaseClass,FormClass):
         self.__redraw = True
         rect = self.geometry()
         self.label.setGeometry(0,0,rect.width(),rect.height())
+        self.scrollThumbs.setPosition(rect.width()-200,rect.height())
         self.affichePhoto()
 
     def mouseMoveEvent(self,event):
