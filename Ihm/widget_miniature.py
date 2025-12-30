@@ -36,13 +36,3 @@ class Ui_Miniature(object):
         _translate = QtCore.QCoreApplication.translate
         Miniature.setWindowTitle(_translate("Miniature", "Form"))
         self.label.setText(_translate("Miniature", "TextLabel"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    Miniature = QtWidgets.QWidget()
-    ui = Ui_Miniature()
-    ui.setupUi(Miniature)
-    Miniature.show()
-    sys.exit(app.exec_())

@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MiniatureVer(object):
     def setupUi(self, MiniatureVer):
         MiniatureVer.setObjectName("MiniatureVer")
-        MiniatureVer.resize(269, 190)
+        MiniatureVer.resize(575, 320)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout(MiniatureVer)
         self.horizontalLayout_2.setContentsMargins(1, 1, 1, 1)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
@@ -75,13 +75,3 @@ class Ui_MiniatureVer(object):
         self.panorama.setText(_translate("MiniatureVer", "panorama"))
         self.retouche.setText(_translate("MiniatureVer", "retouche"))
         self.autre.setText(_translate("MiniatureVer", "autre"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MiniatureVer = QtWidgets.QWidget()
-    ui = Ui_MiniatureVer()
-    ui.setupUi(MiniatureVer)
-    MiniatureVer.show()
-    sys.exit(app.exec_())

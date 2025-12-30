@@ -83,6 +83,9 @@ class ListeThumbs():
         if self.__liste:
             self.__liste.select(0,True)
     
+    def updateThumbnail(self,num_photo):
+        self.__liste[num_photo].creerWidget()
+        
 #     def listeParDate(self,liste_jpg):
 #         l = []
 #         now = dt.datetime.now()

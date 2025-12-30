@@ -22,13 +22,19 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication,QMessageBox
 #from Album import Album
 
-def creerThumbnail(ch_photo,ch_thumbnail,exif_im=None):
-    im = Image.open(ch_photo)
+def creerThumbnail(pPhoto,pThumbnail,exif_im=None):
+    im = Image.open(pPhoto)
     try:
         im.thumbnail((PREFERENCES.LARGEUR_IMAGE,PREFERENCES.LARGEUR_IMAGE), Image.Resampling.LANCZOS)
+        if osp.isfile(pThumbnail):
+            os.remove(pThumbnail)
+        im.save(pThumbnail,"JPEG")
+        win32api.SetFileAttributes(pThumbnail,win32con.FILE_ATTRIBUTE_HIDDEN)
     except:
-        pass
-    im.save(ch_thumbnail,"JPEG")
+        import traceback
+        traceback.print_exc()
+        print("Erreur de création de la miniature pour :",pPhoto)
+    
     
 # def creerMiniatures(parent,album):
 #     sf
@@ -104,10 +110,12 @@ def creerThumbnail(ch_photo,ch_thumbnail,exif_im=None):
 #    saveExifPhotos(Rep.fichierExifs(),ht_exif) 
 
     
-def fairePivoterPhoto(photo,exif_ht,exif_im):
-    print('-> rotation de ',photo,exif_ht["pivoter"])
+def fairePivoterPhoto(photo,exif_ht,exif_im,angle=None):
+    if not angle:
+        angle = exif_ht['pivoter']
+    print('-> rotation de ',photo,angle)
     image = Image.open(photo)
-    im_rot = image.rotate(exif_ht["pivoter"])
+    im_rot = image.rotate(angle)
     im_rot.save(photo,format="JPEG")
     exif_im[exif_ht["ifd_orientation"]][exif_ht["tag_orientation"]] = 0
     exif_ht['pivoter'] = 0

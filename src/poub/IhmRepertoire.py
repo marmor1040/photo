@@ -28,7 +28,7 @@ class FenetreRepertoire(BaseClass,FormClass):
             self.okcancel.button(QDialogButtonBox.Ok).setEnabled(True)
         else:
             self.okcancel.button(QDialogButtonBox.Ok).setEnabled(False)
-        if preferences.isModeTri():
+        if preferences.MODE != preferences.MODE_VISIONNEUSE:
             self.cb_arbo.setHidden(True)
         #self.setWindowFlags(Qt.FramelessWindowHint |Qt.WindowStaysOnTopHint)
                     

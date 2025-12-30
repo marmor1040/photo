@@ -310,18 +310,8 @@ class Ui_MainWindow(object):
         self.gb_dates.setTitle(_translate("MainWindow", "Date de prise de vue"))
         self.photo.setText(_translate("MainWindow", "TextLabel"))
         self.menuRep_photos.setTitle(_translate("MainWindow", "Rep photos"))
-        self.actionRecreerMiniatures.setText(_translate("MainWindow", "Recr�er miniatures"))
+        self.actionRecreerMiniatures.setText(_translate("MainWindow", "Recréer miniatures"))
         self.actionRecreerDates.setText(_translate("MainWindow", "Recréer dates"))
         self.actionDeplacerPhotos.setText(_translate("MainWindow", "Déplacer photos"))
         self.actionDetruire.setText(_translate("MainWindow", "Détruire"))
         self.actionReinitialiser.setText(_translate("MainWindow", "Réinitialiser"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())

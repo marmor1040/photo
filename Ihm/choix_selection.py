@@ -152,13 +152,3 @@ class Ui_ChoixSelection(object):
         self.nb_photos.setText(_translate("ChoixSelection", "3 photos selectionnées"))
         self.taille_init.setText(_translate("ChoixSelection", "3 Mo"))
         self.taille_finale.setText(_translate("ChoixSelection", "TextLabel"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    ChoixSelection = QtWidgets.QDialog()
-    ui = Ui_ChoixSelection()
-    ui.setupUi(ChoixSelection)
-    ChoixSelection.show()
-    sys.exit(app.exec_())

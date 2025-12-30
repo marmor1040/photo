@@ -58,13 +58,3 @@ class Ui_Diaporama(object):
         self.bt_quitter.setText(_translate("Diaporama", "Quitter"))
         self.label_2.setText(_translate("Diaporama", "Temporisation (sec)"))
         self.bt_go_stop.setText(_translate("Diaporama", "Lancer"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    Diaporama = QtWidgets.QDialog()
-    ui = Ui_Diaporama()
-    ui.setupUi(Diaporama)
-    Diaporama.show()
-    sys.exit(app.exec_())

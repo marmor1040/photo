@@ -46,7 +46,7 @@ class FenetreVisionneuse(BaseClass,FormClass,QObject):
                     "<1> : note 1\n"+\
                     "<2> : note 2\n"+\
                     "<3> : note 3\n"
-        self.__gestion_ecrans = Ecrans.Affichage(self,1,x0=100,y0=100,kw=0.5,kh=0.5,plein_ecran=False,type_ihm=Ecrans.Affichage.VISIONNEUSE)
+        self.__gestion_ecrans = Ecrans.Affichage(self,1,x0=100,y0=100,kw=0.5,kh=0.5,plein_ecran=True,type_ihm=Ecrans.Affichage.VISIONNEUSE)
         self.__gestion_ecrans.affiche()
 #         self.__miniature_aff = True
         #sender.value_changed.connect(self.affichePhoto)
@@ -65,9 +65,10 @@ class FenetreVisionneuse(BaseClass,FormClass,QObject):
 
     @pyqtSlot(str,str)
     def affichePhoto(self,nom=False,etoile=False):
-        self.pixmap = QPixmap(nom_photo)
-        scaled = self.pixmap.scaled(self.label.size(),Qt.KeepAspectRatio,Qt.SmoothTransformation)
-        self.label.setPixmap(scaled)
+        if nom:
+            self.pixmap = QPixmap(nom)
+            scaled = self.pixmap.scaled(self.label.size(),Qt.KeepAspectRatio,Qt.SmoothTransformation)
+            self.label.setPixmap(scaled)
     
         #code de la visionneuse 2025
         # pm = QPixmap(nom)
@@ -92,6 +93,9 @@ class FenetreVisionneuse(BaseClass,FormClass,QObject):
         if etoile: self.lbl_etoiles.setText(etoile)
         else: self.lbl_etoiles.setText("")
             
+    def changeEcran(self):
+        self.__gestion_ecrans.changeEcran()
+
     def keyPressEvent(self,event):
         touche = event.key()
         if touche == Qt.Key_F1:
@@ -100,7 +104,7 @@ class FenetreVisionneuse(BaseClass,FormClass,QObject):
             self.__gestion_ecrans.pleinEcran()
             self.__gestion_ecrans.affiche()
         elif touche == Qt.Key_F3:
-            self.__gestion_ecrans.changeEcran()
+            self.__gestion_ecrans.changeEcrans()
         elif touche == Qt.Key_Up or touche == PREFERENCES.PREC:
             self.__liste_thumbs.selectPrevious()
         elif touche == Qt.Key_Down or touche == PREFERENCES.SUIV:
@@ -115,6 +119,7 @@ class FenetreVisionneuse(BaseClass,FormClass,QObject):
             print("self.__Pin.send('##3_Etoiles##')")
 
     def wheelEvent(self,event):
+        print('wheelEvent')
 #        if self.__timer_wheel:
 #            self.__num_wheel += 1
 #            print self.__num_wheel,'ajout'
@@ -124,14 +129,14 @@ class FenetreVisionneuse(BaseClass,FormClass,QObject):
 #            self.__num_wheel = 0
 #            self.__timer_wheel = self.startTimer(1000)
 #            self.killTimer(self.__timer_wheel)
-        self.__Pin.send(str(event.delta()))
-        if event.delta() > 0:
-            self.__Pin.send('##up##')
-        else:
-            self.__Pin.send('##down##')
+        # self.__Pin.send(str(event.delta()))
+        # if event.delta() > 0:
+        #     self.__Pin.send('##up##')
+        # else:
+        #     self.__Pin.send('##down##')
             
     def mouseMoveEvent(self,event):
-        print('move')
+        print('mouseMoveEvent')
         #if self.__redraw:
             #print '##redraw##'
             #sys.stdout.flush()

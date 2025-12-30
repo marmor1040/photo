@@ -55,13 +55,3 @@ class Ui_Preferences(object):
         self.groupBox.setTitle(_translate("Preferences", "Plein écran"))
         self.cb_thumbs.setText(_translate("Preferences", "Fenêtre miniatures"))
         self.cb_photo.setText(_translate("Preferences", "fenêtre photo"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    Preferences = QtWidgets.QDialog()
-    ui = Ui_Preferences()
-    ui.setupUi(Preferences)
-    Preferences.show()
-    sys.exit(app.exec_())

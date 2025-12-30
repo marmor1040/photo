@@ -64,7 +64,7 @@
         </property>
         <property name="icon">
          <iconset>
-          <normaloff>../../../../../../../../.designer/backup/Delete-icon.png</normaloff>../../../../../../../../.designer/backup/Delete-icon.png</iconset>
+          <normaloff>../../../../../../../.designer/backup/Delete-icon.png</normaloff>../../../../../../../.designer/backup/Delete-icon.png</iconset>
         </property>
        </widget>
       </item>
@@ -189,50 +189,6 @@
           </property>
          </widget>
         </item>
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_24">
-          <item>
-           <widget class="QPushButton" name="btDeplacerImages">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>150</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Déplacer images sélectionnées
- dans l'album</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="btCopierImages">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>150</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>Copier images sélectionnées
- dans l'album</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
        </layout>
       </widget>
       <widget class="QWidget" name="layoutWidget">
@@ -253,7 +209,7 @@
         <item>
          <widget class="QTabWidget" name="tabWidget">
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="tab_3">
            <attribute name="title">
@@ -272,53 +228,6 @@
              <string>Répertoires</string>
             </property>
             <layout class="QGridLayout" name="gridLayout">
-             <item row="2" column="0">
-              <widget class="QLabel" name="label_10">
-               <property name="text">
-                <string>Répertoire à déplacer</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <widget class="QPushButton" name="btSupprimerRepertoire">
-               <property name="text">
-                <string>Supprimer ..</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="1">
-              <widget class="QPushButton" name="btDeplacerRepertoire">
-               <property name="text">
-                <string>Déplacer ..</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QPushButton" name="btCtrlXRepertoire">
-               <property name="minimumSize">
-                <size>
-                 <width>80</width>
-                 <height>0</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>200</width>
-                 <height>16777215</height>
-                </size>
-               </property>
-               <property name="text">
-                <string>Ctrl X</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="1">
-              <widget class="QLabel" name="lblRepADeplacer">
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </item>
              <item row="0" column="0">
               <widget class="QPushButton" name="btCreerRepertoire">
                <property name="sizePolicy">
@@ -332,7 +241,14 @@
                </property>
               </widget>
              </item>
-             <item row="0" column="2">
+             <item row="1" column="1">
+              <widget class="QLabel" name="lblRepADeplacer">
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
               <widget class="QPushButton" name="btViderRepertoire">
                <property name="text">
                 <string>Vider</string>
@@ -499,7 +415,7 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap>../../../../../../../../.designer/icon/repNormal1.png</pixmap>
+                  <pixmap>../../../../../../../.designer/icon/repNormal1.png</pixmap>
                  </property>
                 </widget>
                </item>
@@ -509,7 +425,7 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap>../../../../../../../../.designer/backup/repko.png</pixmap>
+                  <pixmap>../../../../../../../.designer/backup/repko.png</pixmap>
                  </property>
                 </widget>
                </item>
@@ -535,7 +451,7 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap>../../../../../../../../.designer/backup/repImage.png</pixmap>
+                  <pixmap>../../../../../../../.designer/backup/repImage.png</pixmap>
                  </property>
                 </widget>
                </item>
@@ -545,7 +461,7 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap>../../../../../../../../.designer/backup/repko.png</pixmap>
+                  <pixmap>../../../../../../../.designer/backup/repko.png</pixmap>
                  </property>
                 </widget>
                </item>
@@ -571,7 +487,7 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap>../../../../../../../../.designer/backup/repVideo.png</pixmap>
+                  <pixmap>../../../../../../../.designer/backup/repVideo.png</pixmap>
                  </property>
                 </widget>
                </item>
@@ -581,7 +497,7 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap>../../../../../../../../.designer/backup/repko.png</pixmap>
+                  <pixmap>../../../../../../../.designer/backup/repko.png</pixmap>
                  </property>
                 </widget>
                </item>
@@ -607,7 +523,7 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap>../../../../../../../../.designer/backup/repTri.png</pixmap>
+                  <pixmap>../../../../../../../.designer/backup/repTri.png</pixmap>
                  </property>
                 </widget>
                </item>
@@ -617,7 +533,7 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap>../../../../../../../../.designer/backup/repko.png</pixmap>
+                  <pixmap>../../../../../../../.designer/backup/repko.png</pixmap>
                  </property>
                 </widget>
                </item>
@@ -643,7 +559,7 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap>../../../../../../../../.designer/backup/repko.png</pixmap>
+                  <pixmap>../../../../../../../.designer/backup/repko.png</pixmap>
                  </property>
                 </widget>
                </item>
@@ -653,7 +569,7 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap>../../../../../../../../.designer/backup/repko.png</pixmap>
+                  <pixmap>../../../../../../../.designer/backup/repko.png</pixmap>
                  </property>
                 </widget>
                </item>
@@ -679,7 +595,7 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap>../../../../../../../../.designer/backup/nonVide.png</pixmap>
+                  <pixmap>../../../../../../../.designer/backup/nonVide.png</pixmap>
                  </property>
                 </widget>
                </item>
@@ -689,7 +605,7 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap>../../../../../../../../.designer/backup/repko.png</pixmap>
+                  <pixmap>../../../../../../../.designer/backup/repko.png</pixmap>
                  </property>
                 </widget>
                </item>
@@ -715,7 +631,7 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap>../../../../../../../../.designer/backup/rep2.png</pixmap>
+                  <pixmap>../../../../../../../.designer/backup/rep2.png</pixmap>
                  </property>
                 </widget>
                </item>
@@ -725,7 +641,7 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap>../../../../../../../../.designer/backup/repko.png</pixmap>
+                  <pixmap>../../../../../../../.designer/backup/repko.png</pixmap>
                  </property>
                 </widget>
                </item>
@@ -751,7 +667,7 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap>../../../../../../../../.designer/icon/repNormal1.png</pixmap>
+                  <pixmap>../../../../../../../.designer/icon/repNormal1.png</pixmap>
                  </property>
                 </widget>
                </item>
@@ -761,7 +677,7 @@
                   <string/>
                  </property>
                  <property name="pixmap">
-                  <pixmap>../../../../../../../../.designer/backup/repko.png</pixmap>
+                  <pixmap>../../../../../../../.designer/backup/repko.png</pixmap>
                  </property>
                 </widget>
                </item>

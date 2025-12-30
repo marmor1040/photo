@@ -57,13 +57,3 @@ class Ui_widget(object):
     def retranslateUi(self, widget):
         _translate = QtCore.QCoreApplication.translate
         widget.setWindowTitle(_translate("widget", "Visionneuse Photo"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    widget = QtWidgets.QWidget()
-    ui = Ui_widget()
-    ui.setupUi(widget)
-    widget.show()
-    sys.exit(app.exec_())

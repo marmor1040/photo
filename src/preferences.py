@@ -31,7 +31,10 @@ NOMBRE_MINIATURES_PAR_LIGNE = 6
 LISTE_WORKSPACE = []
 NOM_PANO = "Pano_"
 
-MODE = 0 # TRI / 1 = VISIONNEUSE
+MODE = 0 
+MODE_TRI = 0 # mode tri avec case à cocher
+MODE_TRI_SS_CAC = 2 # mode tri sans case à cocher
+MODE_VISIONNEUSE = 1 # mode visionneuse simple
 
 DESCRIPTION_PHOTO={'date':'DateTimeOriginal',
                    'heure':'DateTimeOriginal',
@@ -110,21 +113,12 @@ def setFiltreDefaut(filtre):
         print("filtre non sauvegardé")
         #pickle.dump(filtre,f)
 
-def isModeTri():
-    return MODE==0
-
-def isModeVisionneuse():
-    return MODE==1
-
-def setMode(ch):
+def setMode(mode):
     global MODE
-    if ch == 'tri':
-        MODE = 0
-    else:
-        MODE = 1
+    MODE = mode
     
 def nbColMiniatures():
-    if MODE == 0:
+    if MODE != MODE_VISIONNEUSE:
         return NOMBRE_MINIATURES_PAR_LIGNE
     else:
         return 1

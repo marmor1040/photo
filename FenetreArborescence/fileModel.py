@@ -62,12 +62,6 @@ class MyQFileSystemModel(QFileSystemModel):
     def flags(self,index):
         return QFileSystemModel.flags(self,index) | Qt.ItemIsEditable
     
-try:
-    _fromUtf8 = QtCore.QString.fromUtf8
-except AttributeError:
-    def _fromUtf8(s):
-        return s
-        
 class MyTreeView(QTreeView):
     def __init__(self,ihm_arbo):
         super(MyTreeView, self).__init__(ihm_arbo.centralwidget)
@@ -79,7 +73,7 @@ class MyTreeView(QTreeView):
         self.setSizePolicy(sizePolicy)
         self.setMinimumSize(QtCore.QSize(300, 0))
         self.setExpandsOnDoubleClick(False)
-        self.setObjectName(_fromUtf8("arborescence"))
+        self.setObjectName("arborescence")
         self.clicked.connect(self.select)
         
     def currentChanged(self,current,previous):

@@ -170,13 +170,3 @@ class Ui_Etoiles(object):
         _translate = QtCore.QCoreApplication.translate
         Etoiles.setWindowTitle(_translate("Etoiles", "Form"))
         self.label.setText(_translate("Etoiles", "3"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    Etoiles = QtWidgets.QWidget()
-    ui = Ui_Etoiles()
-    ui.setupUi(Etoiles)
-    Etoiles.show()
-    sys.exit(app.exec_())

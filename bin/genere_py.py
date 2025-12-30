@@ -6,11 +6,18 @@ Created on 26 août 2011
 """
 from PyQt5.uic import compileUi
 import glob
+import io
+
+
+
+
 
 def comp(fich):
-    f=open(fich.replace(".ui",".py"),'w')
     print('Compilation de :',fich,'...', end=' ')
-    compileUi(fich,f,True)
+    with io.open(fich.replace(".ui",".py"), "w", encoding="utf-8") as f:
+        compileUi(fich, f)
+    #f=open(fich.replace(".ui",".py"),'w')
+    #compileUi(fich,f,True)
     print('ok')
 
 print(glob.glob("Ihm/*.ui"))

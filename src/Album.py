@@ -112,7 +112,6 @@ class Album():
                 # thumb
                 if not osp.isfile(th):
                     Photo.creerThumbnail(im,th,exif_im)
-                    win32api.SetFileAttributes(th,win32con.FILE_ATTRIBUTE_HIDDEN)
                     self.ajouteJPGThumbs(th)
             n+=1
         # destruction des miniatures en trop
@@ -126,7 +125,16 @@ class Album():
         if self.__ihm:
             self.__ihm.stopProgressBar()
             
-#     def getInfos(self):
+
+    def pivoterPhoto(self,thumb):
+        name_photo = thumb.getName()
+        photo = self.getJPGPath(name_photo)
+        exif_im = Exif.loadExif(photo)
+        exif_ht = self.__exifs[name_photo]
+        exif_im,exif_ht = Photo.fairePivoterPhoto(photo,exif_ht,exif_im,angle=-90)
+        Photo.creerThumbnail(photo,osp.join(self.repThumbs(),name_photo),exif_im)
+        pass
+    #     def getInfos(self):
 #         return self.__infos
 #     
 #     
@@ -299,7 +307,8 @@ class Album():
 #  Gestion des r�pertoires
 #
     def repertoire(self):
-        return self.__repertoire
+        from pathlib import Path
+        return Path(self.__repertoire).as_posix()
     
     def estUnAlbum(self):
         return bool(self.__repertoire and osp.isdir(self.__repertoire) and self.listeJPG() and osp.isdir(self.repTriPhotos()))
@@ -417,7 +426,7 @@ class Album():
     def listeJPGFiltresNom(self,filtre_nom):
         import re
         lret = []
-        filtre_nom = filtre_nom.replace('*',".*").replace('.',"\.").replace('?',".")
+        filtre_nom = filtre_nom.replace('*',".*").replace('.',r"\.").replace('?',".")
         for chemin in self.listeJPG():
             nom = osp.basename(chemin)
             if re.findall(filtre_nom,nom):

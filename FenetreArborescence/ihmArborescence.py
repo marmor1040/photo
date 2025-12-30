@@ -39,6 +39,8 @@ class Ihm(BaseClass,FormClass):
         self.__compression = compression.dataCompression(self)
         self.__cursor = self.cursor()
         self.__ctrl_x = None
+        self.__rep_a_copier = None
+        self.__rep_a_couper = None
         self.actionQuitter.triggered.connect(self.quitter)
         self.cb_toutes.toggled.connect(self.choixToutes)
         self.gb_infos.toggled.connect(self.choixDetails)
@@ -54,12 +56,7 @@ class Ihm(BaseClass,FormClass):
         self.tabWidget.currentChanged.connect(self.tabChanged)
         # gestion repertoires
         self.btCreerRepertoire.clicked.connect(self.creerRepertoire)
-        self.btCtrlXRepertoire.clicked.connect(self.ctrlXRepertoire)
-        self.btDeplacerRepertoire.clicked.connect(self.deplacerRepertoire)
-        self.btSupprimerRepertoire.clicked.connect(self.supprimerRepertoire)
         self.btViderRepertoire.clicked.connect(self.viderRepertoire)
-        self.btDeplacerImages.clicked.connect(self.deplacerImages)
-        self.btCopierImages.clicked.connect(self.copierImages)
         # renommage
         self.btDetruire.clicked.connect(self.detruireFichiers)
         self.btRefresh.clicked.connect(self.refreshRenommage)
@@ -110,7 +107,7 @@ class Ihm(BaseClass,FormClass):
         self.progressBar.hide()
         self.bt_annuler_progress.hide()
         self.fichier_progress.hide()
-        self.__gestion_ecrans = Ecrans.Affichage(self,2,x0=0,y0=30,w0=500,kh=0.8,type_ihm=Ecrans.Affichage.ARBO)
+        self.__gestion_ecrans = Ecrans.Affichage(self,2,x0=0,y0=30,w0=300,kh=0.8,type_ihm=Ecrans.Affichage.ARBO)
         self._selection = None
         #self.__num_ecran = PREFERENCES.ECRAN_DEFAULT_ARBO
         self.comboWorkspace.addItems(PREFERENCES.getWorkspaces())
@@ -123,7 +120,6 @@ class Ihm(BaseClass,FormClass):
         
     def setFileModel(self):
         self.fileModel = MyQFileSystemModel()
-        #self.fileModel = QtWidgets.QDirModel(['*'],QtCore.QDir.Dirs | QtCore.QDir.NoDotAndDotDot,QtCore.QDir.Name)
         self.arborescence.setModel(self.fileModel)
         self.__workspace = self.workspaceCourant()
         if self.__workspace:
@@ -188,22 +184,11 @@ class Ihm(BaseClass,FormClass):
         if self.__album_selectionne:
             isalbum = self.__album_selectionne.estUnAlbum()
             self.btAfficher.setEnabled(isalbum)
-            self.btSupprimerRepertoire.setEnabled(True)
             self.btViderRepertoire.setEnabled(True)
-            self.btCtrlXRepertoire.setEnabled(True)
-            self.btDeplacerImages.setEnabled(True)
-            #self.actionRecreerMiniatures.setEnabled(isalbum)
             self.btDetruireTriPhotos.setEnabled(isalbum)
-            self.btDeplacerRepertoire.setEnabled(bool(self.__ctrl_x))
-            #self.actionReinitialiser.setEnabled(isalbum)
         else:
             self.btAfficher.setEnabled(False)
-            self.btSupprimerRepertoire.setEnabled(False)
             self.btViderRepertoire.setEnabled(False)
-            self.btDeplacerRepertoire.setEnabled(False)
-            self.btCtrlXRepertoire.setEnabled(False)
-            self.btDeplacerImages.setEnabled(False)
-            #self.actionRecreerMiniatures.setEnabled(False)
             self.btDetruireTriPhotos.setEnabled(False)
     
     def justeFiltre(self):
@@ -382,7 +367,7 @@ class Ihm(BaseClass,FormClass):
             for rep,sub,files in os.walk(self._selection):
                 alb = Album(rep,self)
                 if alb.getFirstPhoto():
-                    print("cr�ation miniature",rep)
+                    print("création miniature",rep)
                     if alb.estUnAlbum():
                         alb.detruireMiniatures()
                     QApplication.instance().processEvents()
@@ -408,7 +393,7 @@ class Ihm(BaseClass,FormClass):
 #         self.majIhm()
         
     def detruire(self):
-        mess = "T'es s�r de vouloir d�truire ?"
+        mess = "T'es sûr de vouloir détruire ?"
         ret = QMessageBox.warning(self,'Destruction',mess,QMessageBox.Ok,QMessageBox.Cancel) 
         if ret == QMessageBox.Ok:
             self.arborescence.clearSelection()
@@ -496,8 +481,6 @@ class Ihm(BaseClass,FormClass):
                 #self.charger()
                 jpg = scanRep.first(rep,'.JPG')
                 self.btCreerRepertoire.setEnabled(True)
-                self.btDeplacerImages.setEnabled(True)
-                self.btSupprimerRepertoire.setEnabled(True)
                 self.tabWidget.setEnabled(True)
                 #self.fileModel.setSelection(select)
             elif (select[-4:].lower() == '.jpg'):     
@@ -505,8 +488,6 @@ class Ihm(BaseClass,FormClass):
                 rep = osp.dirname(select)
                 jpg = osp.basename(select)
                 self.btCreerRepertoire.setEnabled(False)
-                self.btDeplacerImages.setEnabled(False)
-                self.btSupprimerRepertoire.setEnabled(False)
                 self.tabWidget.setEnabled(False)
             self.majIhmSelection()
             if jpg:
@@ -560,12 +541,6 @@ class Ihm(BaseClass,FormClass):
             new_rep = os.path.join(self._selection,rep)
         if not os.path.isdir(new_rep):
             os.mkdir(new_rep)
-    
-    def ctrlXRepertoire(self):
-        if self._selection:
-            self.__ctrl_x = self._selection
-            self.btDeplacerRepertoire.setEnabled(True)
-            self.lblRepADeplacer.setText(osp.basename(self._selection))
             
     def deplacerRepertoire(self):
         import win32api, win32con
@@ -612,21 +587,21 @@ class Ihm(BaseClass,FormClass):
     
     def copierImages(self):
         from common import Photo
-        for photo in Ihm.__fenetre_thumbs.getSelectedPhotos():
-            Photo.deplacerPhoto(self.__album_affiche.repertoire()+photo,self.__album_selectionne.repertoire(),remove=False)
+        lphotos = Ihm.__fenetre_thumbs.getPhotos(Ihm.__fenetre_thumbs.selectionAcopier)
+        for photo in lphotos:
+            Photo.deplacerPhoto(osp.join(self.__album_affiche.repertoire(),photo),self.__album_selectionne.repertoire(),remove=False)
             
         self.__album_selectionne.refresh()
         
     def deplacerImages(self):
         from common import Photo
-        for photo in Ihm.__fenetre_thumbs.getSelectedPhotos():
-            Photo.deplacerPhoto(self.__album_affiche.repertoire()+photo,self.__album_selectionne.repertoire())
+        lphotos = Ihm.__fenetre_thumbs.getPhotos(Ihm.__fenetre_thumbs.selectionAcouper)
+        for photo in lphotos:
+            Photo.deplacerPhoto(osp.join(self.__album_affiche.repertoire(),photo),self.__album_selectionne.repertoire())
             
         self.__album_selectionne.refresh()
         self.__album_affiche.refresh()
         Ihm.__fenetre_thumbs.detruirePhoto(force=True)
-#         print self.__album_selectionne
-#         print self.__album_affiche
     
     def supprimerRepertoire(self,rep_a_detruire=None):
         if not rep_a_detruire:
@@ -723,3 +698,69 @@ class Ihm(BaseClass,FormClass):
     def afficherCompression(self):
         self.__compression.majListe()
     
+    def keyPressEvent(self,event):
+        touche = event.key()
+        print(touche)
+        if touche == Qt.Key_F3:
+            self.__gestion_ecrans.changeEcrans()
+        elif touche == Qt.Key_Delete:
+            ret = QMessageBox.question(self,"Destruction répertoire",
+                                           f"Etes vous sûr de détruie le répertoire {self.__album_selectionne.repertoire()} ?",
+                                           QMessageBox.Ok | QMessageBox.Cancel)
+            if  ret == QMessageBox.Ok:
+                shutil.rmtree(self.__album_selectionne.repertoire())
+        elif touche == Qt.Key_C and event.modifiers() == Qt.ControlModifier:
+            try:
+                self.rep_a_copier = self.__album_selectionne.repertoire()
+                self.rep_a_couper = None
+            except:
+                return
+            print("Copie images vers ",self.rep_a_copier)
+
+        elif touche == Qt.Key_X and event.modifiers() == Qt.ControlModifier:
+            try:
+                self.rep_a_couper = self.__album_selectionne.repertoire()
+                self.rep_a_copier = None
+            except:
+                return
+        elif touche == Qt.Key_V and event.modifiers() == Qt.ControlModifier:
+            if Ihm.__fenetre_thumbs.selectionAcouper:
+                ret = QMessageBox.question(self,"Déplacement images",
+                                           f"Etes vous sûr de déplacer les {len(Ihm.__fenetre_thumbs.selectionAcouper)} images ?",
+                                           QMessageBox.Ok | QMessageBox.Cancel)
+                if  ret == QMessageBox.Ok:
+                    self.deplacerImages()
+            elif Ihm.__fenetre_thumbs.selectionAcopier:
+                ret = QMessageBox.question(self,"Copie images",
+                                           f"Etes vous sûr de copier les {len(Ihm.__fenetre_thumbs.selectionAcopier)} images ?",
+                                           QMessageBox.Ok | QMessageBox.Cancel)
+                if ret == QMessageBox.Ok:
+                    self.copierImages()
+            elif self.rep_a_copier:
+                try:
+                    cible = self.__album_selectionne.repertoire()
+                except:
+                    return
+                ret = QMessageBox.question(self,"Copie répertoire",
+                                           f"Copier le répertoire {self.rep_a_copier} dans {cible} ?",
+                                           QMessageBox.Ok | QMessageBox.Cancel)
+                if ret == QMessageBox.Ok:
+                    shutil.copytree(self.rep_a_copier,cible+'/'+osp.basename(self.rep_a_copier))
+            elif self.rep_a_couper:
+                try:
+                    cible = self.__album_selectionne.repertoire()
+                except:
+                    return
+                ret = QMessageBox.question(self,"Déplacement répertoire",
+                                           f"Déplacer le répertoire {osp.basename(self.rep_a_couper)} dans {osp.basename(cible)} ?",
+                                           QMessageBox.Ok | QMessageBox.Cancel)
+                if ret == QMessageBox.Ok:
+                    shutil.move(self.rep_a_couper,cible+'/'+osp.basename(self.rep_a_couper))
+            self.rep_a_copier = None
+            self.rep_a_couper = None
+            Ihm.__fenetre_thumbs.selectionAcopier = []
+            Ihm.__fenetre_thumbs.selectionAcouper = []
+            Ihm.__fenetre_thumbs.majTitre()
+        else:
+            super(Ihm,self).keyPressEvent(event)
+

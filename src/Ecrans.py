@@ -64,6 +64,7 @@ class Affichage:
             
     def affiche(self):
         taille_ecran = self.getTailleEcran()
+        self.ihm().hide()
         if self.plein_ecran:
             self.ihm().setGeometry(*taille_ecran)
             self.ihm().setWindowState(Qt.WindowFullScreen)
@@ -74,6 +75,7 @@ class Affichage:
             if self.kh:
                 self.h = taille_ecran[3] * self.kh
             self.ihm().setGeometry(int(self.x),int(self.y),int(self.w),int(self.h))
+        self.ihm().show()
     
     def resize(self,x,y,w,h):
         self.x,self.y,self.w,self.h = x,y,w,h

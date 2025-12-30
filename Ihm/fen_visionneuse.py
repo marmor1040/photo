@@ -209,13 +209,3 @@ class Ui_Visionneuse(object):
         _translate = QtCore.QCoreApplication.translate
         Visionneuse.setWindowTitle(_translate("Visionneuse", "Form"))
         self.label.setText(_translate("Visionneuse", "TextLabel"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    Visionneuse = QtWidgets.QWidget()
-    ui = Ui_Visionneuse()
-    ui.setupUi(Visionneuse)
-    Visionneuse.show()
-    sys.exit(app.exec_())

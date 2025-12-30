@@ -11,7 +11,7 @@ from PyQt5.Qt import Qt
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import QObject
 from PyQt5.QtGui import QImage,QPixmap
-from . import preferences
+from . import preferences as PREF
 from common import Exif
 
 #from PyQt5.uic import loadUiType
@@ -66,7 +66,8 @@ class thumbnail():
         self.__album = album
         self.__nom = nom
         self.__ok = False # il ne faut pas considerer que les infos ont été modifiées
-        self.creerWidget(ihm.scrollArea)
+        self.__parent = ihm.scrollArea
+        self.creerWidget()
         self.__num = thumbnail.numero
         thumbnail.numero += 1
 #         print info
@@ -75,18 +76,18 @@ class thumbnail():
         self.__ok = True
         self.__nom_pano = ""
         
-    def creerWidget(self, parent):
+    def creerWidget(self):
         self.__chemin = self.__album.getJPGThumb(self.__nom)
         if self.__chemin:
             image = QImage((self.__chemin),'JPG')
             isHor = image.height()<image.width()
-            if preferences.isModeVisionneuse():
-                self.__widget = widgetThumbnail(parent,self)
+            if PREF.MODE != PREF.MODE_TRI:
+                self.__widget = widgetThumbnail(self.__parent,self)
             else:
                 if isHor:
-                    self.__widget = widgetThumbnailHor(parent,self)
+                    self.__widget = widgetThumbnailHor(self.__parent,self)
                 else:
-                    self.__widget = widgetThumbnailVert(parent,self)
+                    self.__widget = widgetThumbnailVert(self.__parent,self)
 #                     self.__widget.autre.setVisible(False)
 #                     self.__widget.etoile.setVisible(False)
 #                     self.__widget.panorama.setVisible(False)
@@ -125,7 +126,7 @@ class thumbnail():
         return self.__album.getExif(self.__nom)
     
     def afficherInfos(self):
-        if preferences.isModeTri():
+        if PREF.MODE == PREF.MODE_TRI:
             self.afficheEtoiles(self.getEtoiles())
             self.afficheAutre(self.getAutre())
             self.afficheTraite(self.getTraitee())
@@ -206,7 +207,7 @@ class thumbnail():
         return self.__album.getInfo(self.__nom)["etoiles"]
     
     def setEtoiles(self,n):
-        if preferences.isModeTri():
+        if PREF.MODE == PREF.MODE_TRI:
             self.__album.setInfo(self.__nom,"etoiles",n)
             self.__album.setInfo(self.__nom,"traitee",True)
             #self.__info.setEtoiles(n,self.__ok)
@@ -215,13 +216,12 @@ class thumbnail():
             #☻self.__ihm_miniature.afficheCommentaire()
         
     def afficheEtoiles(self,n):
-        from . import preferences as PREFERENCES
         if n == 1:
-            etoile = QImage(PREFERENCES.getIcon('etoile.bmp'),'BMP')
+            etoile = QImage(PREF.getIcon('etoile.bmp'),'BMP')
         elif n == 2:
-            etoile = QImage(PREFERENCES.getIcon('2etoiles.bmp'),'BMP')
+            etoile = QImage(PREF.getIcon('2etoiles.bmp'),'BMP')
         elif n == 3:
-            etoile = QImage(PREFERENCES.getIcon('3etoiles.bmp'),'BMP')
+            etoile = QImage(PREF.getIcon('3etoiles.bmp'),'BMP')
         else:
             etoile = QImage()
         pix = QPixmap.fromImage(etoile)

@@ -203,13 +203,3 @@ class Ui_Miniatures(object):
         self.actionSauverInfos.setText(_translate("Miniatures", "Sauver"))
         self.actionRenommer_panorama.setText(_translate("Miniatures", "Renommer panorama"))
         self.actionRenommage_auto.setText(_translate("Miniatures", "Renommage automatique"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    Miniatures = QtWidgets.QMainWindow()
-    ui = Ui_Miniatures()
-    ui.setupUi(Miniatures)
-    Miniatures.show()
-    sys.exit(app.exec_())

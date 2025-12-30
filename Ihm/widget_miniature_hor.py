@@ -84,13 +84,3 @@ class Ui_MiniatureHor(object):
         self.retouche.setText(_translate("MiniatureHor", "retouche"))
         self.etoile.setText(_translate("MiniatureHor", "etoile"))
         self.autre.setText(_translate("MiniatureHor", "autre"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MiniatureHor = QtWidgets.QWidget()
-    ui = Ui_MiniatureHor()
-    ui.setupUi(MiniatureHor)
-    MiniatureHor.show()
-    sys.exit(app.exec_())

@@ -68,13 +68,3 @@ class Ui_ChoixRepertoire(object):
         self.label.setText(_translate("ChoixRepertoire", "Répertoire"))
         self.bt_repertoire.setText(_translate("ChoixRepertoire", "..."))
         self.cb_arbo.setText(_translate("ChoixRepertoire", "arborescence"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    ChoixRepertoire = QtWidgets.QDialog()
-    ui = Ui_ChoixRepertoire()
-    ui.setupUi(ChoixRepertoire)
-    ChoixRepertoire.show()
-    sys.exit(app.exec_())

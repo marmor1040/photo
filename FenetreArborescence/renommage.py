@@ -225,7 +225,7 @@ def getValeurDolar(nom,template_prec):
     chs=[nom]
     for ch_imp in template_prec.split('*'):
         if ch_imp:
-            if ch_imp == '.': ch_imp = "\."
+            if ch_imp == '.': ch_imp = r"\."
             res = []
             p = re.compile(ch_imp)
             for ch in chs:

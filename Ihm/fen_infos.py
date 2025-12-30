@@ -139,13 +139,3 @@ class Ui_Infos(object):
         self.groupBox_2.setTitle(_translate("Infos", "Appliquer"))
         self.bt_toutes.setText(_translate("Infos", "Toutes"))
         self.bt_selection.setText(_translate("Infos", "Selection"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    Infos = QtWidgets.QDialog()
-    ui = Ui_Infos()
-    ui.setupUi(Infos)
-    Infos.show()
-    sys.exit(app.exec_())
