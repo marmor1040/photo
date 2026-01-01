@@ -22,9 +22,9 @@ class FenetreRepertoire(BaseClass,FormClass):
         self.setupUi(self)
         FenetreRepertoire.__fenetre_thumbs = parent
         QObject.connect(self.bt_repertoire,QtCore.SIGNAL("clicked()"),self.choixRepertoire)
-        self.__defaut = preferences.getRepertoireDefaut()
-        if self.__defaut:
-            self.repertoire.setText(self.__defaut)
+        self._defaut = preferences.getRepertoireDefaut()
+        if self._defaut:
+            self.repertoire.setText(self._defaut)
             self.okcancel.button(QDialogButtonBox.Ok).setEnabled(True)
         else:
             self.okcancel.button(QDialogButtonBox.Ok).setEnabled(False)
@@ -34,7 +34,7 @@ class FenetreRepertoire(BaseClass,FormClass):
                     
     def choixRepertoire(self):
         rep = QtWidgets.QFileDialog.getExistingDirectory(self,"Répertoire des images",
-                                                          self.__defaut,    
+                                                          self._defaut,    
                                                           QtWidgets.QFileDialog.ShowDirsOnly)
         if rep:
             self.repertoire.setText(rep)
@@ -44,7 +44,7 @@ class FenetreRepertoire(BaseClass,FormClass):
         ret = str(self.repertoire.text())
         if ret[-1] != '/':
             ret += '/'
-        if self.__defaut != ret:
+        if self._defaut != ret:
             preferences.setRepertoireDefaut(ret)
             preferences.setFiltreDefaut(Filtre([True,False,False,False]))
         self.repertoire.setText('')

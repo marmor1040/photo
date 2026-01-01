@@ -12,13 +12,13 @@ class Affiche(threading.Thread):
         self.nom = nom
         self._stopevent = threading.Event( )
         self._waitevent = threading.Event( )
-        self.__lock=threading.Lock()
-        print(dir(self.__lock),self.__lock.locked()))
+        self._lock=threading.Lock()
+        print(dir(self._lock),self._lock.locked()))
 
     def run(self):
         i = 0
         while not self._stopevent.isSet():
-            if self.__lock.locked():
+            if self._lock.locked():
                 self._stopevent.wait(.5)
             else:
                 print(self.nom, i)
@@ -37,10 +37,10 @@ class Affiche(threading.Thread):
     def stop(self):
         self._stopevent.set( )  
     def wait(self):
-        self.__lock.acquire()
+        self._lock.acquire()
         #self._waitevent.set( )
     def rerun(self):
-        self.__lock.release()
+        self._lock.release()
         #self._waitevent.clear( )
         
         

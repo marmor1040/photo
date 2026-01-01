@@ -26,9 +26,9 @@ class Affiche(ThreadPhoto,QObject):
     def __init__(self,charge,Pout):
         ThreadPhoto.__init__(self)
         QObject.__init__(self,None)
-        self.__charge = charge
-        self.__pipe_out = Pout
-        self.__tab={}
+        self._charge = charge
+        self._pipe_out = Pout
+        self._tab={}
 
     def affiche(self,v):
         print("nom =",v)
@@ -38,27 +38,27 @@ class Affiche(ThreadPhoto,QObject):
         nom = None
         while cont:
            # try:
-            #print 'recv',self.__pipe_out
-            nom = self.__pipe_out.recv()
+            #print 'recv',self._pipe_out
+            nom = self._pipe_out.recv()
             if nom == '##quitter##':
-                self.__charge.stop()
+                self._charge.stop()
                 cont = False
-                #if self.__ihm.isVisible():
+                #if self._ihm.isVisible():
             elif '##repertoire##' in nom:
                 rep = nom.replace('##repertoire##','')
                 # pour arreter le chargement auto des photos
-                self.__charge.courant = None
+                self._charge.courant = None
                 # changement du repertoire
-                self.__charge.initialise(rep)
+                self._charge.initialise(rep)
             elif '##photos##' in nom:
                 liste = eval(nom.replace('##photos##',''))
                 # création de la liste des photos
                 #print 'photos :',liste
                 if liste:
-                    self.__charge.initialiseListeFichiers(liste)
+                    self._charge.initialiseListeFichiers(liste)
             elif '##geometrie##' in nom:
                 taille= eval(nom.replace('##geometrie##',''))
-                self.__ihm.setGeometry(taille)
+                self._ihm.setGeometry(taille)
             elif '##affiche##' in nom:
                 if ThreadPhoto.rep_photos:
                     nom,etoiles,traite = nom.replace('##affiche##','').split(';')
@@ -66,16 +66,16 @@ class Affiche(ThreadPhoto,QObject):
                         etoiles = ""
                     else:
                         etoiles += "*"
-                    if not self.__pipe_out.poll():
+                    if not self._pipe_out.poll():
                         # appel la methode affichePhoto de IhmVisionneuse
                         self.value_changed.emit(nom,etoiles)
             elif '##reinitialise##' in nom:
-                #self.__ihm.label.clear()
-                self.__charge.clear()
+                #self._ihm.label.clear()
+                self._charge.clear()
 ##            except:
 ##                print 'erreur', nom
-##                while self.__pipe_out.poll():
-##                    print self.__pipe_out.recv()
+##                while self._pipe_out.poll():
+##                    print self._pipe_out.recv()
 ##                print 'sortie'
         #print 'stop affiche'
-        #self.__ihm.quitter()
+        #self._ihm.quitter()

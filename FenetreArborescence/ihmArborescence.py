@@ -29,18 +29,18 @@ class Ihm(BaseClass,FormClass):
         BaseClass.__init__(self, None)
         self.setupUi(self)
         Ihm.__fenetre_thumbs = parent
-        self.__album_selectionne = None
-        self.__album_affiche = None
-        self.__retour = None
-        self.__busy = False
-        self.__progress_stoppe = False
-        self.__aide = None
-        self.__renommage = renommage.dataRenommage(self)
-        self.__compression = compression.dataCompression(self)
-        self.__cursor = self.cursor()
-        self.__ctrl_x = None
-        self.__rep_a_copier = None
-        self.__rep_a_couper = None
+        self._album_selectionne = None
+        self._album_affiche = None
+        self._retour = None
+        self._busy = False
+        self._progress_stoppe = False
+        self._aide = None
+        self._renommage = renommage.dataRenommage(self)
+        self._compression = compression.dataCompression(self)
+        self._cursor = self.cursor()
+        self._ctrl_x = None
+        self._rep_a_copier = None
+        self._rep_a_couper = None
         self.actionQuitter.triggered.connect(self.quitter)
         self.cb_toutes.toggled.connect(self.choixToutes)
         self.gb_infos.toggled.connect(self.choixDetails)
@@ -107,25 +107,25 @@ class Ihm(BaseClass,FormClass):
         self.progressBar.hide()
         self.bt_annuler_progress.hide()
         self.fichier_progress.hide()
-        self.__gestion_ecrans = Ecrans.Affichage(self,2,x0=0,y0=30,w0=300,kh=0.8,type_ihm=Ecrans.Affichage.ARBO)
+        self._gestion_ecrans = Ecrans.Affichage(self,2,x0=0,y0=30,w0=300,kh=0.8,type_ihm=Ecrans.Affichage.ARBO)
         self._selection = None
-        #self.__num_ecran = PREFERENCES.ECRAN_DEFAULT_ARBO
+        #self._num_ecran = PREFERENCES.ECRAN_DEFAULT_ARBO
         self.comboWorkspace.addItems(PREFERENCES.getWorkspaces())
-        self.__gestion_ecrans.affiche()
+        self._gestion_ecrans.affiche()
         self.majIhmSelection()
         self.show()
     
     def changeEcran(self):
-        self.__gestion_ecrans.changeEcran()
+        self._gestion_ecrans.changeEcran()
         
     def setFileModel(self):
         self.fileModel = MyQFileSystemModel()
         self.arborescence.setModel(self.fileModel)
-        self.__workspace = self.workspaceCourant()
-        if self.__workspace:
-            PREFERENCES.addWorkspace(self.__workspace)
-            self.fileModel.setRootPath(self.__workspace)
-            self.arborescence.setRootIndex(self.fileModel.index(self.__workspace))
+        self._workspace = self.workspaceCourant()
+        if self._workspace:
+            PREFERENCES.addWorkspace(self._workspace)
+            self.fileModel.setRootPath(self._workspace)
+            self.arborescence.setRootIndex(self.fileModel.index(self._workspace))
             
     def  majTabAffichage(self):
         self.cb_autre.setCheckState(Qt.PartiallyChecked)
@@ -136,12 +136,12 @@ class Ihm(BaseClass,FormClass):
         self.sb_min.setValue(0)
         self.sb_max.setValue(0)
         self.liste_dates.clear()
-        liste_fich = self.__album_selectionne.listeJPG()
-        dates = self.__album_selectionne.getListeDates()
+        liste_fich = self._album_selectionne.listeJPG()
+        dates = self._album_selectionne.getListeDates()
         self.progressBar.hide()
         self.bt_annuler_progress.hide()
         self.fichier_progress.hide()
-        self.__progress_stoppe = False
+        self._progress_stoppe = False
         Ihm.__nb_photos = len(liste_fich)
         self.sb_max.setValue(Ihm.__nb_photos)
         self.cbox_selections.clear()
@@ -178,11 +178,11 @@ class Ihm(BaseClass,FormClass):
                         item = self.liste_dates.item(n)
                         if item.text() in l:
                             item.setSelected(True)
-            self.cbox_selections.addItems(["aucune"]+[n.replace('.sel','') for n in self.__album_selectionne.listeSelections()])
+            self.cbox_selections.addItems(["aucune"]+[n.replace('.sel','') for n in self._album_selectionne.listeSelections()])
         
     def majIhmSelection(self):
-        if self.__album_selectionne:
-            isalbum = self.__album_selectionne.estUnAlbum()
+        if self._album_selectionne:
+            isalbum = self._album_selectionne.estUnAlbum()
             self.btAfficher.setEnabled(isalbum)
             self.btViderRepertoire.setEnabled(True)
             self.btDetruireTriPhotos.setEnabled(isalbum)
@@ -198,10 +198,10 @@ class Ihm(BaseClass,FormClass):
 # progress bar
 #
     def progressStoppe(self):
-        return self.__progress_stoppe
+        return self._progress_stoppe
     
     def annulerProgress(self):
-        self.__progress_stoppe = True
+        self._progress_stoppe = True
 
     def initProgressBar(self,nb):
         self.setCursor(Qt.BusyCursor)
@@ -210,7 +210,7 @@ class Ihm(BaseClass,FormClass):
         self.fichier_progress.show()
         self.progressBar.setValue(0)
         self.progressBar.setMaximum(nb)
-        self.__progress_stoppe = False
+        self._progress_stoppe = False
         
     def avanceProgressBar(self,n,ch):
         self.progressBar.setValue(n)
@@ -224,22 +224,22 @@ class Ihm(BaseClass,FormClass):
         self.progressBar.hide()
         self.fichier_progress.hide()
         self.bt_annuler_progress.hide()
-        self.__progress_stoppe = True
-        self.setCursor(self.__cursor)
+        self._progress_stoppe = True
+        self.setCursor(self._cursor)
         
 #     def ok(self):
-#         self.__event_loop.exit()
-#         self.__retour = True
+#         self._event_loop.exit()
+#         self._retour = True
 #         self.hide()
         
     def afficher(self):
-        if self.__album_affiche:
-            self.__album_affiche.sauveInfos()
-        self.__album_affiche = self.__album_selectionne
-        print(self.__album_affiche.repertoire())
-        #self.fileModel.setAffichage(self.__album_affiche.repertoire())
+        if self._album_affiche:
+            self._album_affiche.sauveInfos()
+        self._album_affiche = self._album_selectionne
+        print(self._album_affiche.repertoire())
+        #self.fileModel.setAffichage(self._album_affiche.repertoire())
         tri_par_date = self.cbAffTrierParDate.checkState() == QtCore.Qt.Checked
-        Ihm.__fenetre_thumbs.appliquerFiltre(self.__album_affiche,self.getFiltre(),self,tri_par_date)
+        Ihm.__fenetre_thumbs.appliquerFiltre(self._album_affiche,self.getFiltre(),self,tri_par_date)
         
     def quitter(self):
         self.hide()
@@ -247,14 +247,14 @@ class Ihm(BaseClass,FormClass):
 
 #      
 #     def annuler(self):
-#         self.__event_loop.exit()
-#         self.__retour = False
+#         self._event_loop.exit()
+#         self._retour = False
 #         self.hide()
 #     
 #     def retour(self):
 #         self.show()
-#         self.__event_loop.exec_()
-#         return self.__retour
+#         self._event_loop.exec_()
+#         return self._retour
     
     def choixToutes(self):
         if self.cb_toutes.isChecked():
@@ -300,11 +300,11 @@ class Ihm(BaseClass,FormClass):
         self.setCursor(cursor)
     
 #     def deplacerPhotos(self):
-#         self.__fenetre_thumbs.filtreObligatoire(True)
+#         self._fenetre_thumbs.filtreObligatoire(True)
 #         cursor = self.cursor()
 #         self.setCursor(Qt.BusyCursor)
 #         rep_cible = unicode(QtWidgets.QFileDialog.getExistingDirectory(self,"R�pertoire des images",
-#                                                                Ihm.__rep_deplacement or self.__liste_rep[0],    
+#                                                                Ihm.__rep_deplacement or self._liste_rep[0],    
 #                                                                QtWidgets.QFileDialog.ShowDirsOnly))
 #         if rep_cible: 
 #             rep_cible += '/'   
@@ -348,7 +348,7 @@ class Ihm(BaseClass,FormClass):
 #             Rep.detruireSiVide()
 #             self.arborescence.clearSelection()
 #         self.setCursor(cursor)
-#         self.__fenetre_thumbs.filtreObligatoire(False)
+#         self._fenetre_thumbs.filtreObligatoire(False)
 #         self.majIhm()
         
     def deplaceFichier(self,f,f1):
@@ -358,9 +358,9 @@ class Ihm(BaseClass,FormClass):
             shutil.move(f,f1)
         
     def recreerMiniatures(self):
-        if self.__album_selectionne and self.__album_selectionne.estUnAlbum():
-            self.__album_selectionne.detruireMiniatures()
-            self.__album_selectionne.refresh()
+        if self._album_selectionne and self._album_selectionne.estUnAlbum():
+            self._album_selectionne.detruireMiniatures()
+            self._album_selectionne.refresh()
             self.majTabAffichage()
             self.majIhmSelection()
         else:
@@ -377,8 +377,8 @@ class Ihm(BaseClass,FormClass):
                     QApplication.instance().processEvents()
         
     def majMiniatures(self):
-        if self.__album_selectionne and self.__album_selectionne.estUnAlbum():
-            self.__album_selectionne.refresh()
+        if self._album_selectionne and self._album_selectionne.estUnAlbum():
+            self._album_selectionne.refresh()
             self.majTabAffichage()
             self.majIhmSelection()
             
@@ -401,29 +401,29 @@ class Ihm(BaseClass,FormClass):
         self.majIhm()
              
     def detruireTriPhotos(self):
-        rep_vide = not (self.__album_selectionne.listeSelections() or 
-                        self.__album_selectionne.listePano() or 
-                        self.__album_selectionne.listeRecup() or 
-                        self.__album_selectionne.listeRetouche())
+        rep_vide = not (self._album_selectionne.listeSelections() or 
+                        self._album_selectionne.listePano() or 
+                        self._album_selectionne.listeRecup() or 
+                        self._album_selectionne.listeRetouche())
         if not rep_vide:
             mess = 'Attention '
-            if self.__album_selectionne.listeSelections(): mess += 'les selections'
-            if self.__album_selectionne.listePano(): mess += ', les panoramas'
-            if self.__album_selectionne.listeRecup(): mess += ', les recups'
-            if self.__album_selectionne.listeRetouche(): mess += ', les retouches'
+            if self._album_selectionne.listeSelections(): mess += 'les selections'
+            if self._album_selectionne.listePano(): mess += ', les panoramas'
+            if self._album_selectionne.listeRecup(): mess += ', les recups'
+            if self._album_selectionne.listeRetouche(): mess += ', les retouches'
             mess += ' vont �tre d�truites'
             ret = QMessageBox.warning(self,'R�initialisation',mess,QMessageBox.Ok,QMessageBox.Cancel) 
         if rep_vide or ret == QMessageBox.Ok:
             self.arborescence.clearSelection()
-            self.__album_selectionne.reinitialiser()
+            self._album_selectionne.reinitialiser()
         self.majIhmSelection()
         
     def getFiltre(self):
         rep_images = str(self.workspaceCourant())
         if rep_images[-1] != '/':
             rep_images += '/'
-        #if self.__liste_rep[0] != rep_images:
-        #    PREFERENCES.setRepertoireDefaut(self.__liste_rep[0],self.__workspace)
+        #if self._liste_rep[0] != rep_images:
+        #    PREFERENCES.setRepertoireDefaut(self._liste_rep[0],self._workspace)
         type_choix = [self.cb_toutes.isChecked(),self.gb_infos.isChecked(),\
                       self.gb_nums.isChecked(),self.gb_dates.isChecked()]
         etoiles = (self.cbCochee(self.cb_0_etoile),\
@@ -464,8 +464,8 @@ class Ihm(BaseClass,FormClass):
     # selection d'un item du treeview
     #
     def select(self,model_index):
-        if not self.__busy:
-            self.__busy = True
+        if not self._busy:
+            self._busy = True
             select = str(self.fileModel.filePath(model_index))
             jpg = None
             #self.fileModel.setSelection(None)
@@ -475,7 +475,7 @@ class Ihm(BaseClass,FormClass):
                     # rep est visible, il ne devrait pas
                     import win32api, win32con
                     win32api.SetFileAttributes(select,win32con.FILE_ATTRIBUTE_HIDDEN)
-                self.__album_selectionne = Album(select,self,verif_album=True)
+                self._album_selectionne = Album(select,self,verif_album=True)
                 rep = select + '/'
                 self.majTabAffichage()
                 #self.charger()
@@ -484,7 +484,7 @@ class Ihm(BaseClass,FormClass):
                 self.tabWidget.setEnabled(True)
                 #self.fileModel.setSelection(select)
             elif (select[-4:].lower() == '.jpg'):     
-                self.__album_selectionne = None
+                self._album_selectionne = None
                 rep = osp.dirname(select)
                 jpg = osp.basename(select)
                 self.btCreerRepertoire.setEnabled(False)
@@ -508,24 +508,24 @@ class Ihm(BaseClass,FormClass):
             # mise � jour du tabWidget selectionne
             tab = self.tabWidget.currentIndex()
             if tab == 2: #renommage
-                self.__renommage.majFenetre(self.__album_selectionne)
+                self._renommage.majFenetre(self._album_selectionne)
             if tab == 3: #compression
-                self.__compression.majFenetre(self.__album_selectionne)
+                self._compression.majFenetre(self._album_selectionne)
 #                 if self.tabWidget.currentIndex() == 1:  
 #                     self.autoRenommage()
-#                 self.lblNbPano.setText(str(len(self.__album_selectionne.listePano())))
-#                 self.lblNbPano_2.setText(str(len(self.__album_selectionne.listePano())))
-#                 self.lblNbRetouche.setText(str(len(self.__album_selectionne.listeRetouche())))
-#                 self.lblNbRecup.setText(str(len(self.__album_selectionne.listeRecup())))
-            self.__busy=False
-            #print self.__album_selectionne
+#                 self.lblNbPano.setText(str(len(self._album_selectionne.listePano())))
+#                 self.lblNbPano_2.setText(str(len(self._album_selectionne.listePano())))
+#                 self.lblNbRetouche.setText(str(len(self._album_selectionne.listeRetouche())))
+#                 self.lblNbRecup.setText(str(len(self._album_selectionne.listeRecup())))
+            self._busy=False
+            #print self._album_selectionne
     
     def tabChanged(self,tab):
-        if self.__album_selectionne: 
+        if self._album_selectionne: 
             if tab == 2: #renommage
-                self.__renommage.majFenetre(self.__album_selectionne)
+                self._renommage.majFenetre(self._album_selectionne)
             if tab == 3: #compression
-                self.__compression.majFenetre(self.__album_selectionne)
+                self._compression.majFenetre(self._album_selectionne)
          
     #
     # gestion répertoires
@@ -535,7 +535,7 @@ class Ihm(BaseClass,FormClass):
         if not nom_ok: return
         rep = str(rep)
         if rep[0] == '/':
-            new_rep = str(self.__workspace + rep)
+            new_rep = str(self._workspace + rep)
         else:
             if not self._selection:return
             new_rep = os.path.join(self._selection,rep)
@@ -544,28 +544,28 @@ class Ihm(BaseClass,FormClass):
             
     def deplacerRepertoire(self):
         import win32api, win32con
-        if not self.__ctrl_x or not self._selection:return
+        if not self._ctrl_x or not self._selection:return
         msgBox = QMessageBox(self)
         but_repertoire = msgBox.addButton(self.tr("Répertoire"), QMessageBox.ActionRole)
         but_contenu = msgBox.addButton(self.tr("Contenu"), QMessageBox.ActionRole)
         but_abort = msgBox.addButton(self.tr("Annuler"),QMessageBox.RejectRole)
-        msgBox.setText("D�placer "+osp.basename(self.__ctrl_x)+" dans "+osp.basename(self._selection))
+        msgBox.setText("D�placer "+osp.basename(self._ctrl_x)+" dans "+osp.basename(self._selection))
         msgBox.setInformativeText("Déplacer le repertoire ou seulement le contenu ?")
         ret = msgBox.exec_()
-        #print self.__album_selectionne
+        #print self._album_selectionne
         if msgBox.clickedButton() == but_repertoire:
             # copie de tout le repertoire
-            #shutil.copytree(self.__ctrl_x,osp.join(self._selection,osp.basename(self.__ctrl_x)))
-            #self.supprimerRepertoire(self.__ctrl_x)
-            shutil.move(self.__ctrl_x,osp.join(self._selection,osp.basename(self.__ctrl_x)))
+            #shutil.copytree(self._ctrl_x,osp.join(self._selection,osp.basename(self._ctrl_x)))
+            #self.supprimerRepertoire(self._ctrl_x)
+            shutil.move(self._ctrl_x,osp.join(self._selection,osp.basename(self._ctrl_x)))
         elif msgBox.clickedButton() == but_contenu:
             # copie du contenu
-            l = os.listdir(self.__ctrl_x)
+            l = os.listdir(self._ctrl_x)
             for e in l:
                 if e != "TriPhotos":
-                    source = osp.join(self.__ctrl_x,e)
+                    source = osp.join(self._ctrl_x,e)
                     cible = osp.join(self._selection,e)
-                    if osp.isfile(osp.join(self.__ctrl_x,e)):
+                    if osp.isfile(osp.join(self._ctrl_x,e)):
                         shutil.move(source,cible)
                     else:
                         try:
@@ -579,8 +579,8 @@ class Ihm(BaseClass,FormClass):
             for rep,subrep,files in os.walk(self._selection):
                 if osp.basename(rep) == "TriPhotos":
                     win32api.SetFileAttributes(rep,win32con.FILE_ATTRIBUTE_HIDDEN)
-            Album(self.__ctrl_x,self,verif_album=True)
-            self.__album_selectionne = Album(self._selection,self,verif_album=True)
+            Album(self._ctrl_x,self,verif_album=True)
+            self._album_selectionne = Album(self._selection,self,verif_album=True)
     
     def getSelectedPhotos(self):
         return Ihm.__fenetre_thumbs.getSelectedPhotos()
@@ -589,18 +589,18 @@ class Ihm(BaseClass,FormClass):
         from common import Photo
         lphotos = Ihm.__fenetre_thumbs.getPhotos(Ihm.__fenetre_thumbs.selectionAcopier)
         for photo in lphotos:
-            Photo.deplacerPhoto(osp.join(self.__album_affiche.repertoire(),photo),self.__album_selectionne.repertoire(),remove=False)
+            Photo.deplacerPhoto(osp.join(self._album_affiche.repertoire(),photo),self._album_selectionne.repertoire(),remove=False)
             
-        self.__album_selectionne.refresh()
+        self._album_selectionne.refresh()
         
     def deplacerImages(self):
         from common import Photo
         lphotos = Ihm.__fenetre_thumbs.getPhotos(Ihm.__fenetre_thumbs.selectionAcouper)
         for photo in lphotos:
-            Photo.deplacerPhoto(osp.join(self.__album_affiche.repertoire(),photo),self.__album_selectionne.repertoire())
+            Photo.deplacerPhoto(osp.join(self._album_affiche.repertoire(),photo),self._album_selectionne.repertoire())
             
-        self.__album_selectionne.refresh()
-        self.__album_affiche.refresh()
+        self._album_selectionne.refresh()
+        self._album_affiche.refresh()
         Ihm.__fenetre_thumbs.detruirePhoto(force=True)
     
     def supprimerRepertoire(self,rep_a_detruire=None):
@@ -643,75 +643,75 @@ class Ihm(BaseClass,FormClass):
     # renommage des fichiers
     #
     def detruireFichiers(self):
-        self.__renommage.detruireFichiers()
+        self._renommage.detruireFichiers()
 
     def refreshRenommage(self):
-        self.__renommage.afficherFichiers()
+        self._renommage.afficherFichiers()
         
     def testerRenommage(self):
-        self.__renommage.tester()
+        self._renommage.tester()
         
     def validerRenommage(self):
-        self.__renommage.valider()
-        self.__renommage.afficherFichiers()
+        self._renommage.valider()
+        self._renommage.afficherFichiers()
                 
     def autoRenommage(self):
         import time
         t0=time.time()
-        self.__renommage.afficherFichiers()
+        self._renommage.afficherFichiers()
         #print time.time()-t0
-        self.__renommage.auto()
+        self._renommage.auto()
         #print time.time()-t0
         
     def aideRenommage(self):
         from .renommage import aideRenommage
         # il faut mettre dans un attribut de la classe sinon la fen�tre disparait imm�diatement
-        if not self.__aide:
-            self.__aide = aideRenommage(self.geometry())
-        self.__aide.show()
+        if not self._aide:
+            self._aide = aideRenommage(self.geometry())
+        self._aide.show()
 
     #
     # compression
     #
     def repertoireCompression(self):
-        self.__compression.choixRepertoire()
+        self._compression.choixRepertoire()
         pass
     
     def afficheCompressionEstime(self):
-        self.__compression.majListe()
+        self._compression.majListe()
     
     def compressionToutes(self):
-        self.__compression.majListe()
+        self._compression.majListe()
             
     def compressionAffichees(self):
-        self.__compression.majListe()
+        self._compression.majListe()
         
     def compressionRenommage(self):
-        self.__compression.majListe()
+        self._compression.majListe()
         
     def compressionSelection(self):
-        self.__compression.majListe()
+        self._compression.majListe()
 
     def validerCompression(self):
-        self.__compression.valider()
+        self._compression.valider()
         
     def afficherCompression(self):
-        self.__compression.majListe()
+        self._compression.majListe()
     
     def keyPressEvent(self,event):
         touche = event.key()
         print(touche)
         if touche == Qt.Key_F3:
-            self.__gestion_ecrans.changeEcrans()
+            self._gestion_ecrans.changeEcrans()
         elif touche == Qt.Key_Delete:
             ret = QMessageBox.question(self,"Destruction répertoire",
-                                           f"Etes vous sûr de détruie le répertoire {self.__album_selectionne.repertoire()} ?",
+                                           f"Etes vous sûr de détruie le répertoire {self._album_selectionne.repertoire()} ?",
                                            QMessageBox.Ok | QMessageBox.Cancel)
             if  ret == QMessageBox.Ok:
-                shutil.rmtree(self.__album_selectionne.repertoire())
+                shutil.rmtree(self._album_selectionne.repertoire())
         elif touche == Qt.Key_C and event.modifiers() == Qt.ControlModifier:
             try:
-                self.rep_a_copier = self.__album_selectionne.repertoire()
+                self.rep_a_copier = self._album_selectionne.repertoire()
                 self.rep_a_couper = None
             except:
                 return
@@ -719,7 +719,7 @@ class Ihm(BaseClass,FormClass):
 
         elif touche == Qt.Key_X and event.modifiers() == Qt.ControlModifier:
             try:
-                self.rep_a_couper = self.__album_selectionne.repertoire()
+                self.rep_a_couper = self._album_selectionne.repertoire()
                 self.rep_a_copier = None
             except:
                 return
@@ -738,7 +738,7 @@ class Ihm(BaseClass,FormClass):
                     self.copierImages()
             elif self.rep_a_copier:
                 try:
-                    cible = self.__album_selectionne.repertoire()
+                    cible = self._album_selectionne.repertoire()
                 except:
                     return
                 ret = QMessageBox.question(self,"Copie répertoire",
@@ -748,7 +748,7 @@ class Ihm(BaseClass,FormClass):
                     shutil.copytree(self.rep_a_copier,cible+'/'+osp.basename(self.rep_a_copier))
             elif self.rep_a_couper:
                 try:
-                    cible = self.__album_selectionne.repertoire()
+                    cible = self._album_selectionne.repertoire()
                 except:
                     return
                 ret = QMessageBox.question(self,"Déplacement répertoire",

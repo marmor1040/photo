@@ -8,59 +8,59 @@ class Filtre:
         """
         type_choix contient True si toutes ou infos ou nums ou dates est selectionne
         """
-        self.__types_choix = types_choix
-        self.__etoiles = star
-        self.__autre = autre
-        self.__traitee = trait
-        self.__panorama = pano
-        self.__retouche = ret
-        self.__paysage = paysage
-        self.__num_photos = nums
-        self.__liste_dates = dates
-        self.__selection = nom_selection
-        self.__filtre_nom = filtre_nom
+        self._types_choix = types_choix
+        self._etoiles = star
+        self._autre = autre
+        self._traitee = trait
+        self._panorama = pano
+        self._retouche = ret
+        self._paysage = paysage
+        self._num_photos = nums
+        self._liste_dates = dates
+        self._selection = nom_selection
+        self._filtre_nom = filtre_nom
         
     def choixToutes(self):
-        return self.__types_choix[0]
+        return self._types_choix[0]
     
     def choixInfos(self):
-        return self.__types_choix[1]
+        return self._types_choix[1]
     
     def choixNums(self):
-        return self.__types_choix[2]
+        return self._types_choix[2]
     
     def choixDates(self):
-        return self.__types_choix[3]
+        return self._types_choix[3]
     
     def getEtoiles(self):
-        return self.__etoiles
+        return self._etoiles
     
     def getAutre(self):
-        return self.__autre
+        return self._autre
     
     def getTraitees(self):
-        return self.__traitee
+        return self._traitee
     
     def getPanorama(self):
-        return self.__panorama
+        return self._panorama
     
     def getRetouche(self):
-        return self.__retouche
+        return self._retouche
     
     def getPaysage(self):
-        return self.__paysage
+        return self._paysage
     
     def getNumPhotos(self):
-        return self.__num_photos
+        return self._num_photos
     
     def getListeDates(self):
-        return self.__liste_dates
+        return self._liste_dates
     
     def getNomSelection(self):
-        return self.__selection+'.sel'
+        return self._selection+'.sel'
     
     def getFiltreNom(self):
-        return self.__filtre_nom
+        return self._filtre_nom
     
     def isOk(self,chemin,info,exif,n):
         from FenetreArborescence.renommage import chercheRe,cs

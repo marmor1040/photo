@@ -10,7 +10,7 @@ import os.path as osp
 from PyQt5.Qt import Qt
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import QObject
-from PyQt5.QtGui import QImage,QPixmap
+from PyQt5.QtGui import QImage,QPixmap,QTransform
 from . import preferences as PREF
 from common import Exif
 
@@ -24,10 +24,10 @@ class widgetThumbnailVert(BaseClassVert, FormClassVert):
     def __init__(self,parent,thumb):
         BaseClassVert.__init__(self, parent)
         self.setupUi(self)
-        self.__thumb = thumb
+        self._thumb = thumb
     
     def mousePressEvent(self,event):
-        self.__thumb.mousePressEvent(event)
+        self._thumb.mousePressEvent(event)
         
 from Ihm.widget_miniature import Ui_Miniature as FormClass
 from PyQt5.QtWidgets import QWidget as BaseClass
@@ -36,10 +36,10 @@ class widgetThumbnail(BaseClass, FormClass):
     def __init__(self,parent,thumb):
         BaseClassVert.__init__(self, parent)
         self.setupUi(self)
-        self.__thumb = thumb
+        self._thumb = thumb
     
     def mousePressEvent(self,event):
-        self.__thumb.mousePressEvent(event)
+        self._thumb.mousePressEvent(event)
         
 #FormClassHor, BaseClassHor = loadUiType(osp.join(osp.dirname(osp.realpath(__file__)),
 #                                           '../Ihm/widget_miniature_hor.ui'))
@@ -50,10 +50,10 @@ class widgetThumbnailHor(BaseClassHor, FormClassHor):
     def __init__(self,parent,thumb):
         BaseClassHor.__init__(self, parent)
         self.setupUi(self)
-        self.__thumb = thumb
+        self._thumb = thumb
     
     def mousePressEvent(self,event):
-        self.__thumb.mousePressEvent(event)
+        self._thumb.mousePressEvent(event)
 
 class thumbnail():
     liste_thumbs = None
@@ -62,54 +62,61 @@ class thumbnail():
     ht = {}
     
     def __init__(self, ihm,album,nom):
-        self.__ihm_miniature = ihm
-        self.__album = album
-        self.__nom = nom
-        self.__ok = False # il ne faut pas considerer que les infos ont été modifiées
-        self.__parent = ihm.scrollArea
+        self._ihm_miniature = ihm
+        self._album = album
+        self._nom = nom
+        self._ok = False # il ne faut pas considerer que les infos ont été modifiées
+        self._parent = ihm.scrollArea
         self.creerWidget()
-        self.__num = thumbnail.numero
+        self._num = thumbnail.numero
         thumbnail.numero += 1
 #         print info
-#         self.__info = info
+#         self._info = info
         self.afficherInfos()
-        self.__ok = True
-        self.__nom_pano = ""
+        self._ok = True
+        self._nom_pano = ""
         
     def creerWidget(self):
-        self.__chemin = self.__album.getJPGThumb(self.__nom)
-        if self.__chemin:
-            image = QImage((self.__chemin),'JPG')
+        self._chemin = self._album.getJPGThumb(self._nom)
+        if self._chemin:
+            image = QImage((self._chemin),'JPG')
             isHor = image.height()<image.width()
             if PREF.MODE != PREF.MODE_TRI:
-                self.__widget = widgetThumbnail(self.__parent,self)
+                self._widget = widgetThumbnail(self._parent,self)
             else:
                 if isHor:
-                    self.__widget = widgetThumbnailHor(self.__parent,self)
+                    self._widget = widgetThumbnailHor(self._parent,self)
                 else:
-                    self.__widget = widgetThumbnailVert(self.__parent,self)
-#                     self.__widget.autre.setVisible(False)
-#                     self.__widget.etoile.setVisible(False)
-#                     self.__widget.panorama.setVisible(False)
-#                     self.__widget.retouche.setVisible(False)
-#                     self.__widget.traitee.setVisible(False)
-                self.__widget.autre.stateChanged.connect(self.clickAutre)
-                self.__widget.traitee.stateChanged.connect(self.clickTraite)
-                self.__widget.panorama.stateChanged.connect(self.clickPano)
-                self.__widget.retouche.stateChanged.connect(self.clickRetouche)
+                    self._widget = widgetThumbnailVert(self._parent,self)
+#                     self._widget.autre.setVisible(False)
+#                     self._widget.etoile.setVisible(False)
+#                     self._widget.panorama.setVisible(False)
+#                     self._widget.retouche.setVisible(False)
+#                     self._widget.traitee.setVisible(False)
+                self._widget.autre.stateChanged.connect(self.clickAutre)
+                self._widget.traitee.stateChanged.connect(self.clickTraite)
+                self._widget.panorama.stateChanged.connect(self.clickPano)
+                self._widget.retouche.stateChanged.connect(self.clickRetouche)
                 
-            self.__widget.frame.setForegroundRole(3)
+            self._widget.frame.setForegroundRole(3)
             # migration Qt5 15/12/2025
-            #self.__widget.setFocusPolicy(Qt.ClickFocus)
+            #self._widget.setFocusPolicy(Qt.ClickFocus)
             pix = QPixmap.fromImage(image)
-            self.__widget.label.setPixmap(pix)
+            self._widget.label.setPixmap(pix)
             self.creerToolTip()
-            #self.__next = None
-        #self.__prev = None
+            #self._next = None
+        #self._prev = None
     
+    def pivoterImage(self):
+        transform = QTransform()
+        transform.rotate(90)
+        rotated = self._widget.label.pixmap().transformed(transform,QtCore.Qt.SmoothTransformation)
+        self._widget.label.setPixmap(rotated)
+        self._widget.label.update()
+
     def creerToolTip(self):
-        tooltip = self.__nom+'\n'
-        #self.__exif_data = Exif.getExifData(self.__chemin)
+        tooltip = self._nom+'\n'
+        #self._exif_data = Exif.getExifData(self._chemin)
         for (nom,value) in list(self.getExif().items()):
             if nom != 'orientation':
                 tooltip += nom +' : '+str(value)+'\n'
@@ -120,10 +127,10 @@ class thumbnail():
                     thumbnail.ht[value]+=1
                     
         #print thumbnail.ht
-        self.__widget.label.setToolTip(tooltip)
+        self._widget.label.setToolTip(tooltip)
         
     def getExif(self):
-        return self.__album.getExif(self.__nom)
+        return self._album.getExif(self._nom)
     
     def afficherInfos(self):
         if PREF.MODE == PREF.MODE_TRI:
@@ -146,7 +153,7 @@ class thumbnail():
         if autres[0]:    self.setAutre(autres[1])
     
     def setInfo(self,info):
-        self.__info = info
+        self._info = info
         self.afficherInfos()
         
     def mousePressEvent(self,event):
@@ -161,26 +168,26 @@ class thumbnail():
             
     def select(self,ok):
         if ok:
-            self.__widget.frame.setForegroundRole(0)
+            self._widget.frame.setForegroundRole(0)
             # if affiche:
-            #     pass#self.__ihm_miniature.affichePhoto(self)
-            #     #thumbnail.pipe_fenetre_photo.send('##affiche##'+self.__nom+';'+str(self.getEtoiles())+';'+str(self.getTraitee()))
-            self.__ihm_miniature.scrollArea.ensureWidgetVisible(self.__widget,0,500)
-        elif self.__widget:
-            self.__widget.frame.setForegroundRole(3)
+            #     pass#self._ihm_miniature.affichePhoto(self)
+            #     #thumbnail.pipe_fenetre_photo.send('##affiche##'+self._nom+';'+str(self.getEtoiles())+';'+str(self.getTraitee()))
+            self._ihm_miniature.scrollArea.ensureWidgetVisible(self._widget,0,500)
+        elif self._widget:
+            self._widget.frame.setForegroundRole(3)
             
     def getName(self):
-        return self.__nom
+        return self._nom
     
     def setName(self,n):
-        self.__chemin = osp.dirname(self.__chemin)+'/'+n
-        self.__nom = n
+        self._chemin = osp.dirname(self._chemin)+'/'+n
+        self._nom = n
         self.creerToolTip()
         
     def nouveauNom(self,ch,num,nb):
         date,date1,date2 = '','',''
-        if 'date' in self.__exif_data:
-            date = self.__exif_data['date']
+        if 'date' in self._exif_data:
+            date = self._exif_data['date']
             date = date[:10].replace('/','-')
             date1 = date[:6]+date[8:]
             date2 = date[:5]
@@ -188,32 +195,32 @@ class thumbnail():
         return ch.replace('<num>',ch_num % num).replace('<date>',date).replace('<date1>',date1).replace('<date2>',date2)
     
     def getNumero(self):
-        return self.__num
+        return self._num
     
     @staticmethod
     def reinitNumero():
         thumbnail.numero = 0
         
     def getWidget(self):
-        return self.__widget
+        return self._widget
     
     def getChemin(self):
-        return self.__chemin
+        return self._chemin
     
 #
 # Infos Etoiles
 #
     def getEtoiles(self):
-        return self.__album.getInfo(self.__nom)["etoiles"]
+        return self._album.getInfo(self._nom)["etoiles"]
     
     def setEtoiles(self,n):
         if PREF.MODE == PREF.MODE_TRI:
-            self.__album.setInfo(self.__nom,"etoiles",n)
-            self.__album.setInfo(self.__nom,"traitee",True)
-            #self.__info.setEtoiles(n,self.__ok)
-            #self.__info.setTraite(True,self.__ok)
+            self._album.setInfo(self._nom,"etoiles",n)
+            self._album.setInfo(self._nom,"traitee",True)
+            #self._info.setEtoiles(n,self._ok)
+            #self._info.setTraite(True,self._ok)
             self.afficheEtoiles(n)
-            #☻self.__ihm_miniature.afficheCommentaire()
+            #☻self._ihm_miniature.afficheCommentaire()
         
     def afficheEtoiles(self,n):
         if n == 1:
@@ -225,26 +232,26 @@ class thumbnail():
         else:
             etoile = QImage()
         pix = QPixmap.fromImage(etoile)
-        self.__widget.etoile.setPixmap(pix)
-#         if not self.__ok: # pendant la création de la miniature
-#             self.__info.imposeEtoiles(n)
+        self._widget.etoile.setPixmap(pix)
+#         if not self._ok: # pendant la création de la miniature
+#             self._info.imposeEtoiles(n)
         
 #
 # Infos Traitee
 #
     def getTraitee(self):
-        return self.__album.getInfo(self.__nom)["traitee"]
+        return self._album.getInfo(self._nom)["traitee"]
         
     def setTraite(self,n):
         if self.getTraitee() != n:
-            self.__album.getInfo(self.__nom)["traitee"] = n
+            self._album.getInfo(self._nom)["traitee"] = n
         self.afficheTraite(n)
 
     def afficheTraite(self,n):
         if n:
-            self.__widget.traitee.setCheckState(Qt.Checked)
+            self._widget.traitee.setCheckState(Qt.Checked)
         else:
-            self.__widget.traitee.setCheckState(Qt.Unchecked)
+            self._widget.traitee.setCheckState(Qt.Unchecked)
 
     def clickTraite(self,value):
         self.setTraite(value == Qt.Checked)
@@ -253,75 +260,75 @@ class thumbnail():
 # Infos Etoiles
 #
     def getAutre(self):
-        return self.__album.getInfo(self.__nom)["cochee"]
+        return self._album.getInfo(self._nom)["cochee"]
          
     def setAutre(self,n):
         if self.getAutre() != n:
-            self.__album.getInfo(self.__nom)["cochee"] = n
+            self._album.getInfo(self._nom)["cochee"] = n
         self.afficheAutre(n)
  
     def afficheAutre(self,n):
         if n:
-            self.__widget.autre.setCheckState(Qt.Checked)
+            self._widget.autre.setCheckState(Qt.Checked)
         else:
-            self.__widget.autre.setCheckState(Qt.Unchecked)
+            self._widget.autre.setCheckState(Qt.Unchecked)
  
     def clickAutre(self,value):
         self.setAutre(value == Qt.Checked)
-#         self.__ihm_miniature.infosModifiees()
-#         self.__ihm_miniature.afficheCommentaire()
+#         self._ihm_miniature.infosModifiees()
+#         self._ihm_miniature.afficheCommentaire()
     
 #
 # Infos Pano
 #
     def getPano(self):
-        return self.__album.getInfo(self.__nom)["pano"]
+        return self._album.getInfo(self._nom)["pano"]
     
     def setPano(self,n):
-        self.__album.getInfo(self.__nom)["pano"] = n
+        self._album.getInfo(self._nom)["pano"] = n
         self.affichePano(n)
         if not n: self.setNomPano("")
 
     def affichePano(self,n):
         if n:
-            self.__widget.panorama.setCheckState(Qt.Checked)
+            self._widget.panorama.setCheckState(Qt.Checked)
         else:
-            self.__widget.panorama.setCheckState(Qt.Unchecked)
+            self._widget.panorama.setCheckState(Qt.Unchecked)
 
     def clickPano(self,value):
         self.setPano(value == Qt.Checked)
-        #self.__ihm_miniature.infosModifiees()
-        #self.__ihm_miniature.afficheCommentaire()
+        #self._ihm_miniature.infosModifiees()
+        #self._ihm_miniature.afficheCommentaire()
     
     def setNomPano(self,nom):
-        self.__nom_pano = nom
-        self.__widget.nom_pano.setText(nom)
+        self._nom_pano = nom
+        self._widget.nom_pano.setText(nom)
         
     def getNomPano(self):
-        return self.__nom_pano
+        return self._nom_pano
 #
 # Infos Retouche
 #
     def getRetouche(self):
-        return self.__album.getInfo(self.__nom)["retouche"]
+        return self._album.getInfo(self._nom)["retouche"]
     
     def setRetouche(self,n):
-        self.__album.getInfo(self.__nom)["retouche"] = n
+        self._album.getInfo(self._nom)["retouche"] = n
         self.afficheRetouche(n)
 
     def afficheRetouche(self,n):
         if n:
-            self.__widget.retouche.setCheckState(Qt.Checked)
+            self._widget.retouche.setCheckState(Qt.Checked)
         else:
-            self.__widget.retouche.setCheckState(Qt.Unchecked)
+            self._widget.retouche.setCheckState(Qt.Unchecked)
 
     def clickRetouche(self,value):
         self.setRetouche(value == Qt.Checked)
-#         self.__ihm_miniature.infosModifiees()
-#         self.__ihm_miniature.afficheCommentaire()
+#         self._ihm_miniature.infosModifiees()
+#         self._ihm_miniature.afficheCommentaire()
     
     def __repr__(self):
-        return 'Thumb['+self.__nom +", "+str(self.__num)+']'
+        return 'Thumb['+self._nom +", "+str(self._num)+']'
     
     def __eq__(self,th):
-        return self.__num == th.__num
+        return self._num == th._num

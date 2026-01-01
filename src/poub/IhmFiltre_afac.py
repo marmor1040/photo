@@ -48,14 +48,14 @@ class FenetreFiltre(BaseClass,FormClass):
         BaseClass.__init__(self, None)
         self.setupUi(self)
         FenetreFiltre.__fenetre_thumbs = parent
-        self.__liste_rep,self.__rep_photo = PREFERENCES.getRepertoireDefaut()
+        self._liste_rep,self._rep_photo = PREFERENCES.getRepertoireDefaut()
         if rep_photo:
             Rep.change(rep_photo)
-        elif self.__rep_photo:
-            Rep.change(self.__rep_photo)
-        self.__retour = None
-        self.__busy = False
-        self.__progress_stoppe = False
+        elif self._rep_photo:
+            Rep.change(self._rep_photo)
+        self._retour = None
+        self._busy = False
+        self._progress_stoppe = False
         QObject.connect(self.actionQuitter,QtCore.SIGNAL("triggered()"),self.quitter)
         QObject.connect(self.cb_toutes,QtCore.SIGNAL("toggled(bool)"),self.choixToutes)
         QObject.connect(self.gb_infos,QtCore.SIGNAL("toggled(bool)"),self.choixDetails)
@@ -81,9 +81,9 @@ class FenetreFiltre(BaseClass,FormClass):
         self.arborescence.setColumnHidden(3,True)
         QtCore.QObject.connect(self.arborescence,QtCore.SIGNAL("clicked(QModelIndex)"),self.select)
         self._selection = None
-        self.__num_ecran = 1
-        if self.__liste_rep:
-            self.cb_repertoire.addItems(self.__liste_rep)
+        self._num_ecran = 1
+        if self._liste_rep:
+            self.cb_repertoire.addItems(self._liste_rep)
             #self.charger()
         if PREFERENCES.isModeVisionneuse():
             self.setWindowFlags(Qt.FramelessWindowHint |Qt.WindowStaysOnTopHint)
@@ -92,15 +92,15 @@ class FenetreFiltre(BaseClass,FormClass):
 
         self.show()
             #self.setWindowModality(Qt.ApplicationModal)
-            #self.__event_loop = QtCore.QEventLoop()
+            #self._event_loop = QtCore.QEventLoop()
     
     def changeEcran(self):
         if QDesktopWidget().numScreens() > 1:
-            self.__num_ecran = 1 + self.__num_ecran % 2
-            self.setGeometry(*PREFERENCES.ARBO_GEOMETRY[self.__num_ecran-1])
+            self._num_ecran = 1 + self._num_ecran % 2
+            self.setGeometry(*PREFERENCES.ARBO_GEOMETRY[self._num_ecran-1])
      
     def repCourant(self):
-        if self.__liste_rep:
+        if self._liste_rep:
             return self.cb_repertoire.currentText()
         else:
             return QtCore.QString()
@@ -115,10 +115,10 @@ class FenetreFiltre(BaseClass,FormClass):
         if Rep.ok():
             self.arborescence.setCurrentIndex(self.fileModel.index(Rep.repPhotos()))
             
-#        self.fileModel.setRootPath(self.__rep_images)
+#        self.fileModel.setRootPath(self._rep_images)
 #        self.arborescence.setModel(self.fileModel)
-#        if self.__rep_photo:
-#            self.arborescence.setCurrentIndex(self.fileModel.index(self.__rep_photo))
+#        if self._rep_photo:
+#            self.arborescence.setCurrentIndex(self.fileModel.index(self._rep_photo))
             
     def initialise(self):
         self.cb_nettete.setCheckState(Qt.PartiallyChecked)
@@ -132,7 +132,7 @@ class FenetreFiltre(BaseClass,FormClass):
         self.progressBar.hide()
         self.bt_annuler_progress.hide()
         self.fichier_progress.hide()
-        self.__progress_stoppe = False
+        self._progress_stoppe = False
         FenetreFiltre.__nb_photos = len(liste_fich)
         self.sb_max.setValue(FenetreFiltre.__nb_photos)
         self.cbox_selections.clear()
@@ -190,10 +190,10 @@ class FenetreFiltre(BaseClass,FormClass):
         self.arborescence.hide()
         
     def progressStoppe(self):
-        return self.__progress_stoppe
+        return self._progress_stoppe
     
     def annulerProgress(self):
-        self.__progress_stoppe = True
+        self._progress_stoppe = True
 
     def creerDates(self):
         liste_fich = Rep.listeJPG()
@@ -220,8 +220,8 @@ class FenetreFiltre(BaseClass,FormClass):
                     pickle.dump(FenetreFiltre.__dates,fd)
 
 #     def ok(self):
-#         self.__event_loop.exit()
-#         self.__retour = True
+#         self._event_loop.exit()
+#         self._retour = True
 #         self.hide()
         
     def afficher(self):
@@ -232,14 +232,14 @@ class FenetreFiltre(BaseClass,FormClass):
         FenetreFiltre.__fenetre_thumbs.quitter()
 #      
 #     def annuler(self):
-#         self.__event_loop.exit()
-#         self.__retour = False
+#         self._event_loop.exit()
+#         self._retour = False
 #         self.hide()
 #     
 #     def retour(self):
 #         self.show()
-#         self.__event_loop.exec_()
-#         return self.__retour
+#         self._event_loop.exec_()
+#         return self._retour
     
     def choixToutes(self):
         if self.cb_toutes.isChecked():
@@ -256,8 +256,8 @@ class FenetreFiltre(BaseClass,FormClass):
     def retirerRepertoire(self):
         rep = self.cb_repertoire.currentText()
         self.cb_repertoire.removeItem(self.cb_repertoire.findText(rep))
-        self.__liste_rep.remove(rep)
-        PREFERENCES.setRepertoireDefaut(self.__liste_rep,None)
+        self._liste_rep.remove(rep)
+        PREFERENCES.setRepertoireDefaut(self._liste_rep,None)
     
     def choixRepertoire(self):
         rep = str(QtWidgets.QFileDialog.getExistingDirectory(self,"Répertoire des images",
@@ -266,24 +266,24 @@ class FenetreFiltre(BaseClass,FormClass):
         if rep:
             if self.cb_repertoire.findText(rep) == -1:
                 self.cb_repertoire.addItem(rep)
-                self.__liste_rep.append(rep)
-                PREFERENCES.setRepertoireDefaut(self.__liste_rep,None)
+                self._liste_rep.append(rep)
+                PREFERENCES.setRepertoireDefaut(self._liste_rep,None)
             self.modifierChoixRepertoire()
             
     def modifierChoixRepertoire(self):
             cursor = self.cursor()
             self.setCursor(Qt.BusyCursor)
-            self.__rep_photo = None
+            self._rep_photo = None
             self.setFileModel()
             self.initialise()
             self.setCursor(cursor)
     
     def deplacerPhotos(self):
-        self.__fenetre_thumbs.filtreObligatoire(True)
+        self._fenetre_thumbs.filtreObligatoire(True)
         cursor = self.cursor()
         self.setCursor(Qt.BusyCursor)
         rep_cible = str(QtWidgets.QFileDialog.getExistingDirectory(self,"R�pertoire des images",
-                                                               FenetreFiltre.__rep_deplacement or self.__liste_rep[0],    
+                                                               FenetreFiltre.__rep_deplacement or self._liste_rep[0],    
                                                                QtWidgets.QFileDialog.ShowDirsOnly))
         if rep_cible: 
             rep_cible += '/'   
@@ -327,7 +327,7 @@ class FenetreFiltre(BaseClass,FormClass):
             Rep.detruireSiVide()
             self.arborescence.clearSelection()
         self.setCursor(cursor)
-        self.__fenetre_thumbs.filtreObligatoire(False)
+        self._fenetre_thumbs.filtreObligatoire(False)
         self.majIhm()
         
     def deplaceFichier(self,f,f1):
@@ -378,8 +378,8 @@ class FenetreFiltre(BaseClass,FormClass):
         rep_images = str(self.cb_repertoire.currentText())
         if rep_images[-1] != '/':
             rep_images += '/'
-        #if self.__liste_rep[0] != rep_images:
-        #    PREFERENCES.setRepertoireDefaut(self.__liste_rep[0],self.__rep_photo)
+        #if self._liste_rep[0] != rep_images:
+        #    PREFERENCES.setRepertoireDefaut(self._liste_rep[0],self._rep_photo)
         type_choix = [self.cb_toutes.isChecked(),self.gb_infos.isChecked(),\
                       self.gb_nums.isChecked(),self.gb_dates.isChecked()]
         etoiles = (self.cbCochee(self.cb_0_etoile),\
@@ -415,8 +415,8 @@ class FenetreFiltre(BaseClass,FormClass):
             cb.setCheckState(Qt.Checked)
     
     def select(self,model_index):
-        if not self.__busy:
-            self.__busy = True
+        if not self._busy:
+            self._busy = True
             select = str(self.fileModel.filePath(model_index))
             jpg = None
             Rep.change(None)
@@ -449,7 +449,7 @@ class FenetreFiltre(BaseClass,FormClass):
             else:
                 self.photo.clear()
             self._selection = select
-            self.__busy=False
+            self._busy=False
         
     def charger(self):
         cursor = self.cursor()
@@ -486,7 +486,7 @@ class FenetreFiltre(BaseClass,FormClass):
 
     def renommerFichiers(self):
         from Renommage import IhmRenommage  
-        ihm = IhmRenommage(self._selection,self.__num_ecran)
+        ihm = IhmRenommage(self._selection,self._num_ecran)
         
 class Filtre:
     def __init__(self,types_choix=[False,False,False,False],star=[None,None,None,None],net=[None,None],\
@@ -494,51 +494,51 @@ class Filtre:
         """
         type_choix contient True si toutes ou infos ou nums ou dates est selectionne
         """
-        self.__types_choix = types_choix
-        self.__etoiles = star
-        self.__nettete = net
-        self.__traitee = trait
-        self.__panorama = pano
-        self.__retouche = ret
-        self.__num_photos = nums
-        self.__liste_dates = dates
-        self.__selection = nom_selection
+        self._types_choix = types_choix
+        self._etoiles = star
+        self._nettete = net
+        self._traitee = trait
+        self._panorama = pano
+        self._retouche = ret
+        self._num_photos = nums
+        self._liste_dates = dates
+        self._selection = nom_selection
         
     def choixToutes(self):
-        return self.__types_choix[0]
+        return self._types_choix[0]
     
     def choixInfos(self):
-        return self.__types_choix[1]
+        return self._types_choix[1]
     
     def choixNums(self):
-        return self.__types_choix[2]
+        return self._types_choix[2]
     
     def choixDates(self):
-        return self.__types_choix[3]
+        return self._types_choix[3]
     
     def getEtoiles(self):
-        return self.__etoiles
+        return self._etoiles
     
     def getNettete(self):
-        return self.__nettete
+        return self._nettete
     
     def getTraitees(self):
-        return self.__traitee
+        return self._traitee
     
     def getPanorama(self):
-        return self.__panorama
+        return self._panorama
     
     def getRetouche(self):
-        return self.__retouche
+        return self._retouche
     
     def getNumPhotos(self):
-        return self.__num_photos
+        return self._num_photos
     
     def getListeDates(self):
-        return self.__liste_dates
+        return self._liste_dates
     
     def getNonSelection(self):
-        return self.__selection+'.info'
+        return self._selection+'.info'
     
     def isOk(self,chemin,info,exif,n):
         if self.choixToutes():

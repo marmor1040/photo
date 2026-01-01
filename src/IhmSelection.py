@@ -23,13 +23,13 @@ class FenetreSelection(BaseClass,FormClass):
     def __init__(self,fen_thumbs,ihm_arbo,album):
         BaseClass.__init__(self)
         self.setupUi(self)
-        self.__rep_cible = None
-        self.__taille = 0
-        self.__fenetre_thumbs = fen_thumbs
-        self.__ihm_arbo = ihm_arbo
-        self.__album = album
-        self.__liste_photos = album.listeJPG()
-        #self.__liste_affichees = [album.repPhotos()+'/'+ph for ph in album.getListePhotos()]
+        self._rep_cible = None
+        self._taille = 0
+        self._fenetre_thumbs = fen_thumbs
+        self._ihm_arbo = ihm_arbo
+        self._album = album
+        self._liste_photos = album.listeJPG()
+        #self._liste_affichees = [album.repPhotos()+'/'+ph for ph in album.getListePhotos()]
         self.initialiser()
         self.afficheTaille()
         
@@ -49,12 +49,12 @@ class FenetreSelection(BaseClass,FormClass):
         
     def toutes(self,b):
         if b:
-            self.__liste_photos = self.__album.listeJPG()
+            self._liste_photos = self._album.listeJPG()
             self.afficheTaille()
         
     def photosAffichees(self,b):
         if b:
-            self.__liste_photos = self.__fenetre_thumbs.getListeAffichees()
+            self._liste_photos = self._fenetre_thumbs.getListeAffichees()
             self.afficheTaille()
         
     def autres(self,b):
@@ -62,14 +62,14 @@ class FenetreSelection(BaseClass,FormClass):
         self.afficheTaille()
         
     def afficheTaille(self):
-        self.nb_photos.setText(str(len(self.__liste_photos))+' photos selectionn�es')
-        self.__taille = self.taille_totale()
-        self.taille_init.setText(size(self.__taille,'Mo')+' selectionn�s')
+        self.nb_photos.setText(str(len(self._liste_photos))+' photos selectionn�es')
+        self._taille = self.taille_totale()
+        self.taille_init.setText(size(self._taille,'Mo')+' selectionn�s')
         self.afficheEstime()
         
     def taille_totale(self):
         tot = 0
-        for f in self.__liste_photos:
+        for f in self._liste_photos:
             tot += osp.getsize(f)
         return tot
     
@@ -86,7 +86,7 @@ class FenetreSelection(BaseClass,FormClass):
         return c
     
     def afficheEstime(self):
-        t = self.sizeEstimee(self.__taille,self.getOptions())
+        t = self.sizeEstimee(self._taille,self.getOptions())
         self.taille_finale.setText(size(t,'Mo')+' estim�s')
         
     def choixRepertoire(self):
@@ -96,16 +96,16 @@ class FenetreSelection(BaseClass,FormClass):
                                                           QtWidgets.QFileDialog.ShowDirsOnly)
         if rep:
             self.repertoire.setText(rep)
-            self.__rep_cible = str(rep)
+            self._rep_cible = str(rep)
             self.okcancel.button(QDialogButtonBox.Ok).setEnabled(True)
 
     def choixFiltre(self):
-        self.__fenetre_filtre = FenetreArborescence.FenetreFiltre(self.__fenetre_thumbs)
-        self.__fenetre_filtre.justeFiltre()
-        ret = self.__fenetre_filtre.retour()
+        self._fenetre_filtre = FenetreArborescence.FenetreFiltre(self._fenetre_thumbs)
+        self._fenetre_filtre.justeFiltre()
+        ret = self._fenetre_filtre.retour()
         if ret:
-            filtre = self.__fenetre_filtre.getFiltre()
-            self.__liste_photos = filtre.getPhotos()
+            filtre = self._fenetre_filtre.getFiltre()
+            self._liste_photos = filtre.getPhotos()
             self.afficheTaille()
     
     def choixCopie(self):
@@ -122,7 +122,7 @@ class FenetreSelection(BaseClass,FormClass):
         return (self.bt_copie.isChecked(),self.sb_reduction.value(),self.sb_qualite.value())
 
     def accept(self):
-        Photo.creerSelection(self.__ihm_arbo,self.__liste_photos,self.__rep_cible,"select",self.getOptions())
+        Photo.creerSelection(self._ihm_arbo,self._liste_photos,self._rep_cible,"select",self.getOptions())
         self.hide()
 
 def size(val,dim="Ko"):

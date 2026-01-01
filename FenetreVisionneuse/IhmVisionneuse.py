@@ -25,16 +25,16 @@ class FenetreVisionneuse(BaseClass,FormClass,QObject):
     def __init__(self,parent):
         BaseClass.__init__(self,parent)
         self.setupUi(self)
-        self.__num_ecran = 2
-        self.__liste_thumbs = None
-        self.__timer = None
-        self.__timer_wheel = None
+        self._num_ecran = 2
+        self._liste_thumbs = None
+        self._timer = None
+        self._timer_wheel = None
 #         self.mode_tri = bModeTri
-        self.__redraw = False
-        self.__miniature_aff = False
-        self.__filtre_aff = False
-        self.__num_wheel = 0
-        self.__quitter_ok = False
+        self._redraw = False
+        self._miniature_aff = False
+        self._filtre_aff = False
+        self._num_wheel = 0
+        self._quitter_ok = False
         self.obj_signal =  QObject(None)
         self.aide = "F1 : aide\n"+\
                     "F2 : bascule plein ecran / fenetre\n"+\
@@ -46,14 +46,14 @@ class FenetreVisionneuse(BaseClass,FormClass,QObject):
                     "<1> : note 1\n"+\
                     "<2> : note 2\n"+\
                     "<3> : note 3\n"
-        self.__gestion_ecrans = Ecrans.Affichage(self,1,x0=100,y0=100,kw=0.5,kh=0.5,plein_ecran=True,type_ihm=Ecrans.Affichage.VISIONNEUSE)
-        self.__gestion_ecrans.affiche()
-#         self.__miniature_aff = True
+        self._gestion_ecrans = Ecrans.Affichage(self,1,x0=100,y0=100,kw=0.5,kh=0.5,plein_ecran=True,type_ihm=Ecrans.Affichage.VISIONNEUSE)
+        self._gestion_ecrans.affiche()
+#         self._miniature_aff = True
         #sender.value_changed.connect(self.affichePhoto)
         #self.show()
     
     def link(self,liste_thumbs):
-        self.__liste_thumbs = liste_thumbs
+        self._liste_thumbs = liste_thumbs
 
     def deplaceAutreEcran(self,o=None):
         if not o:o=self
@@ -94,115 +94,115 @@ class FenetreVisionneuse(BaseClass,FormClass,QObject):
         else: self.lbl_etoiles.setText("")
             
     def changeEcran(self):
-        self.__gestion_ecrans.changeEcran()
+        self._gestion_ecrans.changeEcran()
 
     def keyPressEvent(self,event):
         touche = event.key()
         if touche == Qt.Key_F1:
             QtWidgets.QMessageBox.warning(self.window(),'Aide',self.aide)
         if touche == Qt.Key_F2:
-            self.__gestion_ecrans.pleinEcran()
-            self.__gestion_ecrans.affiche()
+            self._gestion_ecrans.pleinEcran()
+            self._gestion_ecrans.affiche()
         elif touche == Qt.Key_F3:
-            self.__gestion_ecrans.changeEcrans()
+            self._gestion_ecrans.changeEcrans()
         elif touche == Qt.Key_Up or touche == PREFERENCES.PREC:
-            self.__liste_thumbs.selectPrevious()
+            self._liste_thumbs.selectPrevious()
         elif touche == Qt.Key_Down or touche == PREFERENCES.SUIV:
-            self.__liste_thumbs.selectNext()
+            self._liste_thumbs.selectNext()
         elif touche == PREFERENCES.ETOILE0:
-            print("self.__Pin.send('##0_Etoile##')")
+            print("self._Pin.send('##0_Etoile##')")
         elif touche == PREFERENCES.ETOILE1:
-            print("self.__Pin.send('##1_Etoile##')")
+            print("self._Pin.send('##1_Etoile##')")
         elif touche == PREFERENCES.ETOILE2:
-            print("self.__Pin.send('##2_Etoiles##')")
+            print("self._Pin.send('##2_Etoiles##')")
         elif touche == PREFERENCES.ETOILE3:
-            print("self.__Pin.send('##3_Etoiles##')")
+            print("self._Pin.send('##3_Etoiles##')")
 
     def wheelEvent(self,event):
         print('wheelEvent')
-#        if self.__timer_wheel:
-#            self.__num_wheel += 1
-#            print self.__num_wheel,'ajout'
+#        if self._timer_wheel:
+#            self._num_wheel += 1
+#            print self._num_wheel,'ajout'
 #            sys.stdout.flush()
 #        else:
-#            print 'envoi',self.__num_wheel
-#            self.__num_wheel = 0
-#            self.__timer_wheel = self.startTimer(1000)
-#            self.killTimer(self.__timer_wheel)
-        # self.__Pin.send(str(event.delta()))
+#            print 'envoi',self._num_wheel
+#            self._num_wheel = 0
+#            self._timer_wheel = self.startTimer(1000)
+#            self.killTimer(self._timer_wheel)
+        # self._Pin.send(str(event.delta()))
         # if event.delta() > 0:
-        #     self.__Pin.send('##up##')
+        #     self._Pin.send('##up##')
         # else:
-        #     self.__Pin.send('##down##')
+        #     self._Pin.send('##down##')
             
     def mouseMoveEvent(self,event):
         print('mouseMoveEvent')
-        #if self.__redraw:
+        #if self._redraw:
             #print '##redraw##'
             #sys.stdout.flush()
-            #self.__Pin.send('##redraw##')
-            #self.__redraw = False
+            #self._Pin.send('##redraw##')
+            #self._redraw = False
 #         if not self.mode_tri:
 #             x = event.x()
 #             xm = self.width()
 #             y = event.y()
 #             ym = self.height()
 #             if x > xm * 0.8 and y < ym * 0.2:
-#                 if not self.__miniature_aff:
-#                     self.__Pin.send('##affiche_miniatures##')
-#                     self.__Pin.send(self.__num_ecran)
-#                     self.__miniature_aff = True
+#                 if not self._miniature_aff:
+#                     self._Pin.send('##affiche_miniatures##')
+#                     self._Pin.send(self._num_ecran)
+#                     self._miniature_aff = True
 #             else:
-#                 self.__Pin.send('##cache_miniatures##')
-#                 self.__miniature_aff = False
-#             w,h = self.__diaporama.x()+self.__diaporama.width(),self.__diaporama.y()+self.__diaporama.height()
+#                 self._Pin.send('##cache_miniatures##')
+#                 self._miniature_aff = False
+#             w,h = self._diaporama.x()+self._diaporama.width(),self._diaporama.y()+self._diaporama.height()
 #             if y < h and x < w:
-#                 self.__diaporama.show()
+#                 self._diaporama.show()
 #             else:
-#                 self.__diaporama.hide()
+#                 self._diaporama.hide()
 #             if x < xm * 0.2 and y > ym * 0.8:
-#                 if not self.__filtre_aff:
-#                     self.__Pin.send('##affiche_filtre##')
-#                     self.__Pin.send(self.__num_ecran)
-#                     self.__filtre_aff = True
+#                 if not self._filtre_aff:
+#                     self._Pin.send('##affiche_filtre##')
+#                     self._Pin.send(self._num_ecran)
+#                     self._filtre_aff = True
 #             else:
-#                 self.__Pin.send('##cache_filtre##')
-#                 self.__filtre_aff = False
-#         if self.__timer:
-#             self.killTimer(self.__timer)
+#                 self._Pin.send('##cache_filtre##')
+#                 self._filtre_aff = False
+#         if self._timer:
+#             self.killTimer(self._timer)
 #             self.setCursor(Qt.ArrowCursor)
-#         self.__timer = self.startTimer(3000)
+#         self._timer = self.startTimer(3000)
     
     def timerEvent(self,timer):
         self.setCursor(Qt.BlankCursor)
         
     def closeEvent(self,event):
         # fermeture de la fenetre visionneuse
-        if self.__timer:
+        if self._timer:
             pass
             # erreur quand on tue le timer
             # voir si c'est utile en mode tri photo
             #print 'je tue le timer'
-            #self.killTimer(self.__timer)
+            #self.killTimer(self._timer)
         self.quitter()
       
     def resizeEvent(self,event):
-        self.__redraw = True
+        self._redraw = True
         rect = self.geometry()
         self.label.setGeometry(0,0,rect.width(),rect.height())
         self.affichePhoto()
         
     def avanceDiaporama(self):
-        self.__Pin.send('##down##')
+        self._Pin.send('##down##')
         
     def quitter(self,rm=False):
-        if not self.__quitter_ok:
+        if not self._quitter_ok:
             #print 'fermer visio'
-            self.__quitter_ok = True
+            self._quitter_ok = True
             self.window().close()
-#        self.__Pin.send('##quitter##')
-#        self.__Pin.send(rm)
-#        self.__Pout.send('##quitter##')
+#        self._Pin.send('##quitter##')
+#        self._Pin.send(rm)
+#        self._Pout.send('##quitter##')
         
 def monprint(*obj):
     if False:

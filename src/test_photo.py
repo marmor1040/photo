@@ -53,11 +53,11 @@ class FenetreVisionneuse(BaseClass,Ui_Visionneuse):
     def __init__(self,photo):
         BaseClass.__init__(self,None)
         self.setupUi(self)
-        self.__image = QImage(QString(photo))
+        self._image = QImage(QString(photo))
         self.affichePhoto()
         
     def affichePhoto(self):
-        pm = QPixmap.fromImage(self.__image)
+        pm = QPixmap.fromImage(self._image)
         taille = self.size()
         p_larg = taille.width()
         p_haut = taille.height()
@@ -74,10 +74,10 @@ class FenetreVisionneuse(BaseClass,Ui_Visionneuse):
         self.show()
         
     def resizeEvent(self,event):
-        self.__redraw = True
+        self._redraw = True
         rect = self.geometry()
         self.label.setGeometry(0,0,rect.width(),rect.height())
-        if self.__image: self.affichePhoto()
+        if self._image: self.affichePhoto()
         
 if __name__ == "__main__":
     app = QApplication([])

@@ -44,11 +44,11 @@ class FenetrePhoto(BaseClass,FormClass):
         self.index_photo = None
         self.numero = None
         self.diaporama_en_cours = False
-        self.__timer = None
-        self.__timer_cursor = QTimer()
-        self.__timer_cursor.setInterval(500)
-        self.__timer_cursor.start()
-        self.__timer_cursor.timeout.connect(self.timerCursorEvent)
+        self._timer = None
+        self._timer_cursor = QTimer()
+        self._timer_cursor.setInterval(500)
+        self._timer_cursor.start()
+        self._timer_cursor.timeout.connect(self.timerCursorEvent)
         self._occupe = True
         self.pixmap = None
         self.album = None
@@ -150,12 +150,12 @@ class FenetrePhoto(BaseClass,FormClass):
             self.affichePhoto(self.liste_photos[self.numero])
         elif touche == Qt.Key_Space:
             if self.diaporama_en_cours:
-                self.killTimer(self.__timer)
-                self.__timer = None
+                self.killTimer(self._timer)
+                self._timer = None
                 self.diaporama_en_cours = False
                 self.setCursor(Qt.ArrowCursor)
             else:
-                self.__timer = self.startTimer(2*1000)
+                self._timer = self.startTimer(2*1000)
                 self.diaporama_en_cours = True
                 self.setCursor(Qt.BlankCursor)
         elif touche == Qt.Key_Escape:
@@ -163,8 +163,8 @@ class FenetrePhoto(BaseClass,FormClass):
     
     def timerEvent(self,timer):
         if self.numero+1 == len(self.liste_photos): 
-            self.killTimer(self.__timer)
-            self.__timer = None
+            self.killTimer(self._timer)
+            self._timer = None
             self.diaporama_en_cours = False
             self.setCursor(Qt.ArrowCursor)
         else:
@@ -187,7 +187,7 @@ class FenetrePhoto(BaseClass,FormClass):
                 self.affichePhoto(self.liste_photos[self.numero])
             
     def resizeEvent(self,event):
-        self.__redraw = True
+        self._redraw = True
         rect = self.geometry()
         self.label.setGeometry(0,0,rect.width(),rect.height())
         self.scrollThumbs.setPosition(rect.width()-200,rect.height())
@@ -202,10 +202,10 @@ class FenetrePhoto(BaseClass,FormClass):
         if x > xm * 0.8 and y < ym * 0.2:
             self.scrollThumbs.affiche(True)
             self.setCursor(Qt.ArrowCursor)
-            self.__timer_cursor.stop()
+            self._timer_cursor.stop()
         elif self.scrollThumbs.isVisible():
             self.scrollThumbs.affiche(False)
-            self.__timer_cursor.start()
+            self._timer_cursor.start()
         
     def closeEvent(self,event):
         self.quitter()

@@ -17,25 +17,25 @@ class Album():
     def __init__(self,rep,ihm_arbo,verif_album=False):
         # lien vers l'ihm pour la progressbar
         if rep[-1] != '/':
-            self.__repertoire = rep +"/"
-        self.__infos = None
-        self.__exifs = None
-        self.__dates = []
-        self.__liste_jpg = []
-        self.__liste_jpg_thumbs = []
-        self.__index_photo = {}
+            self._repertoire = rep +"/"
+        self._infos = None
+        self._exifs = None
+        self._dates = []
+        self._liste_jpg = []
+        self._liste_jpg_thumbs = []
+        self._index_photo = {}
         self.listeJPG()
         self.listeJPGThumbs()
         self.lireDates()
         self.lireExifs()
         self.lireInfos()
-        self.__ihm = ihm_arbo
-        self.__infos_sauvees = True
+        self._ihm = ihm_arbo
+        self._infos_sauvees = True
         if verif_album:
             self.refresh()
         
     def refresh(self):
-        self.__liste_jpg = []
+        self._liste_jpg = []
         jpg = self.getFirstPhoto()
         if jpg:
             self.creerDossiers()
@@ -46,12 +46,12 @@ class Album():
             self.detruireDossiers()
     
     def change(self,rep):
-        self.__repertoire = rep
-        self.__infos = {}
-        self.__exifs = {}
-        self.__dates = []
-        self.__liste_jpg = []
-        self.__liste_jpg_thumbs = []
+        self._repertoire = rep
+        self._infos = {}
+        self._exifs = {}
+        self._dates = []
+        self._liste_jpg = []
+        self._liste_jpg_thumbs = []
         if rep:
             self.creerDossiers()
     
@@ -75,22 +75,22 @@ class Album():
             detruire(self.repSelections())
     
     def basename(self):
-        if self.__repertoire[-1] == '/':
-            rep = self.__repertoire[:-1]
+        if self._repertoire[-1] == '/':
+            rep = self._repertoire[:-1]
         else:
-            rep = self.__repertoire
+            rep = self._repertoire
         return osp.basename(rep)
             
     def majMiniatures(self):
         l = self.listeJPG()
         l.sort()
-        if self.__ihm:
-            self.__ihm.initProgressBar(len(l))
+        if self._ihm:
+            self._ihm.initProgressBar(len(l))
         n=0
         for im in l:
             name = osp.basename(im)
-            if self.__ihm:
-                stop = self.__ihm.avanceProgressBar(n,name)
+            if self._ihm:
+                stop = self._ihm.avanceProgressBar(n,name)
                 if stop: break
             th = self.repThumbs()+name
             if not osp.isfile(th) or not self.getExif(name):
@@ -102,13 +102,13 @@ class Album():
                     pivoter = exif_ht['pivoter']
                     if pivoter: # orient = 90 ou -90
                         exif_im,exif_ht = Photo.fairePivoterPhoto(im,exif_ht,exif_im)
-                self.__exifs[name] = exif_ht
+                self._exifs[name] = exif_ht
                 # date
                 date = exif_ht['date']
-                if not date in self.__dates:
-                    self.__dates.append(date)
+                if not date in self._dates:
+                    self._dates.append(date)
                 # infos
-                self.__infos[name] = {"etoiles" : 0,"traitee":False,"cochee":False,"pano":False,"retouche":False}
+                self._infos[name] = {"etoiles" : 0,"traitee":False,"cochee":False,"pano":False,"retouche":False}
                 # thumb
                 if not osp.isfile(th):
                     Photo.creerThumbnail(im,th,exif_im)
@@ -122,26 +122,26 @@ class Album():
         self.sauveDates()
         self.sauveInfos()
 
-        if self.__ihm:
-            self.__ihm.stopProgressBar()
+        if self._ihm:
+            self._ihm.stopProgressBar()
             
 
     def pivoterPhoto(self,thumb):
         name_photo = thumb.getName()
         photo = self.getJPGPath(name_photo)
         exif_im = Exif.loadExif(photo)
-        exif_ht = self.__exifs[name_photo]
+        exif_ht = self._exifs[name_photo]
         exif_im,exif_ht = Photo.fairePivoterPhoto(photo,exif_ht,exif_im,angle=-90)
         Photo.creerThumbnail(photo,osp.join(self.repThumbs(),name_photo),exif_im)
         pass
     #     def getInfos(self):
-#         return self.__infos
+#         return self._infos
 #     
 #     
 #     def getInfo(self,nom):
 #         if '/' in nom:
 #             nom = osp.basename(nom)
-#         return self.__infos.get(nom)
+#         return self._infos.get(nom)
 #     
 #     
         
@@ -155,52 +155,52 @@ class Album():
         import json
         try:
             with open(self.fichierInfos(),'r') as f:
-                self.__infos = json.load(f)
+                self._infos = json.load(f)
         except:
-            self.__infos = {}
+            self._infos = {}
         
     def verif_infos(self):
-        if self.__infos:
-            if len(self.__infos[list(self.__infos.keys())[0]]) < 5:
-                for nom,ht in list(self.__infos.items()):
+        if self._infos:
+            if len(self._infos[list(self._infos.keys())[0]]) < 5:
+                for nom,ht in list(self._infos.items()):
                     if not "etoiles" in list(ht.keys()):
-                        self.__infos[nom]["etoiles"] = 0
+                        self._infos[nom]["etoiles"] = 0
                     if not "traitee" in list(ht.keys()):
-                        self.__infos[nom]["traitee"] = False
+                        self._infos[nom]["traitee"] = False
                     if not "cochee" in list(ht.keys()):
-                        self.__infos[nom]["cochee"] = False
+                        self._infos[nom]["cochee"] = False
                     if not "pano" in list(ht.keys()):
-                        self.__infos[nom]["pano"] = False
+                        self._infos[nom]["pano"] = False
                     if not "retouche" in list(ht.keys()):
-                        self.__infos[nom]["retouche"] = False
+                        self._infos[nom]["retouche"] = False
                 self.sauveInfos()
             
     def sauveInfos(self):
         import json
         with open(self.fichierInfos(),'w') as f:
-            json.dump(self.__infos,f)
-        self.__infos_sauvees = True
+            json.dump(self._infos,f)
+        self._infos_sauvees = True
     
     def getInfos(self):
-        return self.__infos
+        return self._infos
     
     def getInfo(self,nom):
         try:
             if '/' in nom:
                 nom = osp.basename(nom)
-            return self.__infos[nom]
+            return self._infos[nom]
         except:
             print("Info",nom,"introuvable")
             return {"etoiles" : 0,"traitee":False,"cochee":False,"pano":False,"retouche":False}
     
     def setInfo(self,nom,cle,val):
-        if nom not in self.__infos:
-            self.__infos[nom] = {"etoiles" : 0,"traitee":False,"cochee":False,"pano":False,"retouche":False}
-        self.__infos[nom][cle] = val
-        self.__infos_sauvees = False
+        if nom not in self._infos:
+            self._infos[nom] = {"etoiles" : 0,"traitee":False,"cochee":False,"pano":False,"retouche":False}
+        self._infos[nom][cle] = val
+        self._infos_sauvees = False
         
     def infosSauvees(self):
-        return self.__infos_sauvees
+        return self._infos_sauvees
 
 #
 # selection
@@ -230,24 +230,24 @@ class Album():
         import json
         try:
             with open(self.fichierExifs(),'r') as f:
-                self.__exifs = json.load(f)
+                self._exifs = json.load(f)
         except:
-            self.__exifs = {}
+            self._exifs = {}
         
     def getExifs(self):
-        return self.__exifs
+        return self._exifs
     
     def getExif(self,nom):
         try:
             if '/' in nom:
                 nom = osp.basename(nom)
-            return self.__exifs[nom]
+            return self._exifs[nom]
         except:
             print("Exif",nom,"introuvable")
             return None
     
     def setExifs(self,ht):
-        self.__exifs = ht
+        self._exifs = ht
         
     def fichierExifs(self):
         return self.repTriPhotos()+'Exifs.dat'
@@ -255,11 +255,11 @@ class Album():
     def sauveExifs(self):
         import json
         with open(self.fichierExifs(),'w') as f:
-            json.dump(self.__exifs,f)
+            json.dump(self._exifs,f)
 
     def ajouteExif(self,chemin_photo):
         exif_im = Exif.loadExif(chemin_photo)
-        self.__exifs[osp.basename(chemin_photo)] = Exif.getHt(exif_im)
+        self._exifs[osp.basename(chemin_photo)] = Exif.getHt(exif_im)
     
 #
 #  Dates
@@ -267,21 +267,21 @@ class Album():
     def lireDates(self):
         try:
             with open(self.fichierDates(),'rb') as f:
-                self.__dates = pickle.load(f)
+                self._dates = pickle.load(f)
         except:
-            self.__dates = []
+            self._dates = []
                 
     def getDates(self):
-        if not self.__dates:
+        if not self._dates:
             self.lireDates()
-        return self.__dates
+        return self._dates
         
     def recreerDates(self):
-        self.__dates = []
-        for name,exif in list(self.__exifs.items()):
+        self._dates = []
+        for name,exif in list(self._exifs.items()):
             date = exif['date']
-            if not date in self.__dates:
-                self.__dates.append(date)
+            if not date in self._dates:
+                self._dates.append(date)
                     
     def getListeDates(self):
         from datetime import date
@@ -298,7 +298,7 @@ class Album():
     def sauveDates(self): 
         import json
         with open(self.fichierDates(),'w') as f:
-            json.dump(self.__dates,f)
+            json.dump(self._dates,f)
         
     def fichierDates(self):
         return self.repTriPhotos()+'Dates.dat'
@@ -308,13 +308,13 @@ class Album():
 #
     def repertoire(self):
         from pathlib import Path
-        return Path(self.__repertoire).as_posix()
+        return Path(self._repertoire).as_posix()
     
     def estUnAlbum(self):
-        return bool(self.__repertoire and osp.isdir(self.__repertoire) and self.listeJPG() and osp.isdir(self.repTriPhotos()))
+        return bool(self._repertoire and osp.isdir(self._repertoire) and self.listeJPG() and osp.isdir(self.repTriPhotos()))
     
     def repTriPhotos(self):
-        return self.__repertoire+'TriPhotos/'
+        return self._repertoire+'TriPhotos/'
    
     def repThumbs(self):
         return self.repTriPhotos()+'Thumbs/'
@@ -341,18 +341,18 @@ class Album():
         #return os.listdir(self.repRetouche())
 
     def getFirstPhoto(self):
-        return scanRep.first(self.__repertoire,'.JPG')
+        return scanRep.first(self._repertoire,'.JPG')
     
     def listeJPG(self,chemin=True):
-        if self.__repertoire and not self.__liste_jpg:
-            self.__liste_jpg,self.__index_photo = scanRep.listeFichiers(self.__repertoire,'JPG',bIndex=True)
+        if self._repertoire and not self._liste_jpg:
+            self._liste_jpg,self._index_photo = scanRep.listeFichiers(self._repertoire,'JPG',bIndex=True)
         if chemin:
-            return self.__liste_jpg
+            return self._liste_jpg
         else:
-            return lbasename(self.__liste_jpg)
+            return lbasename(self._liste_jpg)
     
     def retireJPG(self,photo):
-        l = self.__liste_jpg
+        l = self._liste_jpg
         if photo in l:
             l.pop(l.index(photo))
     
@@ -365,35 +365,35 @@ class Album():
         return [v[1] for v in ltri]
             
     def reinitListeJPG(self):
-        self.__liste_jpg = []
-        self.__liste_jpg_thumbs = []
+        self._liste_jpg = []
+        self._liste_jpg_thumbs = []
     
     def listeJPGThumbs(self):
-        if not self.__liste_jpg_thumbs:
-            self.__liste_jpg_thumbs = scanRep.listeFichiers(self.repThumbs(),'JPG')
-        return self.__liste_jpg_thumbs
+        if not self._liste_jpg_thumbs:
+            self._liste_jpg_thumbs = scanRep.listeFichiers(self.repThumbs(),'JPG')
+        return self._liste_jpg_thumbs
     
     def getJPGThumb(self,nom):
         return self.repThumbs()+nom
     
     def getJPGPath(self,nom):
-        return osp.join(self.__repertoire,nom)
+        return osp.join(self._repertoire,nom)
         
     def ajouteJPGThumbs(self,photo):
-        self.__liste_jpg_thumbs.append(photo)
+        self._liste_jpg_thumbs.append(photo)
     
     def retireJPGThumbs(self,photo):
-        l = self.__liste_jpg_thumbs
+        l = self._liste_jpg_thumbs
         if photo in l:
             l.pop(l.index(photo))
     
     def listeIndexJPG(self):
-        return self.__index_photo
+        return self._index_photo
     
     def miniaturesOk(self):
         s = set(lbasename(self.listeJPG()))
         sm = set(lbasename(self.listeJPGThumbs()))
-        nb = len(self.__exifs)
+        nb = len(self._exifs)
         return s == sm and len(s)== nb
     
     def miniaturesEnTrop(self):
@@ -408,15 +408,15 @@ class Album():
         l = self.listeJPGRecup()
         for f in l:
             # deplacement avec indi�age
-            Photo.deplacerPhoto(f,self.__repertoire)
+            Photo.deplacerPhoto(f,self._repertoire)
     
     def listeJPGFiltres(self,filtre):
         lret = []
         n=0
         for chemin in self.listeJPG():
             nom = osp.basename(chemin)
-            exif = self.__exifs[nom]
-            info = self.__infos[nom]
+            exif = self._exifs[nom]
+            info = self._infos[nom]
             ok = filtre.isOk(chemin,info,exif,n)
             if ok:
                 lret.append(chemin)
@@ -438,10 +438,10 @@ class Album():
     
     def detruireMiniatures(self):
         detruire(self.repThumbs())
-        self.__liste_jpg_thumbs = []
-        self.__exifs = {}
-        self.__dates = []
-        self.__infos = {}
+        self._liste_jpg_thumbs = []
+        self._exifs = {}
+        self._dates = []
+        self._infos = {}
         creer(self.repThumbs())
         
     def deplacerPanorama(self,nom,str_num):
@@ -450,14 +450,14 @@ class Album():
     def renommerPhoto(self,nom,nom1):
         shutil.move(self.repertoire()+nom,self.repertoire()+nom1)
         shutil.move(self.repThumbs()+nom,self.repThumbs()+nom1)
-        self.__liste_jpg.remove(self.repertoire()+nom)
-        self.__liste_jpg_thumbs.remove(self.repThumbs()+nom)
-        self.__liste_jpg.append(self.repertoire()+nom1)
-        self.__liste_jpg_thumbs.append(self.repThumbs()+nom1)
-        self.__exifs[nom1] = self.__exifs[nom]
-        self.__infos[nom1] = self.__infos[nom]
-        del self.__exifs[nom]
-        del self.__infos[nom]
+        self._liste_jpg.remove(self.repertoire()+nom)
+        self._liste_jpg_thumbs.remove(self.repThumbs()+nom)
+        self._liste_jpg.append(self.repertoire()+nom1)
+        self._liste_jpg_thumbs.append(self.repThumbs()+nom1)
+        self._exifs[nom1] = self._exifs[nom]
+        self._infos[nom1] = self._infos[nom]
+        del self._exifs[nom]
+        del self._infos[nom]
         self.sauveExifs()
         self.sauveInfos()
         
@@ -475,8 +475,8 @@ class Album():
                 if osp.isfile(chemin_min):
                     os.remove(chemin_min)
                     self.retireJPGThumbs(chemin_min)
-                if photo in self.__exifs:
-                    del self.__exifs[photo]
+                if photo in self._exifs:
+                    del self._exifs[photo]
                 self.recreerDates()
             except:
                 print('Erreur � la destruction de la photo :',photo)         
@@ -507,11 +507,11 @@ class Album():
                 if b: m += " "+osp.basename(i)+" "
                 else: m += " "+i+" "
             return m
-        mess = osp.basename(self.__repertoire[:-1]) + "\n"
-        mess += aj(self.__liste_jpg) + "\n"
-        mess += aj(self.__liste_jpg_thumbs) + "\n"
-        mess += aj(list(self.__exifs.keys())) + "\n"
-        mess += aj(self.__dates,False) + "\n"
+        mess = osp.basename(self._repertoire[:-1]) + "\n"
+        mess += aj(self._liste_jpg) + "\n"
+        mess += aj(self._liste_jpg_thumbs) + "\n"
+        mess += aj(list(self._exifs.keys())) + "\n"
+        mess += aj(self._dates,False) + "\n"
         return mess
         
 def creer(r):

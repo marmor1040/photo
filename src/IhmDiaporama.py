@@ -19,9 +19,9 @@ class FenetreDiaporama(BaseClass, FormClass):
     def __init__(self,parent):
         BaseClass.__init__(self, parent)
         self.setupUi(self)
-        self.__fenetre = parent
-        self.__en_cours = False
-        self.__timer = None
+        self._fenetre = parent
+        self._en_cours = False
+        self._timer = None
         QObject.connect(self.bt_go_stop,QtCore.SIGNAL("clicked()"),self.go_stop)
         QObject.connect(self.sb_tempo,QtCore.SIGNAL("valueChanged(int)"),self.change_tempo)
         QObject.connect(self.bt_quitter,QtCore.SIGNAL("clicked()"),self.quitter)
@@ -30,33 +30,33 @@ class FenetreDiaporama(BaseClass, FormClass):
         self.move(100,0)
             
     def timerEvent(self,timer):
-        self.__fenetre.avanceDiaporama()
+        self._fenetre.avanceDiaporama()
         
     def go_stop(self):
-        if self.__en_cours:
-            self.killTimer(self.__timer)
-            self.__timer = None
+        if self._en_cours:
+            self.killTimer(self._timer)
+            self._timer = None
             self.bt_go_stop.setText('Lancer')
-            self.__en_cours = False
+            self._en_cours = False
         else:
-            self.__timer = self.startTimer(self.sb_tempo.value()*1000)
+            self._timer = self.startTimer(self.sb_tempo.value()*1000)
             self.bt_go_stop.setText('Stop')
-            self.__en_cours = True
+            self._en_cours = True
             
     def change_tempo(self,v):
-        if self.__timer:
-            self.killTimer(self.__timer)
-            self.__timer = self.startTimer(self.sb_tempo.value()*1000)
+        if self._timer:
+            self.killTimer(self._timer)
+            self._timer = self.startTimer(self.sb_tempo.value()*1000)
         
     def done(self,v):
-        if self.__timer:
-            self.killTimer(self.__timer)
+        if self._timer:
+            self.killTimer(self._timer)
         self.hide()
 
     def quitter(self):
         ret = False
-        if not self.__fenetre.mode_tri:
+        if not self._fenetre.mode_tri:
             ret = Message.question(self.window(),'Destruction miniatures','D�truire les miniatures',Message.Ok|Message.Cancel,Message.Cancel)
-        self.__fenetre.quitter(ret == Message.Ok)
+        self._fenetre.quitter(ret == Message.Ok)
 
         

@@ -115,11 +115,16 @@ def fairePivoterPhoto(photo,exif_ht,exif_im,angle=None):
         angle = exif_ht['pivoter']
     print('-> rotation de ',photo,angle)
     image = Image.open(photo)
-    im_rot = image.rotate(angle)
+    im_rot = image.rotate(angle,expand=True)
     im_rot.save(photo,format="JPEG")
-    exif_im[exif_ht["ifd_orientation"]][exif_ht["tag_orientation"]] = 0
-    exif_ht['pivoter'] = 0
-    Exif.saveExif(photo,exif_im)
+    try:
+        exif_im[exif_ht["ifd_orientation"]][exif_ht["tag_orientation"]] = 0
+        exif_ht['pivoter'] = 0
+        exif_ht['taille'] = 'x'.join(exif_ht['taille'].split('x')[::-1])
+        exif_ht['paysage'] = not exif_ht['paysage']
+        Exif.saveExif(photo,exif_im)
+    except:
+        pass
     return exif_im,exif_ht
      
 def creerSelection(ihm,liste_images,rep_cible,prefixe,options):

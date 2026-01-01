@@ -20,72 +20,73 @@ import src.preferences as PREFERENCES
 
 class ListeThumbs():
     def __init__(self,ihm_miniature,fenetre_photo=None):
-        self.__ihm_min = ihm_miniature
-        self.__liste = chainList()
-        self.__nb_traitees= [None,None,None]
-        self.__album = None
-        self.__filtre = None
-        self.__ihm_arbo = None
-        self.__tri_date = None
-        self.__fenetre_photo = fenetre_photo
+        self._ihm_min = ihm_miniature
+        self._liste = chainList()
+        self._nb_traitees= [None,None,None]
+        self._album = None
+        self._filtre = None
+        self._ihm_arbo = None
+        self._tri_date = None
+        self._fenetre_photo = fenetre_photo
         
     def chargeThumbs(self,album,filtre,ihm_arbo,tri_date):
-        self.__album = album
-        self.__filtre = filtre
-        self.__ihm_arbo = ihm_arbo
-        self.__tri_date = tri_date
+        self._album = album
+        self._filtre = filtre
+        self._ihm_arbo = ihm_arbo
+        self._tri_date = tri_date
         self.refresh()
         
     def refresh(self):
-        repertoire_thumbs = self.__album.repThumbs()
-        if self.__tri_date:
-            liste_jpg = self.__album.listeJPGTrieParDate(chemin=False)
+        repertoire_thumbs = self._album.repThumbs()
+        if self._tri_date:
+            liste_jpg = self._album.listeJPGTrieParDate(chemin=False)
         else:
-            liste_jpg = self.__album.listeJPG(chemin=False)
+            liste_jpg = self._album.listeJPG(chemin=False)
         if not liste_jpg:return
-        #self.__album.setFichierInfos(filtre.getNonSelection())
-        #self.__album.lireInfos()
-        #self.infos = self.__album.getInfos()
+        #self._album.setFichierInfos(filtre.getNonSelection())
+        #self._album.lireInfos()
+        #self.infos = self._album.getInfos()
         # si des photos ont �t� ajout�es ou retir�es le fichier exifs n'est plus � jour
-        #self.__album.majExifs()
-        self.exifs = self.__album.getExifs()
-        selection = self.__filtre.getNomSelection()
+        #self._album.majExifs()
+        self.exifs = self._album.getExifs()
+        selection = self._filtre.getNomSelection()
         if selection != "aucune.sel":
-            liste_fich = self.__album.lireSelection(selection)
+            liste_fich = self._album.lireSelection(selection)
             btoutes = False
         else:
             liste_fich = liste_jpg
             btoutes = True
         #print liste_fich
-        self.__ihm_arbo.initProgressBar(len(liste_fich))
+        self._ihm_arbo.initProgressBar(len(liste_fich))
         #aff_traitees = 0
         n=0
-        self.__liste = chainList()
+        self._liste = chainList()
         #self.infos.stopCalculTotaux(True)
         stop = False
         thumbnail.reinitNumero()
         for nom in liste_fich:
             if not stop and (btoutes or nom in liste_jpg):
                 chemin = repertoire_thumbs + nom
-                info = self.__album.getInfo(nom)
+                info = self._album.getInfo(nom)
                 exif = self.exifs[nom]
-                ok = self.__filtre.isOk(chemin,info,exif,n)
+                ok = self._filtre.isOk(chemin,info,exif,n)
                 if ok:
-                    tn = thumbnail(self.__ihm_min,self.__album,nom)
-                    self.__liste.append(tn)
+                    tn = thumbnail(self._ihm_min,self._album,nom)
+                    self._liste.append(tn)
                     #aff_traitees += tn.getTraite()
                 n+=1
-                stop = self.__ihm_arbo.avanceProgressBar(n,nom)
+                stop = self._ihm_arbo.avanceProgressBar(n,nom)
         thumbnail.liste_thumbs = self
         #self.infos.stopCalculTotaux(False)
-        #self.__nb_traitees = [self.infos.getNbTraites(),self.infos.getNbTraites(),aff_traitees]
-        self.__ihm_arbo.stopProgressBar()
-        if self.__liste:
-            self.__liste.select(0,True)
+        #self._nb_traitees = [self.infos.getNbTraites(),self.infos.getNbTraites(),aff_traitees]
+        self._ihm_arbo.stopProgressBar()
+        if self._liste:
+            self._liste.select(0,True)
     
     def updateThumbnail(self,num_photo):
-        self.__liste[num_photo].creerWidget()
-        
+        self._liste[num_photo].creerWidget()
+        return self._liste[num_photo]._widget
+
 #     def listeParDate(self,liste_jpg):
 #         l = []
 #         now = dt.datetime.now()
@@ -107,18 +108,18 @@ class ListeThumbs():
 #         return list(zip(*l)[1])
     
     def appliquerInfos(self,info,toutes):
-        self.__liste.apply(toutes,thumbnail.appliquerInfos,info)
+        self._liste.apply(toutes,thumbnail.appliquerInfos,info)
 
     def afficherInfos(self,toutes):
-        self.__liste.apply(toutes,thumbnail.afficherInfos)
+        self._liste.apply(toutes,thumbnail.afficherInfos)
 
     def rechargerInfos(self):
-        for th in self.__liste:
-            th.setInfo(self.__album.getInfo(th.getName()))
+        for th in self._liste:
+            th.setInfo(self._album.getInfo(th.getName()))
 
     def getNbTraites(self):
-        self.__nb_traitees[1] = self.infos.getNbTraites()
-        return self.__nb_traitees
+        self._nb_traitees[1] = self.infos.getNbTraites()
+        return self._nb_traitees
 
     def getNbInfosTotaux(self):
         return self.infos.getNbInfosTotaux()
@@ -131,49 +132,49 @@ class ListeThumbs():
 
     # pour faire des boucles sur la liste
     def firstPtr(self):
-        return self.__liste.firstPtr()
+        return self._liste.firstPtr()
     
     def lastPtr(self):
-        return self.__liste.ptr(-1)
+        return self._liste.ptr(-1)
     
     def nextPtr(self,ptr):
-        return self.__liste.nextPtr(ptr)
+        return self._liste.nextPtr(ptr)
     #####
     def getPtrPhoto(self,num):
-        return self.__liste.ptr(num)
+        return self._liste.ptr(num)
     
     def getPhoto(self,num):
-        return self.__liste[num]
+        return self._liste[num]
     
     def getListePhotos(self):
-        return self.__liste.apply(True,thumbnail.getName)
+        return self._liste.apply(True,thumbnail.getName)
         
     def __len__(self):
-        return len(self.__liste)
+        return len(self._liste)
     
     def selectNext(self):
-        l = self.__liste.getSelected()
+        l = self._liste.getSelected()
         index = min(l) + 1
-        if index < len(self.__liste):
+        if index < len(self._liste):
             self.select(self.getPhoto(index))
         
     def selectPrevious(self):
-        l = self.__liste.getSelected()
+        l = self._liste.getSelected()
         index = min(l) - 1
         if index > -1:
             self.select(self.getPhoto(index))
 
     def getFirst(self):
-        return self.__liste[0]
+        return self._liste[0]
     
     def getCurrent(self):
-        return self.__liste.ptr(self.__liste.getFirstSelected()).value
+        return self._liste.ptr(self._liste.getFirstSelected()).value
     
     def getSelected(self):
-        return self.__liste.getSelected()
+        return self._liste.getSelected()
     
     def getFirstSelected(self):
-        return self.__liste.getFirstSelected()
+        return self._liste.getFirstSelected()
     
     def deplacer(self,num_photo,avant_photo):
         l1 = chainList()
@@ -182,19 +183,19 @@ class ListeThumbs():
         l_num.sort()
         l_num.reverse()
         for n in l_num:
-            l1.insert(0,self.__liste.remove(n))
+            l1.insert(0,self._liste.remove(n))
             if n < avant_photo:
                 avant_photo -= 1
-        #self.infos.deplacer(l1.apply(True,thumbnail.getName),self.__liste[avant_photo].getName())
-        self.__liste.insert(avant_photo,l1)
-        self.__liste.select(avant_photo+len(l1),True)
-        self.__liste[avant_photo+len(l1)].select(True)
+        #self.infos.deplacer(l1.apply(True,thumbnail.getName),self._liste[avant_photo].getName())
+        self._liste.insert(avant_photo,l1)
+        self._liste.select(avant_photo+len(l1),True)
+        self._liste[avant_photo+len(l1)].select(True)
 
     def detruire(self,num_photo):
-        ptr = self.__liste.remove(num_photo)
+        ptr = self._liste.remove(num_photo)
         #nom = ptr.getName()
         #self.infos.retire(nom)
-        #Photo.detruirePhoto(self.__album,nom)
+        #Photo.detruirePhoto(self._album,nom)
         return ptr
         
     def renommer(self,old,new):
@@ -202,36 +203,36 @@ class ListeThumbs():
         self.exifs[new] = self.exifs.pop(old)
         
     def unselectAll(self):
-        l = self.__liste.getSelected()
+        l = self._liste.getSelected()
         for i in copy.copy(l):
-            self.__liste.select(i,False)
-            self.__liste[i].select(False)
+            self._liste.select(i,False)
+            self._liste[i].select(False)
                 
     def select(self,thumb):
         self.unselectAll()
-        self.__liste.select(thumb,True)
+        self._liste.select(thumb,True)
         thumb.select(True)
-        self.__fenetre_photo.affichePhoto(self.__album.getJPGPath(thumb.getName()))
+        self._fenetre_photo.affichePhoto(self._album.getJPGPath(thumb.getName()))
         
     def ajouteSelect(self,thumb,entre=False):
-        l = self.__liste.getSelected()
+        l = self._liste.getSelected()
         if entre and len(l)>0:
             n1 = min(l)
-            n2 = self.__liste.index(thumb)
+            n2 = self._liste.index(thumb)
             if n1 > n2:
                 n1,n2 = n2,n1
             for i in range(n1,n2+1):
-                self.__liste.select(i,True)
-                self.__liste[i].select(True)
+                self._liste.select(i,True)
+                self._liste[i].select(True)
         else:
-            b = self.__liste.isSelected(thumb)
-            self.__liste.select(thumb,not b)
+            b = self._liste.isSelected(thumb)
+            self._liste.select(thumb,not b)
             thumb.select(not b)
         
     def sauverInfos(self,force=True):
         if force:
 #             self.infos.ecrire()
-            self.__album.sauveInfos()
+            self._album.sauveInfos()
 #         elif self.infos.modifiees():
 #             res = QMessageBox.warning(None,"Sauvegarde informations","La selection "+Rep.getFichierInfos()+" a �t� modifi�e,\n tu veux sauver ?",
 #                                             QtWidgets.QMessageBox.Yes,QtWidgets.QMessageBox.No)
@@ -244,45 +245,45 @@ class ListeThumbs():
         Rep.sauveExifs()
         
     def deplacerPanorama(self):
-        for th in self.__liste:
+        for th in self._liste:
             if th.getPano():
                 nom = th.getName()
                 num_pano = th.getNomPano().split('_')[1]
-                self.__album.deplacerPanorama(nom,num_pano)
+                self._album.deplacerPanorama(nom,num_pano)
 #                 # deplacement de la photo
 #                 shutil.move(rep_photo+nom,rep_cible)
 #                 # destruction de la miniature
 #                 os.remove(th.getChemin())
 #                 # retrait des infos
 #                 self.infos.retire(nom)
-        self.__album.refresh()
+        self._album.refresh()
         
     def renommerPanorama(self):
         print("renommerPanorama")
         prec = None
         try:
-            nums = set([int(s.split('_')[1]) for s in self.__album.listePano()])
+            nums = set([int(s.split('_')[1]) for s in self._album.listePano()])
             num_pano = max(nums) + 1
         except:
             num_pano = 0
         num_photo = 1
-        for th in self.__liste:
+        for th in self._liste:
             if th.getPano():
                 nom = th.getName()
-                exif = self.__album.getExif(nom)
+                exif = self._album.getExif(nom)
                 cour = Exif.getChTriDate(exif)
                 if not prec or abs(cour-prec) > dt.timedelta(0,5):
                     num_pano += 1
                     num_photo = 1
-                self.__album.renommerPhoto(nom,PREFERENCES.NOM_PANO+str(num_pano)+"_"+str(num_photo)+".JPG")
+                self._album.renommerPhoto(nom,PREFERENCES.NOM_PANO+str(num_pano)+"_"+str(num_photo)+".JPG")
                 prec = cour
                 num_photo += 1
-                #self.__album.deplacerPanorama(nom)
-        self.__album.sauveInfos()
-        self.__album.refresh()
+                #self._album.deplacerPanorama(nom)
+        self._album.sauveInfos()
+        self._album.refresh()
                 
     def copieRetouche(self,rep_photo,rep_cible):
-        for th in self.__liste:
+        for th in self._liste:
             if th.getRetouche():
                 nom = th.getName()
                 #new_nom =  "%s_2%s" % osp.splitext(nom)
@@ -293,17 +294,17 @@ class ListeThumbs():
         # debut est positionn� quand la fonction est appel� depuis la fonction renommerPanorama de IhmMiniatures
         l = []
         ok = True
-        for th in self.__liste:
+        for th in self._liste:
             if debut: ok = th.getNumero() >= debut
             if ok:
-                exif = self.__album.getExif(th.getName())
+                exif = self._album.getExif(th.getName())
                 l.append([Exif.getChTriDate(exif),exif['correction'],th])
         ok = False 
         li = []
         if num_init:
             num_pano = num_init
         else:
-            lpano = [int(osp.basename(p).split('_')[0]) for p in self.__album.listePano()]
+            lpano = [int(osp.basename(p).split('_')[0]) for p in self._album.listePano()]
             num_pano = 1
             if lpano: num_pano += 1 + max(set(lpano))
         for i in range(len(l)-1):

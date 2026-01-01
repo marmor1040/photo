@@ -96,9 +96,9 @@ class Charge(ThreadPhoto):
     
     def __init__(self,bModeTri=True):
         ThreadPhoto.__init__(self)
-        self.__cont = True
-        self.__quitter_ok = False
-        self.__mode_tri = bModeTri
+        self._cont = True
+        self._quitter_ok = False
+        self._mode_tri = bModeTri
         #self.repertoire = None
         
     def initialise(self,rep):
@@ -133,9 +133,9 @@ class Charge(ThreadPhoto):
         if ThreadPhoto.lock.locked(): ThreadPhoto.delocker()
         
     def run(self):
-        if not self.__mode_tri:
+        if not self._mode_tri:
             self.initialiseListeFichiers()
-        while self.__cont:
+        while self._cont:
             #try:
             charges = self.listeCharges()
             # monprint(charges)
@@ -157,9 +157,9 @@ class Charge(ThreadPhoto):
             #    print 'reinit charge'
             #    self.reinit()
             time.sleep(0.1)
-        self.__quitter_ok = True
+        self._quitter_ok = True
         
     def stop(self):
-        self.__cont = False
-        while not self.__quitter_ok:
+        self._cont = False
+        while not self._quitter_ok:
             time.sleep(0.01)

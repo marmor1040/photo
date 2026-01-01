@@ -16,16 +16,16 @@ from src import preferences as PREFERENCES
 class MyQFileSystemModel(QFileSystemModel):
     def __init__(self):
         super(MyQFileSystemModel, self).__init__()
-        self.__selection = None
-        self.__affichage = None
-        self.__Album = QPixmap(PREFERENCES.getIcon("album.png"))
-        self.__Album_attention = QPixmap(PREFERENCES.getIcon("album-attention.png"))
-        self.__Album_nonVide = QPixmap(PREFERENCES.getIcon("album-non-vide.png"))
-        self.__Album_ok = QPixmap(PREFERENCES.getIcon("album3.png"))
-        self.__Image = QPixmap(PREFERENCES.getIcon("repImage.png"))
-        self.__Video = QPixmap(PREFERENCES.getIcon("repVideo.png"))
-        self.__RepNormal = QPixmap(PREFERENCES.getIcon("vide1.png"))
-        self.__Vide = QPixmap(PREFERENCES.getIcon("vide.png"))
+        self._selection = None
+        self._affichage = None
+        self._Album = QPixmap(PREFERENCES.getIcon("album.png"))
+        self._Album_attention = QPixmap(PREFERENCES.getIcon("album-attention.png"))
+        self._Album_nonVide = QPixmap(PREFERENCES.getIcon("album-non-vide.png"))
+        self._Album_ok = QPixmap(PREFERENCES.getIcon("album3.png"))
+        self._Image = QPixmap(PREFERENCES.getIcon("repImage.png"))
+        self._Video = QPixmap(PREFERENCES.getIcon("repVideo.png"))
+        self._RepNormal = QPixmap(PREFERENCES.getIcon("vide1.png"))
+        self._Vide = QPixmap(PREFERENCES.getIcon("vide.png"))
         self.setNameFilters(["*.jpg"])
         self.setNameFilterDisables(True)
         
@@ -37,26 +37,26 @@ class MyQFileSystemModel(QFileSystemModel):
                 if jpg:
 #                     ld = [d for d in os.listdir(rep) if os.path.isdir(rep+'/'+d)]
 #                     if "TriPhotos" in ld: ld.remove("TriPhotos")
-#                     if ld: return self.__Album_attention
+#                     if ld: return self._Album_attention
                     if osp.isdir(rep+'/TriPhotos'):
                         if scanRep.first(rep+'/TriPhotos/Pano','.JPG') or \
                             scanRep.first(rep+'/TriPhotos/Recuperation','.JPG') or \
                             scanRep.first(rep+'/TriPhotos/Retouche','.JPG'):
-                            return self.__Album_nonVide
+                            return self._Album_nonVide
                         else:
-                            return self.__Album
+                            return self._Album
                     else:
-                        return self.__Image
+                        return self._Image
                 else:
                     mov = scanRep.first(rep,'.MOV')
                     if mov:
-                        return self.__Video
+                        return self._Video
 #                     elif scanRep.first(rep):
-#                         return self.__Normal    
+#                         return self._Normal    
                     elif os.listdir(rep):
-                        return self.__RepNormal
+                        return self._RepNormal
                     else:
-                        return self.__Vide
+                        return self._Vide
         return QFileSystemModel.data(self,index, role)
     
     def flags(self,index):

@@ -23,22 +23,22 @@ class FenetreVisionneuse(BaseClass,FormClass):
     def __init__(self,parent,Pin,Pout,bModeTri):
         BaseClass.__init__(self,parent)
         self.setupUi(self)
-        self.__plein_ecran = False
-        self.__save_geometry = None
-        self.__screen_geometry = QDesktopWidget().screenGeometry(0)
-        self.__num_ecran = 1
-        self.__Pin = Pin
-        self.__Pout = Pout
+        self._plein_ecran = False
+        self._save_geometry = None
+        self._screen_geometry = QDesktopWidget().screenGeometry(0)
+        self._num_ecran = 1
+        self._Pin = Pin
+        self._Pout = Pout
         if not bModeTri:
-            self.__diaporama = FenetreDiaporama(self)
-        self.__timer = None
-        self.__timer_wheel = None
+            self._diaporama = FenetreDiaporama(self)
+        self._timer = None
+        self._timer_wheel = None
         self.mode_tri = bModeTri
-        self.__redraw = False
-        self.__miniature_aff = False
-        self.__filtre_aff = False
-        self.__num_wheel = 0
-        self.__quitter_ok = False
+        self._redraw = False
+        self._miniature_aff = False
+        self._filtre_aff = False
+        self._num_wheel = 0
+        self._quitter_ok = False
         
         rect = preferences.VISIONNEUSE_GEOMETRY
         self.move(rect.topLeft())
@@ -63,45 +63,45 @@ class FenetreVisionneuse(BaseClass,FormClass):
         if touche == Qt.Key_F1:
             QtWidgets.QMessageBox.warning(self.window(),'Aide',self.aide)
         if touche == Qt.Key_F2:
-            self.__plein_ecran = not self.__plein_ecran
-            if self.__plein_ecran:
-                self.__save_geometry = self.saveGeometry()
+            self._plein_ecran = not self._plein_ecran
+            if self._plein_ecran:
+                self._save_geometry = self.saveGeometry()
                 self.setWindowFlags(Qt.FramelessWindowHint)
-                self.move(self.__screen_geometry.topLeft())
-                self.resize(self.__screen_geometry.size())
+                self.move(self._screen_geometry.topLeft())
+                self.resize(self._screen_geometry.size())
             else:
                 self.setWindowFlags(Qt.Window)
-                self.restoreGeometry(self.__save_geometry)
-                if not self.__screen_geometry.contains(self.pos()):
+                self.restoreGeometry(self._save_geometry)
+                if not self._screen_geometry.contains(self.pos()):
                     self.deplaceAutreEcran()
             self.show()
         elif touche == Qt.Key_F3:
             if QDesktopWidget().numScreens() > 0:
-                if self.__num_ecran == 1:
-                    self.__num_ecran = 2
+                if self._num_ecran == 1:
+                    self._num_ecran = 2
                 else:
-                    self.__num_ecran = 1
-                self.__screen_geometry = QDesktopWidget().screenGeometry(self.__num_ecran-1)
-                if self.__plein_ecran:
-                    self.move(self.__screen_geometry.topLeft())
-                    self.resize(self.__screen_geometry.size())
+                    self._num_ecran = 1
+                self._screen_geometry = QDesktopWidget().screenGeometry(self._num_ecran-1)
+                if self._plein_ecran:
+                    self.move(self._screen_geometry.topLeft())
+                    self.resize(self._screen_geometry.size())
                 else:
                     self.deplaceAutreEcran()
                 self.show()
         elif touche == Qt.Key_Up or touche == preferences.PREC:
-            self.__Pin.send('##up##')
+            self._Pin.send('##up##')
         elif touche == Qt.Key_Down or touche == preferences.SUIV:
-            self.__Pin.send('##down##')
+            self._Pin.send('##down##')
         elif touche == preferences.ETOILE0:
-            self.__Pin.send('##0_Etoile##')
+            self._Pin.send('##0_Etoile##')
         elif touche == preferences.ETOILE1:
-            self.__Pin.send('##1_Etoile##')
+            self._Pin.send('##1_Etoile##')
         elif touche == preferences.ETOILE2:
-            self.__Pin.send('##2_Etoiles##')
+            self._Pin.send('##2_Etoiles##')
         elif touche == preferences.ETOILE3:
-            self.__Pin.send('##3_Etoiles##')
+            self._Pin.send('##3_Etoiles##')
         elif touche == Qt.Key_Space:
-            self.__diaporama.go_stop()
+            self._diaporama.go_stop()
 
     def deplaceAutreEcran(self,o=None):
         if not o:o=self
@@ -112,85 +112,85 @@ class FenetreVisionneuse(BaseClass,FormClass):
             self.move(o.x()-sg.x(),o.y())
         
     def wheelEvent(self,event):
-#        if self.__timer_wheel:
-#            self.__num_wheel += 1
-#            print self.__num_wheel,'ajout'
+#        if self._timer_wheel:
+#            self._num_wheel += 1
+#            print self._num_wheel,'ajout'
 #            sys.stdout.flush()
 #        else:
-#            print 'envoi',self.__num_wheel
-#            self.__num_wheel = 0
-#            self.__timer_wheel = self.startTimer(1000)
-#            self.killTimer(self.__timer_wheel)
-        self.__Pin.send(str(event.delta()))
+#            print 'envoi',self._num_wheel
+#            self._num_wheel = 0
+#            self._timer_wheel = self.startTimer(1000)
+#            self.killTimer(self._timer_wheel)
+        self._Pin.send(str(event.delta()))
         if event.delta() > 0:
-            self.__Pin.send('##up##')
+            self._Pin.send('##up##')
         else:
-            self.__Pin.send('##down##')
+            self._Pin.send('##down##')
             
     def mouseMoveEvent(self,event):
-        if self.__redraw:
+        if self._redraw:
             #print '##redraw##'
             #sys.stdout.flush()
-            self.__Pin.send('##redraw##')
-            self.__redraw = False
+            self._Pin.send('##redraw##')
+            self._redraw = False
         if not self.mode_tri:
             x = event.x()
             xm = self.width()
             y = event.y()
             ym = self.height()
             if x > xm * 0.8 and y < ym * 0.2:
-                if not self.__miniature_aff:
-                    self.__Pin.send('##affiche_miniatures##')
-                    self.__Pin.send(self.__num_ecran)
-                    self.__miniature_aff = True
+                if not self._miniature_aff:
+                    self._Pin.send('##affiche_miniatures##')
+                    self._Pin.send(self._num_ecran)
+                    self._miniature_aff = True
             else:
-                self.__Pin.send('##cache_miniatures##')
-                self.__miniature_aff = False
-            w,h = self.__diaporama.x()+self.__diaporama.width(),self.__diaporama.y()+self.__diaporama.height()
+                self._Pin.send('##cache_miniatures##')
+                self._miniature_aff = False
+            w,h = self._diaporama.x()+self._diaporama.width(),self._diaporama.y()+self._diaporama.height()
             if y < h and x < w:
-                self.__diaporama.show()
+                self._diaporama.show()
             else:
-                self.__diaporama.hide()
+                self._diaporama.hide()
             if x < xm * 0.2 and y > ym * 0.8:
-                if not self.__filtre_aff:
-                    self.__Pin.send('##affiche_filtre##')
-                    self.__Pin.send(self.__num_ecran)
-                    self.__filtre_aff = True
+                if not self._filtre_aff:
+                    self._Pin.send('##affiche_filtre##')
+                    self._Pin.send(self._num_ecran)
+                    self._filtre_aff = True
             else:
-                self.__Pin.send('##cache_filtre##')
-                self.__filtre_aff = False
-        if self.__timer:
-            self.killTimer(self.__timer)
+                self._Pin.send('##cache_filtre##')
+                self._filtre_aff = False
+        if self._timer:
+            self.killTimer(self._timer)
             self.setCursor(Qt.ArrowCursor)
-        self.__timer = self.startTimer(3000)
+        self._timer = self.startTimer(3000)
     
     def timerEvent(self,timer):
         self.setCursor(Qt.BlankCursor)
         
     def closeEvent(self,event):
         # fermeture de la fenetre visionneuse
-        if self.__timer:
+        if self._timer:
             pass
             # erreur quand on tue le timer
             # voir si c'est utile en mode tri photo
             #print 'je tue le timer'
-            #self.killTimer(self.__timer)
+            #self.killTimer(self._timer)
         self.quitter()
       
     def resizeEvent(self,event):
-        self.__redraw = True
+        self._redraw = True
         
     def avanceDiaporama(self):
-        self.__Pin.send('##down##')
+        self._Pin.send('##down##')
         
     def quitter(self,rm=False):
-        if not self.__quitter_ok:
+        if not self._quitter_ok:
             #print 'fermer visio'
-            self.__quitter_ok = True
+            self._quitter_ok = True
             self.window().close()
-#        self.__Pin.send('##quitter##')
-#        self.__Pin.send(rm)
-#        self.__Pout.send('##quitter##')
+#        self._Pin.send('##quitter##')
+#        self._Pin.send(rm)
+#        self._Pout.send('##quitter##')
                 
 class ThreadPhoto(threading.Thread):
     courant = None
@@ -265,8 +265,8 @@ class Charge(ThreadPhoto):
     
     def __init__(self):
         ThreadPhoto.__init__(self)
-        self.__cont = True
-        self.__quitter_ok = False
+        self._cont = True
+        self._quitter_ok = False
         
     def initialise(self,fichiers):
         ThreadPhoto.liste_fichiers = fichiers
@@ -285,7 +285,7 @@ class Charge(ThreadPhoto):
         
     def run(self):
         import traceback
-        while self.__cont:
+        while self._cont:
             try:
                 charges = self.listeCharges()
                 # monprint(charges)
@@ -308,72 +308,72 @@ class Charge(ThreadPhoto):
                 self.reinit()
             time.sleep(0.1)
         #print 'stop charge'
-        self.__quitter_ok = True
+        self._quitter_ok = True
         
     def stop(self):
-        self.__cont = False
-        while not self.__quitter_ok:
+        self._cont = False
+        while not self._quitter_ok:
             time.sleep(0.01)
         
 class Affiche(ThreadPhoto):
     def __init__(self,ihm,charge,Pout,bModeTri):
         ThreadPhoto.__init__(self)
-        self.__ihm = ihm
-        #self.__ihm.window().setWindowFlags(Qt.MSWindowsFixedSizeDialogHint)
-        self.__charge = charge
-        self.__pipe_out = Pout
-        self.__tab={}
-        self.__etoiles = None
+        self._ihm = ihm
+        #self._ihm.window().setWindowFlags(Qt.MSWindowsFixedSizeDialogHint)
+        self._charge = charge
+        self._pipe_out = Pout
+        self._tab={}
+        self._etoiles = None
         if bModeTri:
-            self.__etoiles = FenetreEtoiles(ihm)
+            self._etoiles = FenetreEtoiles(ihm)
         
     def run(self):
         cont = True
         nom = None
         while cont:
             try:
-                nom = self.__pipe_out.recv()
+                nom = self._pipe_out.recv()
                 if nom == '##quitter##':
-                    self.__charge.stop()
+                    self._charge.stop()
                     cont = False
-                    #if self.__ihm.isVisible():
+                    #if self._ihm.isVisible():
                 elif '##repertoire##' in nom:
                     rep = nom.replace('##repertoire##','')
                     # pour arreter le chargement auto des photos
-                    self.__charge.courant = None
+                    self._charge.courant = None
                     # changement du repertoire
                     ThreadPhoto.rep_photos = rep
                 elif '##photos##' in nom:
                     liste = eval(nom.replace('##photos##',''))
                     # création de la liste des photos
                     if liste:
-                        self.__charge.initialise(liste)
+                        self._charge.initialise(liste)
                 elif '##geometrie##' in nom:
                     taille= eval(nom.replace('##geometrie##',''))
-                    self.__ihm.setGeometry(taille)
+                    self._ihm.setGeometry(taille)
                 elif '##affiche##' in nom:
                     if ThreadPhoto.rep_photos:
                         nom,etoiles,traite = nom.replace('##affiche##','').split(';')
-                        if self.__etoiles:
-                            self.__etoiles.afficheEtoiles(etoiles,eval(traite))
-                        if not self.__pipe_out.poll():
-                            image = self.__charge.get(nom)
+                        if self._etoiles:
+                            self._etoiles.afficheEtoiles(etoiles,eval(traite))
+                        if not self._pipe_out.poll():
+                            image = self._charge.get(nom)
                             pix = QPixmap.fromImage(image)
                             self.affiche(pix)
                 elif '##reinitialise##' in nom:
-                    self.__ihm.label.clear()
-                    self.__charge.clear()
+                    self._ihm.label.clear()
+                    self._charge.clear()
             except:
                 print('erreur', nom)
-                while self.__pipe_out.poll():
-                    print(self.__pipe_out.recv()
+                while self._pipe_out.poll():
+                    print(self._pipe_out.recv()
                 print('sortie')
         #print 'stop affiche'
-        self.__ihm.quitter()
+        self._ihm.quitter()
     
     def affiche(self,pm):
         try:
-            taille = self.__ihm.label.size()
+            taille = self._ihm.label.size()
             p_larg = taille.width()
             p_haut = taille.height()
             pr = float(p_larg)/float(p_haut)
@@ -384,10 +384,10 @@ class Affiche(ThreadPhoto):
             else :
                 h = p_haut
                 w = int(h*ir)
-            self.__ihm.label.setPixmap(pm.scaled(w-2,h-2))
+            self._ihm.label.setPixmap(pm.scaled(w-2,h-2))
         except:
             print('pb affiche')
-        #p = QPainter(self.__ihm.label)
+        #p = QPainter(self._ihm.label)
         #p.drawImage(0,0,pm)
         
 def monprint(*obj):
