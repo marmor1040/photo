@@ -41,8 +41,8 @@ class FenetreThumbVisionneuse(BaseClass,FormClass):
                 
     def creer(self,album):
         self.vider()
-        for p in album.listeJPGThumbs():
-            self.ajoutePhoto(p)
+        for i,o in enumerate(album.listeObjElements()):
+            self.ajoutePhoto(o,i)
             QApplication.instance().processEvents()
 
     def setPosition(self,x,H):
@@ -57,22 +57,22 @@ class FenetreThumbVisionneuse(BaseClass,FormClass):
             self.hide()
             self.estAffiche = False
         
-    def ajoutePhoto(self,pThumb):
-        if osp.isfile(pThumb):
-            pm = QPixmap(pThumb)
+    def ajoutePhoto(self,oElem_album,idx):
+        if osp.isfile(oElem_album.getThumbPath()):
+            pm = QPixmap(oElem_album.getThumbPath())
             #print time.time()-t0
             #lbl = QLabel(nom)
             #self.images.addWidget(lbl)
-            ibt = imageButton(self.ihmVisionneuse,pm,pThumb.replace("TriPhotos/Thumbs/",""))
+            ibt = imageButton(self.ihmVisionneuse,pm,idx)
             self.images.addWidget(ibt.button)
             self.lImageBt.append(ibt)
             #print time.time()-t0
             self.creationOk = True
         
 class imageButton():
-    def __init__(self,ihmVisionneuse,pixmap,photo):
+    def __init__(self,ihmVisionneuse,pixmap,num):
         self.ihmVisionneuse = ihmVisionneuse
-        self.photo = photo
+        self.numero = num
         self.button = QPushButton()
         self.button.setIcon(QIcon(pixmap))
         self.button.setIconSize(QSize(200,140))
@@ -80,8 +80,8 @@ class imageButton():
         self.button.clicked.connect(self.select)
         
     def select(self,checked):
-        self.ihmVisionneuse.affichePhoto(self.photo)
-        self.ihmVisionneuse.setNumero()
+        self.ihmVisionneuse.affichePhotoVideoSelection(self.numero)
+        self.ihmVisionneuse.setNumero(self.numero)
         
 if __name__ == "__main__":
     app = QApplication([])

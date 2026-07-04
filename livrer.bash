@@ -16,6 +16,8 @@ cp -r Data "$cible"
 # cp -r Placements "$cible"
 cp PhotoSee.py "$cible"
 cp PhotoSee.bash "$cible"
+cp triPhoto.py "$cible"
+cp triPhoto.bash "$cible"
 if [ "Z$1" != "Z" ]
 then
   echo $1 > "$cible/version"

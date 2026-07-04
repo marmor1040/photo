@@ -18,35 +18,36 @@ from src import Album
 from Ihm.fen_visionneuse import Ui_Visionneuse as FormClass
 from PyQt5.QtWidgets import QWidget as BaseClass
 from PyQt5 import QtWidgets
+from FenetreVisionneuse.IhmVisionneuse import Viewer
 
-class FenetrePhoto(BaseClass,FormClass):
+class FenetrePhoto(Viewer):
     def __init__(self,parent):
-        BaseClass.__init__(self,parent)
-        self.setupUi(self)
+        super().__init__()
         self.setWindowTitle("Visionneuse Photo")
         self.setWindowIcon(QIcon(PREFERENCES.getIcon('image.ico')))
-        self.aide = "Esc : Quitter\n"+\
-                    "F1 : aide\n"+\
-                    "F2 : bascule plein ecran / fenetre\n"+\
-                    "F3 : bascule ecran 1 / ecran 2\n"+\
-                    "F4 : crée les miniatures\n"+\
-                    "F5 : chargement d'une sélection\n"+\
-                    "F6 : affiche le nom de la photo courante\n"+\
-                    "F7 : change de répertoire\n"+\
-                    "<up> ou a : image précédente\n"+\
-                    "<down> ou z : image suivante\n"+\
-                    "<roue souris> : image précédente/suivante\n"+\
-                    "<espace> : arrêt/reprise diaporama\n"
+        self.aide = """Esc : Quitter
+F1 : aide
+F2 : bascule plein ecran / fenetre
+F3 : bascule ecran 1 / ecran 2
+F4 : crée les miniatures
+F5 : chargement d'une sélection
+F6 : affiche le nom de la photo courante
+F7 : change de répertoire
+<up> ou a : image précédente
+<down> ou z : image suivante
+<roue souris> : image précédente/suivante
+<Esc> : arrêt/reprise diaporama
+<Ctrl> : affichage miniatures"""
 
         self.photo_courante = None
         self.repertoire = None
-        self.liste_photos = None
+        self.liste_oElem_album = None
         self.index_photo = None
         self.numero = None
         self.diaporama_en_cours = False
         self._timer = None
         self._timer_cursor = QTimer()
-        self._timer_cursor.setInterval(500)
+        self._timer_cursor.setInterval(1000)
         self._timer_cursor.start()
         self._timer_cursor.timeout.connect(self.timerCursorEvent)
         self._occupe = True
@@ -69,45 +70,67 @@ class FenetrePhoto(BaseClass,FormClass):
                     QApplication.setOverrideCursor(Qt.WaitCursor)
                     self.album.refresh()
                     QApplication.restoreOverrideCursor()
-            self.liste_photos = self.album.listeJPG()
-            self.index_photo = self.album.listeIndexJPG()
+            self.liste_oElem_album = self.album.listeObjElements()
+            if not len(self.liste_oElem_album):
+                QMessageBox.warning(None,"Avertissement","Aucune photo dans ce répertoire")
+                return
             QApplication.setOverrideCursor(Qt.WaitCursor)
             QApplication.instance().processEvents()
             if photo:
-                self.affichePhoto(self.repertoire+'/'+photo)
+                self.affichePhotoVideo(self.repertoire+'/'+photo)
             else:
-                self.affichePhoto(self.liste_photos[0])
+                self.affichePhotoVideo(self.liste_oElem_album[0])
+                self.numero = 0
             QApplication.instance().processEvents()
             self.scrollThumbs.creer(self.album)
             QApplication.restoreOverrideCursor()
         
-    def affichePhoto(self,nom_photo=False,etoile=False):
-        if nom_photo or self.photo_courante:
-            if not nom_photo:
-                nom_photo = self.photo_courante
-            else:
-                self.photo_courante = nom_photo
-            self.pixmap = QPixmap(nom_photo)
-            scaled = self.pixmap.scaled(self.label.size(),Qt.KeepAspectRatio,Qt.SmoothTransformation)
-            self.label.setPixmap(scaled)
-            QApplication.instance().processEvents()
-            self.numero = self.index_photo[nom_photo]
-            
-    def setNumero(self):
-        self.numero = self.index_photo[self.photo_courante]
+    # def affichePhoto(self,nom_photo=False,etoile=False):
+    #     if nom_photo or self.photo_courante:
+    #         if not nom_photo:
+    #             nom_photo = self.photo_courante
+    #         else:
+    #             self.photo_courante = nom_photo
+    #         self.pixmap = QPixmap(nom_photo)
+    #         scaled = self.pixmap.scaled(self.label.size(),Qt.KeepAspectRatio,Qt.SmoothTransformation)
+    #         self.label.setPixmap(scaled)
+    #         QApplication.instance().processEvents()
+    #         self.numero = self.index_photo[nom_photo]
+    def affichePhotoVideoSelection(self,num):
+        self.affichePhotoVideo(self.liste_oElem_album[num])
+
+    def affichePhotoVideo(self,elem_album=False,etoile=False):
+        from src.Album import PhotoAlbum,VideoAlbum
+        if isinstance(elem_album,PhotoAlbum):
+            self.video_widget.player.stop()
+            self._photo_pixmap = QPixmap(elem_album.getPath())
+            self.stack.setCurrentIndex(0)
+            print("scaled1")
+            scaled = self._photo_pixmap.scaled(self.image_label.size(),Qt.KeepAspectRatio,Qt.SmoothTransformation)
+            self.image_label.setPixmap(scaled)
+    
+        elif isinstance(elem_album,VideoAlbum):
+            media = self.video_widget.instance.media_new(elem_album.getPath())
+            self.video_widget.player.set_media(media)
+            self.stack.setCurrentIndex(1)
+            self.video_widget.player.play()
+
+    def setNumero(self,num):
+        self.numero = num
         
     def keyPressEvent(self,event):
-        #print 'clavier',event.key(),Qt.Key_Up,Qt.Key_Down
+        #print( 'clavier',event.key(),Qt.Key_Up,Qt.Key_Down)
         touche = event.key()
         if touche == Qt.Key_F1:
-            QtWidgets.QMessageBox.warning(self.window(),'Aide',self.aide)
-        if touche == Qt.Key_F2:
+            QMessageBox.warning(self.window(),'Aide',self.aide)
+        elif touche == Qt.Key_F2:
             self._occupe = True
             self.hide() #pour eviter le warning de QT
             self.affichage.pleinEcran()
             rect = self.geometry()
             self.scrollThumbs.setPosition(rect.width()-200,rect.height())
             self.show()
+            self._update_image_size()
             self._occupe = False
         elif touche == Qt.Key_F3:
             self._occupe = True
@@ -122,7 +145,7 @@ class FenetrePhoto(BaseClass,FormClass):
             if not osp.isdir(self.repertoire+"/TriPhotos"):
                 QApplication.setOverrideCursor(Qt.WaitCursor)
                 self.album = Album.Album(self.repertoire,None,True)
-                self.scrollThumbs.creer(self.liste_photos)
+                self.scrollThumbs.creer(self.liste_oElem_album)
                 QApplication.restoreOverrideCursor()
                 self.miniatures_crees = True
             self._occupe = False
@@ -131,23 +154,23 @@ class FenetrePhoto(BaseClass,FormClass):
             if not self.album: self.album = Album.Album(self.repertoire,None,True)
             fileName = QFileDialog.getOpenFileName(self,"Open Selection",self.album.repSelections(),"Selection (*.sel)")
             if fileName:
-                self.liste_photos = self.album.lireSelection(fileName)
-                self.scrollThumbs.creer(self.repertoire,self.liste_photos)
-                self.affichePhoto(self.liste_photos[0])
+                self.liste_oElem_album = self.album.lireSelection(fileName)
+                self.scrollThumbs.creer(self.repertoire,self.liste_oElem_album)
+                self.affichePhotoVideo(self.liste_oElem_album[0])
             self._occupe = False
         elif touche == Qt.Key_F6:
-            QtWidgets.QMessageBox.warning(self.window(),'Photo actuelle',self.liste_photos[self.numero])
+            QtWidgets.QMessageBox.warning(self.window(),'Photo actuelle',self.liste_oElem_album[self.numero].getName())
         elif touche == Qt.Key_F7:
             rep_photo = QtWidgets.QFileDialog.getExistingDirectory(None,"Répertoire des images à visualiser","C:/Users/Marc/Pictures",QtWidgets.QFileDialog.ShowDirsOnly)
             self.initialiseEtAffiche(rep_photo,None)
         elif touche == Qt.Key_Up or touche == Qt.Key_A:
             if self.numero == 0: return
             self.numero -= 1
-            self.affichePhoto(self.liste_photos[self.numero])
+            self.affichePhotoVideo(self.liste_oElem_album[self.numero])
         elif touche == Qt.Key_Down or touche == Qt.Key_Z:
-            if self.numero+1 == len(self.liste_photos): return
+            if self.numero+1 == len(self.liste_oElem_album): return
             self.numero += 1
-            self.affichePhoto(self.liste_photos[self.numero])
+            self.affichePhotoVideo(self.liste_oElem_album[self.numero])
         elif touche == Qt.Key_Space:
             if self.diaporama_en_cours:
                 self.killTimer(self._timer)
@@ -160,16 +183,23 @@ class FenetrePhoto(BaseClass,FormClass):
                 self.setCursor(Qt.BlankCursor)
         elif touche == Qt.Key_Escape:
             self.close()
-    
+        elif touche == Qt.Key_Control and self.scrollThumbs.isVisible():
+            self.scrollThumbs.affiche(False)
+            self._timer_cursor.start()
+        elif touche == Qt.Key_Control and not self.scrollThumbs.isVisible():
+            self.scrollThumbs.affiche(True)
+            self.setCursor(Qt.ArrowCursor)
+            self._timer_cursor.stop()
+
     def timerEvent(self,timer):
-        if self.numero+1 == len(self.liste_photos): 
+        if self.numero+1 == len(self.liste_oElem_album): 
             self.killTimer(self._timer)
             self._timer = None
             self.diaporama_en_cours = False
             self.setCursor(Qt.ArrowCursor)
         else:
             self.numero += 1
-            self.affichePhoto(self.liste_photos[self.numero])    
+            self.affichePhotoVideo(self.liste_oElem_album[self.numero])    
 
     def timerCursorEvent(self):
         self.setCursor(Qt.BlankCursor)
@@ -181,31 +211,43 @@ class FenetrePhoto(BaseClass,FormClass):
                 if self.numero == 0: return
                 self.numero -= 1
             else:
-                if self.numero+1 == len(self.liste_photos): return
+                if self.numero+1 == len(self.liste_oElem_album): return
                 self.numero += 1
-            if self.numero >= 0 and self.numero < len(self.liste_photos):
-                self.affichePhoto(self.liste_photos[self.numero])
+            if self.numero >= 0 and self.numero < len(self.liste_oElem_album):
+                self.affichePhotoVideo(self.liste_oElem_album[self.numero])
             
+    # def resizeEvent(self,event):
+    #     self._redraw = True
+    #     rect = self.geometry()
+    #     self.label.setGeometry(0,0,rect.width(),rect.height())
+    #     self.scrollThumbs.setPosition(rect.width()-200,rect.height())
+    #     self.affichePhoto()
+    
     def resizeEvent(self,event):
-        self._redraw = True
-        rect = self.geometry()
-        self.label.setGeometry(0,0,rect.width(),rect.height())
-        self.scrollThumbs.setPosition(rect.width()-200,rect.height())
-        self.affichePhoto()
+        super().resizeEvent(event)
+        self._update_image_size()
+
+    def mouseEvent(self,event):
+        print('mouse event')
 
     def mouseMoveEvent(self,event):
+        print('mouse move event')
         self.setCursor(Qt.ArrowCursor)
-        x = event.x()
-        xm = self.width()
-        y = event.y()
-        ym = self.height()
-        if x > xm * 0.8 and y < ym * 0.2:
-            self.scrollThumbs.affiche(True)
-            self.setCursor(Qt.ArrowCursor)
-            self._timer_cursor.stop()
-        elif self.scrollThumbs.isVisible():
-            self.scrollThumbs.affiche(False)
-            self._timer_cursor.start()
+        # x = event.x()
+        # xm = self.width()
+        # y = event.y()
+        # ym = self.height()
+        # if x > xm * 0.8 and y < ym * 0.2:
+        #     self.scrollThumbs.affiche(True)
+        #     self.setCursor(Qt.ArrowCursor)
+        #     self._timer_cursor.stop()
+        # elif self.scrollThumbs.isVisible():
+        #     self.scrollThumbs.affiche(False)
+        #     self._timer_cursor.start()
+        # if self._timer:
+        #     self.killTimer(self._timer)
+        #     self.setCursor(Qt.ArrowCursor)
+        # self._timer = self.startTimer(3000)
         
     def closeEvent(self,event):
         self.quitter()
@@ -219,6 +261,7 @@ class FenetrePhoto(BaseClass,FormClass):
     #         self._occupe = False
         
     def moveEvent(self,event):
+        print('move event')
         if not self._occupe:
             self._occupe = True
             rect = self.geometry()

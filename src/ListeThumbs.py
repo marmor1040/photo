@@ -39,43 +39,37 @@ class ListeThumbs():
     def refresh(self):
         repertoire_thumbs = self._album.repThumbs()
         if self._tri_date:
-            liste_jpg = self._album.listeJPGTrieParDate(chemin=False)
+            liste_obj_elem = self._album.listeObjTrieParDate()
         else:
-            liste_jpg = self._album.listeJPG(chemin=False)
-        if not liste_jpg:return
+            liste_obj_elem = self._album.listeObjElements()
+        if not liste_obj_elem:return
         #self._album.setFichierInfos(filtre.getNonSelection())
         #self._album.lireInfos()
         #self.infos = self._album.getInfos()
         # si des photos ont �t� ajout�es ou retir�es le fichier exifs n'est plus � jour
         #self._album.majExifs()
-        self.exifs = self._album.getExifs()
         selection = self._filtre.getNomSelection()
         if selection != "aucune.sel":
+            # TODO lire la selection
             liste_fich = self._album.lireSelection(selection)
             btoutes = False
         else:
-            liste_fich = liste_jpg
             btoutes = True
         #print liste_fich
-        self._ihm_arbo.initProgressBar(len(liste_fich))
+        self._ihm_arbo.initProgressBar(len(liste_obj_elem))
         #aff_traitees = 0
         n=0
         self._liste = chainList()
         #self.infos.stopCalculTotaux(True)
         stop = False
         thumbnail.reinitNumero()
-        for nom in liste_fich:
-            if not stop and (btoutes or nom in liste_jpg):
-                chemin = repertoire_thumbs + nom
-                info = self._album.getInfo(nom)
-                exif = self.exifs[nom]
-                ok = self._filtre.isOk(chemin,info,exif,n)
+        for elem in liste_obj_elem:
+            if not stop:# and (btoutes or elem in liste_jpg):
+                ok = self._filtre.isOk(elem._path,elem._info,elem._exif,n)
                 if ok:
-                    tn = thumbnail(self._ihm_min,self._album,nom)
-                    self._liste.append(tn)
-                    #aff_traitees += tn.getTraite()
+                    self._liste.append(thumbnail(self._ihm_min,elem))
                 n+=1
-                stop = self._ihm_arbo.avanceProgressBar(n,nom)
+                stop = self._ihm_arbo.avanceProgressBar(n,elem.getName())
         thumbnail.liste_thumbs = self
         #self.infos.stopCalculTotaux(False)
         #self._nb_traitees = [self.infos.getNbTraites(),self.infos.getNbTraites(),aff_traitees]
@@ -146,6 +140,9 @@ class ListeThumbs():
     def getPhoto(self,num):
         return self._liste[num]
     
+    def removePhoto(self,index):
+        self._liste.remove(index)
+
     def getListePhotos(self):
         return self._liste.apply(True,thumbnail.getName)
         
@@ -172,6 +169,9 @@ class ListeThumbs():
     
     def getSelected(self):
         return self._liste.getSelected()
+    
+    def getSelectedElements(self):
+        return self._liste.getSelectedElements()
     
     def getFirstSelected(self):
         return self._liste.getFirstSelected()
@@ -212,7 +212,7 @@ class ListeThumbs():
         self.unselectAll()
         self._liste.select(thumb,True)
         thumb.select(True)
-        self._fenetre_photo.affichePhoto(self._album.getJPGPath(thumb.getName()))
+        self._fenetre_photo.affichePhotoVideo(thumb._elem_album)
         
     def ajouteSelect(self,thumb,entre=False):
         l = self._liste.getSelected()

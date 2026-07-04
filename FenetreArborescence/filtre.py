@@ -101,7 +101,7 @@ class Filtre:
             return True
         
     def getPhotos(self,album):
-        liste_tot = album.listeJPG()
+        liste_tot = album.listeElements()
         infos = album.getInfos()
         exifs = album.getExifs()
         liste = []

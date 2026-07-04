@@ -22,7 +22,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication,QMessageBox
 #from Album import Album
 
-def creerThumbnail(pPhoto,pThumbnail,exif_im=None):
+def creerThumbnail(pPhoto,pThumbnail):
     im = Image.open(pPhoto)
     try:
         im.thumbnail((PREFERENCES.LARGEUR_IMAGE,PREFERENCES.LARGEUR_IMAGE), Image.Resampling.LANCZOS)
@@ -38,7 +38,7 @@ def creerThumbnail(pPhoto,pThumbnail,exif_im=None):
     
 # def creerMiniatures(parent,album):
 #     sf
-#     l = album.listeJPG()
+#     l = album.listeElements()
 #     l.sort()
 #     parent.progressBar.show()
 #     parent.bt_annuler_progress.show()
@@ -90,7 +90,7 @@ def creerThumbnail(pPhoto,pThumbnail,exif_im=None):
 #     parent.__progress_stoppe = True
 
 #def creerExifPhotos():
-#    l = Rep.listeJPG()
+#    l = Rep.listeElements()
 #    #l.sort()
 #    progress = QtWidgets.QProgressDialog('Cr�ation des donn�es Exif','Annuler',0,len(l))
 #    progress.setWindowTitle('Creation information Exif')
@@ -110,7 +110,7 @@ def creerThumbnail(pPhoto,pThumbnail,exif_im=None):
 #    saveExifPhotos(Rep.fichierExifs(),ht_exif) 
 
     
-def fairePivoterPhoto(photo,exif_ht,exif_im,angle=None):
+def fairePivoterPhoto(photo,exif_ht,angle=None):
     if not angle:
         angle = exif_ht['pivoter']
     print('-> rotation de ',photo,angle)
@@ -118,6 +118,7 @@ def fairePivoterPhoto(photo,exif_ht,exif_im,angle=None):
     im_rot = image.rotate(angle,expand=True)
     im_rot.save(photo,format="JPEG")
     try:
+        exif_im = Exif.loadExif(photo)
         exif_im[exif_ht["ifd_orientation"]][exif_ht["tag_orientation"]] = 0
         exif_ht['pivoter'] = 0
         exif_ht['taille'] = 'x'.join(exif_ht['taille'].split('x')[::-1])
@@ -125,7 +126,7 @@ def fairePivoterPhoto(photo,exif_ht,exif_im,angle=None):
         Exif.saveExif(photo,exif_im)
     except:
         pass
-    return exif_im,exif_ht
+    return exif_ht
      
 def creerSelection(ihm,liste_images,rep_cible,prefixe,options):
     copie = options[0]
@@ -180,12 +181,41 @@ def deplacerPhoto(path_photo,rep_cible,remove=True):
         os.remove(path_photo)
 
 if __name__ == "__main__":
-    #creerThumbnail('../photos/Vietnam_20110424_0054.JPG','thumb.jpg',(256,256))
-    f = '../photos3/test 008'
-    for q in range(11):
-        print(q)
-        image = Image.open(f+'.jpg')
-        image.save(f+'.'+str(90+q)+'.jpg',format="JPEG",quality=90+q)
-    
-    
-    
+    import sys,time
+    from PyQt5.QtWidgets import QApplication, QLabel, QWidget, QVBoxLayout
+    from PyQt5.QtGui import QPixmap
+    import piexif
+
+    app = QApplication(sys.argv)
+
+    # Fenêtre principale
+    window = QWidget()
+    window.setWindowTitle("Affichage image JPG")
+
+    # Label pour afficher l'image
+    label = QLabel()
+
+    # Charger l'image
+    nph = "C:/Users/Marc/Pictures/test2/PXL_20250201_141006969.jpg"
+    exif = piexif.load(nph)
+    t=time.time()
+    # 0.003 secondes pour charger le thumbnail
+    #pixmap = QPixmap()
+    #pixmap.loadFromData(exif['thumbnail'], "JPEG")
+    #label.setPixmap(pixmap)
+    # 0.002 secondes pour charger le fichier du thumbnail
+    pixmap = QPixmap(nph)
+    label.setPixmap(pixmap)
+    print(time.time() -t)
+    # Ajuster la taille du label à l'image
+    label.setScaledContents(True)
+
+    # Layout
+    layout = QVBoxLayout()
+    layout.addWidget(label)
+    window.setLayout(layout)
+
+    window.resize(pixmap.width(), pixmap.height())
+    window.show()
+
+    sys.exit(app.exec_())

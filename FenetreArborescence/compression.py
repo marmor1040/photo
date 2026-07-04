@@ -63,7 +63,7 @@ class dataCompression:
         self.liste_photos_compresse = []
         if self.album:
             num=0
-            self.liste_photos = self.album.listeJPG()
+            self.liste_photos = self.album.listeElements()
             if self.ihm.rb_toutes.isChecked():
                 filtre_nom = str(self.ihm.edtFiltre.text())
                 self.liste_photos_compresse = self.album.listeJPGFiltresNom(filtre_nom)
@@ -101,7 +101,7 @@ class dataCompression:
 #         self._fenetre_thumbs = fen_thumbs
 #         self._album = album
 #         print album
-#         self._liste_photos = album.listeJPG()
+#         self._liste_photos = album.listeElements()
 #         #self._liste_affichees = [album.repPhotos()+'/'+ph for ph in album.getListePhotos()]
 #         self.initialiser()
 #         self.afficheTaille()
@@ -122,7 +122,7 @@ class dataCompression:
 #         
 #     def toutes(self,b):
 #         if b:
-#             self._liste_photos = self._album.listeJPG()
+#             self._liste_photos = self._album.listeElements()
 #             self.afficheTaille()
 #         
 #     def photosAffichees(self,b):

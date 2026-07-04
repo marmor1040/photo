@@ -71,7 +71,6 @@ class FenetreThumbs(BaseClass,FormClass):
         self.obj_signal = QObject()
         self.initCallback()
         self.setFocusPolicy(Qt.TabFocus)
-        PREF.setMode(PREF.MODE_TRI_SS_CAC)
         self._titre = None
         self._fenetre_infos = FenetreInfos(self)
         self._fenetre_arbo = None
@@ -91,14 +90,24 @@ class FenetreThumbs(BaseClass,FormClass):
         self._nb_colonnes = 1
         self._fenetre_photo.link(self._liste_thumbs)        
         self._fenetre_arbo = FenetreArborescence.Ihm(self)
-        self._gestion_ecrans = Ecrans.Affichage(self,2,x0=330,y0=30,kw=0.83,kh=1,type_ihm=Ecrans.Affichage.MINIATURES)
+        self._gestion_ecrans = Ecrans.Affichage(self,1,x0=330,y0=30,kw=0.83,kh=0.8,type_ihm=Ecrans.Affichage.MINIATURES)
         self._gestion_ecrans.affiche()
+        self.aide = """F1 : aide
+F2 : bascule plein ecran / fenetre
+F3 : bascule ecran 1 / ecran 2
+a / z : image précédente / suivante
+0 / 1 / 2 / 3 : note 0 / 1 / 2 / 3
+r : affiche le nom de la photo / video
+Suppr : détruit les fichiers sélectionnés
+Ctrl + p : pivote les photos / vidéos sélectionnées
+Ctrl + s : sauvegarde des infos
+Ctrl + x : couper les photos sélectionnées
+Ctrl + c : copier les photos sélectionnées
+Ctrl + v : coller les photos coupées ou copiées avant la photo sélectionnée
+"""
 
     def changeEcran(self):
         self._gestion_ecrans.changeEcran()
-
-    def resizeFenentre(self,num_ecran,x,y,w,h):
-        self._gestion_ecrans.resize(num_ecran,x,y,w,h)
         
     def initCallback(self):
         #QObject.connect(self.actionChoisir_repertoire,QtCore.SIGNAL("triggered()"),self.choisirRepertoireFiltre)
@@ -174,29 +183,37 @@ class FenetreThumbs(BaseClass,FormClass):
 
         #self.afficheCommentaire()
        
-    def rafraichirThumbs(self,min=None,max=None):
-        if min and min < len(self._liste_thumbs):
-            ptr = self._liste_thumbs.getPtrPhoto(min)
-        else:
-            min,ptr = 0,self._liste_thumbs.firstPtr()
-        if max and max < len(self._liste_thumbs):
-            ptr_max = self._liste_thumbs.getPtrPhoto(max)
-        else:
-            ptr_max = self._liste_thumbs.lastPtr()
-        nc_max = PREF.nbColMiniatures()
-        nl = min / nc_max
-        nc = min - nl * nc_max
-        ok = True
-        while ptr and ok:
-            self.images.addWidget(ptr.value.getWidget(),nl,nc)
-            nc += 1; 
-            if nc >= nc_max: 
-                nc = 0
-                nl += 1
-            ok = ptr!= ptr_max
-            ptr = self._liste_thumbs.nextPtr(ptr)
-            QApplication.instance().processEvents()
+    def rafraichirThumbs(self):
+        self.resizeEvent(None,force=True)
+        # if min and min < len(self._liste_thumbs):
+        #     ptr = self._liste_thumbs.getPtrPhoto(min)
+        # else:
+        #     min,ptr = 0,self._liste_thumbs.firstPtr()
+        # if max and max < len(self._liste_thumbs):
+        #     ptr_max = self._liste_thumbs.getPtrPhoto(max)
+        # else:
+        #     ptr_max = self._liste_thumbs.lastPtr()
+        # nc_max = PREF.nbColMiniatures()
+        # nl = min / nc_max
+        # nc = min - nl * nc_max
+        # ok = True
+        # while ptr and ok:
+        #     self.images.addWidget(ptr.value.getWidget(),int(nl),int(nc))
+        #     nc += 1; 
+        #     if nc >= nc_max: 
+        #         nc = 0
+        #         nl += 1
+        #     ok = ptr!= ptr_max
+        #     ptr = self._liste_thumbs.nextPtr(ptr)
+        #     QApplication.instance().processEvents()
     
+    
+            # item = self.images.takeAt(0)
+            # widget = item.widget()
+            # if widget is not None:
+            #     widget.deleteLater()
+
+
     def reinitialise(self):
         #self._pipe_fenetre_photo.send('##reinitialise##')
         pass
@@ -233,6 +250,28 @@ class FenetreThumbs(BaseClass,FormClass):
         self.majTitre()
         #self.afficheCommentaire()
     
+    def deplacerElements(self,rep_cible=None,only_remove=False):
+        self._fenetre_photo.stoperVideo()
+        index_elems = self.getSelectedElements()
+        # pour faire le remove en commençant par la fin
+        index_elems.sort(reverse=True)
+        for i,elem in index_elems:
+            # deplace les fichiers ou les détruit
+            elem.deplacer(rep_cible,only_remove)
+            # supprime de la liste des miniatures
+            self._liste_thumbs.removePhoto(i)
+            self._liste_thumbs_affichees.pop(i)
+            # 
+            item = self.images.takeAt(i)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
+        self._album.sauverExifsInfosDates()
+        self.rafraichirThumbs()
+    
+    def getSelectedElements(self):
+        return self._liste_thumbs.getSelectedElements()
+    
     def getSelected(self):   
         return self._liste_thumbs.getSelected()
     
@@ -242,15 +281,16 @@ class FenetreThumbs(BaseClass,FormClass):
     def getPhotos(self,selection):
         return [self._liste_thumbs.getPhoto(num).getName() for num in selection]
     
-    def resizeEvent(self,event):
-        super().resizeEvent(event)
+    def resizeEvent(self,event,force=False):
+        if event:
+            super().resizeEvent(event)
         nb_colonnes = self.width() // (PREF.LARGEUR_IMAGE+20)
-        if nb_colonnes != self._nb_colonnes and self._liste_thumbs_affichees:
+        if nb_colonnes != self._nb_colonnes and self._liste_thumbs_affichees or force:
             self._nb_colonnes = nb_colonnes
 
             # nettoyage du layout
             while self.images.count():
-                   self.images.takeAt(0)
+                item = self.images.takeAt(0)
 
             # désactiver les updates pour éviter le clignotement
             self.images.parentWidget().setUpdatesEnabled(False)
@@ -265,8 +305,14 @@ class FenetreThumbs(BaseClass,FormClass):
             print('clavier',event.key())
         touche = event.key()
         selection = self.getSelected()
-        #print event.modifiers(),event.modifiers() == Qt.ControlModifier
-        if touche == Qt.Key_F2:
+        if touche == Qt.Key_Right or touche == PREF.SUIV:
+            self._liste_thumbs.selectNext()
+        elif touche == Qt.Key_Up or touche == PREF.PREC:
+            self._liste_thumbs.selectPrevious()
+        elif touche == Qt.Key_F1:
+            print("F1")
+            QtWidgets.QMessageBox.warning(self.window(),'Aide',self.aide)
+        elif touche == Qt.Key_F2:
             self._gestion_ecrans.pleinEcran()
             self._gestion_ecrans.affiche()
         elif touche == Qt.Key_F3:
@@ -282,24 +328,35 @@ class FenetreThumbs(BaseClass,FormClass):
         elif touche == PREF.NETTE:
             for courant in selection:
                 courant.setNettete(not courant.getNettete())
-        elif touche == PREF.NOM:
-            for courant in selection:
-                courant.setName(self.getNom())
+        # elif touche ==  Qt.Key_R:
+        #     for courant in selection:
+        #         thumb = self._liste_thumbs.getPtrPhoto(num_photo).value
+        #         courant.setName(self.getNom())
+        elif touche == Qt.Key_Delete:
+            self._fenetre_photo.stoperVideo()
+            self.deplacerElements(only_remove=True)
         elif touche == Qt.Key_P and event.modifiers() == Qt.ControlModifier:
+            # pour pivoter les photos / vidéos
+            bok = True
+            self._fenetre_photo.stoperVideo()
             for num_photo in self._liste_thumbs.getSelected():
-                photo = self._liste_thumbs.getPtrPhoto(num_photo).value
-                self._album.pivoterPhoto(photo)
-                self._fenetre_photo.affichePhoto(self._album.getJPGPath(photo.getName()))
+                thumb = self._liste_thumbs.getPtrPhoto(num_photo).value
+                self._album.pivoterPhoto(thumb)
+                if bok: #uniquement la première
+                    self._fenetre_photo.affichePhotoVideo(thumb._elem_album)
+                    bok = False
                 self._liste_thumbs_affichees[num_photo]._thumb.pivoterImage()
                 self.images.itemAt(num_photo).widget().update()
                 QApplication.instance().processEvents()
         elif touche == Qt.Key_S and event.modifiers() == Qt.ControlModifier:
             self.sauverInfos()
         elif touche == Qt.Key_X and event.modifiers() == Qt.ControlModifier:
+            self._fenetre_photo.stoperVideo()
             self.selectionAcouper = copy.copy(selection)
             self.selectionAcopier = None
             self.majTitre()
         elif touche == Qt.Key_C and event.modifiers() == Qt.ControlModifier:
+            self._fenetre_photo.stoperVideo()
             self.selectionAcouper = None
             self.selectionAcopier = copy.copy(selection)
             self.majTitre()
@@ -320,16 +377,17 @@ class FenetreThumbs(BaseClass,FormClass):
             self.selectionAcouper = None
             self.selectionAcopier = None
             self.majTitre()
-        if touche == Qt.Key_Down or touche == PREF.SUIV:
-            self._liste_thumbs.selectNext()
-        elif touche == Qt.Key_Up or touche == PREF.PREC:
-            self._liste_thumbs.selectPrevious()
 
     @pyqtSlot(int)
     def setEtoiles(self,num):
-        courant = self._liste_thumbs.getCurrent()
-        courant.setEtoiles(num)
-        courant.setTraite(True)
+        for num_photo in self._liste_thumbs.getSelected():
+            thumb = self._liste_thumbs.getPtrPhoto(num_photo).value
+            thumb._elem_album.setEtoiles(num)
+            thumb._elem_album.setTraite(True)
+
+        # courant = self._liste_thumbs.getCurrent()
+        # courant.setEtoiles(num)
+        # courant.setTraite(True)
         self._liste_thumbs.selectNext()
         self.majTitre()
         #�self.infosModifiees()
@@ -392,8 +450,8 @@ class FenetreThumbs(BaseClass,FormClass):
         if album: 
             self.album = album
         #Photo.recuperationPhotos(self.album)
-        nb_photos = len(self.album.listeJPG())
-        nb_thumbs = len(self.album.listeJPGThumbs())
+        nb_photos = len(self.album.listeElements())
+        nb_thumbs = len(self.album.listeThumbs())
         if (nb_photos != nb_thumbs) or not osp.isfile(self.album.fichierExifs()):
             # cr�ation des miniatures
             Photo.creerMiniatures(self._fenetre_arbo,self.album)
@@ -552,22 +610,23 @@ class FenetreThumbs(BaseClass,FormClass):
         if not force:
             ok = QMessageBox.question(self,'Destruction des photos','Les fichiers selectionnés seront définitivement détruits',QMessageBox.Ok |QMessageBox.Cancel)
         if force or ok == QMessageBox.Ok:
-            selection = copy.copy(self.getSelected())
-            #deselectionner les elements sinon on cherche � les deselectionner � la prochaine selection
-            self._liste_thumbs.unselectAll()
-            sl = list(selection)
-            sl.sort()
-            sl.reverse()
-            lnames = []
-            for p in sl:
-                ptr = self._liste_thumbs.detruire(p)
-                lnames.append(ptr.getName())
-                ptr.getWidget().hide()
-            #self.rafraichirThumbs(sl[-1])     
-            #self.infosModifiees()
-            #self.afficheCommentaire()
-            # destruction des fichiers
-            self._album.detruirePhotos(lnames)
+            self.deplacerElements(only_remove=False)
+            # selection = copy.copy(self.getSelected())
+            # #deselectionner les elements sinon on cherche � les deselectionner � la prochaine selection
+            # self._liste_thumbs.unselectAll()
+            # sl = list(selection)
+            # sl.sort()
+            # sl.reverse()
+            # lnames = []
+            # for p in sl:
+            #     ptr = self._liste_thumbs.detruire(p)
+            #     lnames.append(ptr.getName())
+            #     ptr.getWidget().hide()
+            # #self.rafraichirThumbs(sl[-1])     
+            # #self.infosModifiees()
+            # #self.afficheCommentaire()
+            # # destruction des fichiers
+            #self._album.detruirePhotos(lnames)
 
     def renommageAuto(self):
         i=1

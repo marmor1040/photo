@@ -15,7 +15,7 @@ class chainElem:
         self.select = False
         
     def __repr__(self):
-        return '@'+self.value.__repr__()
+        return self.value._elem_album.getName()
             
 class chainList:
     def __init__(self,val=None):
@@ -150,6 +150,12 @@ class chainList:
     def getSelected(self):
         return self.selected
             
+    def getSelectedElements(self):
+        ret = []
+        for i in self.selected:
+            ret.append((i,self.liste[i].value._elem_album))
+        return ret
+    
     def getFirstSelected(self):
         return min(self.selected)
             
@@ -203,7 +209,7 @@ class chainList:
         if self.liste:
             ptr = self.liste[0]
         while ok:
-            ch += ','*n + ptr.__repr__()+'\n'
+            ch += ','*n + ptr.value._elem_album._path+'\n'
             n = 1
             ok = ptr != self.liste[-1]
             ptr = ptr.__next__

@@ -21,14 +21,14 @@ def first(rep,suffixe=None):
     except StopIteration:
         return None
         
-def listeFichiers(rep,suf=None,bPath=True,bIndex=False):
+def listeFichiers(rep,lsuf=None,bPath=True,bIndex=False):
     #t0 = time.time()
     if not osp.isdir(rep): return []
     l=[]
     h={}
     i=0
     for e in os.scandir(rep):
-        if not suf or e.name[-3:].upper() == suf:
+        if not lsuf or e.name[-3:].upper() in lsuf:
             if bPath:
                 nom = osp.join(rep,e.name)
                 l.append(nom)

@@ -7,6 +7,7 @@ Created on 10 juil. 2011
 
 #import pyexiv2
 import piexif
+import exiftool
 try:
     from src import preferences
 except:
@@ -45,12 +46,33 @@ def printExif(exif):
 #     exif = getExif(file)
 #     return getHt(exif)
     
+ht_style_image = {
+    129 : "Standard",
+    131 : "Paysage",
+    136 : "Détail fin",
+    130 : "Portrait",
+    132 : "Neutre" ,
+    133 : "Fidèle",
+    134 : "Monochrome",
+    135 : "Auto",
+    33 : "User 1",
+    34 : "User 2",
+    35 : "User 3",
+    0 : "inconnu"
+}
+ExifTool = exiftool.ExifToolHelper(executable=r"C:\Program Files\ExifTool\exiftool.exe")
+def getPictureStyle(file):
+    metadata = ExifTool.get_metadata(file)
+    style_index = metadata[0].get("MakerNotes:PictureStyle", 0)
+    return ht_style_image[style_index]
+    
 def getHt(exif=None,image=None):
+    style = "inconnu"
     if image:
         exif = loadExif(image)
-    ht={}
+        style = getPictureStyle(image)
+    ht={}   
     ht_exif={}
-        
     for ifd in ("0th", "Exif", "GPS", "1st"):
         for tag in exif[ifd]:
             nom = piexif.TAGS[ifd][tag]["name"]
@@ -96,6 +118,7 @@ def getHt(exif=None,image=None):
         del ht['tailleX']
     except: pass
     if ht['pivoter'] == "unknown": ht['pivoter'] = 0
+    ht["style"] = style
     return ht
 
 # def setHt(exif,ht):

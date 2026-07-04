@@ -40,7 +40,7 @@ class dataRenommage():
             if bTriDate:
                 self.liste_photos = self.album.listeJPGTrieParDate(chemin=False)
             else:
-                self.liste_photos = self.album.listeJPG(chemin=False)
+                self.liste_photos = self.album.listeElements(chemin=False)
             self.ihm.tableWidget.setRowCount(len(self.liste_photos))
             for f in self.liste_photos:
                 self.ihm.tableWidget.setItem(num,0,QtWidgets.QTableWidgetItem(f))

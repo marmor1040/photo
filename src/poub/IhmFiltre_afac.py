@@ -128,7 +128,7 @@ class FenetreFiltre(BaseClass,FormClass):
         self.sb_min.setValue(0)
         self.sb_max.setValue(0)
         self.liste_dates.clear()
-        liste_fich = Rep.listeJPG()
+        liste_fich = Rep.listeElements()
         self.progressBar.hide()
         self.bt_annuler_progress.hide()
         self.fichier_progress.hide()
@@ -196,7 +196,7 @@ class FenetreFiltre(BaseClass,FormClass):
         self._progress_stoppe = True
 
     def creerDates(self):
-        liste_fich = Rep.listeJPG()
+        liste_fich = Rep.listeElements()
         if liste_fich:
             if osp.isfile(Rep.fichierDates()):
                 with open(Rep.fichierDates(),'r') as fd:
@@ -288,7 +288,7 @@ class FenetreFiltre(BaseClass,FormClass):
         if rep_cible: 
             rep_cible += '/'   
             FenetreFiltre.__rep_deplacement = rep_cible
-            l_photo = Rep.listeJPG()
+            l_photo = Rep.listeElements()
             if l_photo:
                 nom,ok = QtWidgets.QInputDialog.getText(self,'Renommage photo','Nom',
                                                     QtWidgets.QLineEdit.Normal,
@@ -565,7 +565,7 @@ class Filtre:
             return ok_info and ok_num and ok_date
         
     def getPhotos(self):
-        liste_tot = Rep.listeJPG()
+        liste_tot = Rep.listeElements()
         infos = Rep.getInfos()
         exifs = Rep.getExifs()
         liste = []

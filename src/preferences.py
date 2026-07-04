@@ -18,7 +18,7 @@ FILTRE_POS = (0,590)
 COORD_FEN_MINIATURE = QRect(1100,20,296,700)
 LARGEUR_IMAGE = 256
 AUTO_CHARGEMENT = numpy.array([0,1,-1,2,-2])
-PRINT_TOUCHE = False
+PRINT_TOUCHE = True
 ETOILE0 = Qt.Key_0
 ETOILE1 = Qt.Key_1
 ETOILE2 = Qt.Key_2
@@ -124,4 +124,4 @@ def nbColMiniatures():
         return 1
     
 def getIcon(icon_name):
-    return ICON_PATH+icon_name
+    return osp.join(ICON_PATH,icon_name)

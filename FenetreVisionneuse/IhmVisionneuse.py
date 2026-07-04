@@ -6,8 +6,10 @@
 #"""
 #
 import time,sys,copy
+import vlc
 from PyQt5 import QtCore,QtWidgets
-from PyQt5.QtWidgets import QApplication,QDesktopWidget
+from PyQt5.QtWidgets import QApplication,QDesktopWidget,QSizePolicy
+
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt,QObject,pyqtSlot
 try:
@@ -17,14 +19,70 @@ except:
     from ..src import preferences as PREFERENCES
     from ..src import Ecrans
 
-from Ihm.fen_visionneuse import Ui_Visionneuse as FormClass
-from PyQt5.QtWidgets import QWidget as BaseClass
+from PyQt5.QtWidgets import QWidget
 from PyQt5 import QtWidgets
 
-class FenetreVisionneuse(BaseClass,FormClass,QObject):
+class VideoWidget(QWidget):
+    current_rotation = 90
+    def __init__(self):
+        super().__init__()
+        self.instance = vlc.Instance("--no-video-title-show", "--quiet")
+        self.player = self.instance.media_player_new()
+
+    def showEvent(self, event):
+        self.player.set_hwnd(int(self.winId()))
+
+    def newRotatedInstance(self,rotation_angle):
+        self.current_rotation = rotation_angle
+        self.player.stop()
+        self.instance = vlc.Instance("--no-video-title-show", "--quiet","--video-filter=transform",f"--transform-type={rotation_angle}")
+        self.player = self.instance.media_player_new()
+        self.player.set_hwnd(int(self.winId()))
+
+from PyQt5.QtWidgets import QWidget, QLabel, QStackedWidget, QVBoxLayout
+from PyQt5.QtGui import QPixmap
+
+class Viewer(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        self.setStyleSheet("background-color: black; color: white; border: none;")
+        self.stack = QStackedWidget(self)
+        self.image_label = QLabel()
+        self.image_label.setAlignment(Qt.AlignCenter)
+        self.image_label.setSizePolicy(QSizePolicy.Ignored,QSizePolicy.Ignored)
+        self.image_label.setMinimumSize(0, 0)
+        self.video_widget = VideoWidget()
+        self.video_widget.setSizePolicy(QSizePolicy.Expanding,QSizePolicy.Expanding)
+        self.video_widget.setMinimumSize(0, 0)
+        self.stack.setMinimumSize(0, 0)
+        self.setMinimumSize(0, 0)
+        self.stack.addWidget(self.image_label)
+        self.stack.addWidget(self.video_widget)
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0,0,0,0)
+        layout.addWidget(self.stack)
+        # mouvement souris
+        self.setMouseTracking(True)
+        for child in self.findChildren(QWidget):
+            child.setMouseTracking(True)
+
+        self._photo_pixmap = None
+
+    def _update_image_size(self):
+        if self._photo_pixmap and self.stack.currentIndex() == 0:
+            print("scaled3")
+            scaled = self._photo_pixmap.scaled(
+                self.image_label.size(),
+                Qt.KeepAspectRatio,
+                Qt.SmoothTransformation
+            )
+            self.image_label.setPixmap(scaled)
+
+    
+class FenetreVisionneuse(Viewer):
     def __init__(self,parent):
-        BaseClass.__init__(self,parent)
-        self.setupUi(self)
+        super().__init__()
         self._num_ecran = 2
         self._liste_thumbs = None
         self._timer = None
@@ -36,17 +94,17 @@ class FenetreVisionneuse(BaseClass,FormClass,QObject):
         self._num_wheel = 0
         self._quitter_ok = False
         self.obj_signal =  QObject(None)
-        self.aide = "F1 : aide\n"+\
-                    "F2 : bascule plein ecran / fenetre\n"+\
-                    "F3 : bascule ecran 1 / ecran 2\n"+\
-                    "<up> ou a : image précédente\n"+\
-                    "<down> ou z : image suivante\n"+\
-                    "<roue souris> : image précédente/suivante\n"+\
-                    "<0> : note 0\n"+\
-                    "<1> : note 1\n"+\
-                    "<2> : note 2\n"+\
-                    "<3> : note 3\n"
-        self._gestion_ecrans = Ecrans.Affichage(self,1,x0=100,y0=100,kw=0.5,kh=0.5,plein_ecran=True,type_ihm=Ecrans.Affichage.VISIONNEUSE)
+        self.aide = """F1 : aide
+F2 : bascule plein ecran / fenetre
+F3 : bascule ecran 1 / ecran 2
+<up> ou a : image précédente
+<down> ou z : image suivante
+<roue souris> : image précédente/suivante
+<0> : note 0
+<1> : note 1
+<2> : note 2
+<3> : note 3"""
+        self._gestion_ecrans = Ecrans.Affichage(self,2,x0=100,y0=100,kw=0.5,kh=0.5,plein_ecran=False,type_ihm=Ecrans.Affichage.VISIONNEUSE)
         self._gestion_ecrans.affiche()
 #         self._miniature_aff = True
         #sender.value_changed.connect(self.affichePhoto)
@@ -64,40 +122,40 @@ class FenetreVisionneuse(BaseClass,FormClass,QObject):
             self.move(o.x()-sg.x(),o.y())
 
     @pyqtSlot(str,str)
-    def affichePhoto(self,nom=False,etoile=False):
-        if nom:
-            self.pixmap = QPixmap(nom)
-            scaled = self.pixmap.scaled(self.label.size(),Qt.KeepAspectRatio,Qt.SmoothTransformation)
-            self.label.setPixmap(scaled)
+    def affichePhotoVideo(self,elem_album=False,etoile=False):
+        from src.Album import PhotoAlbum,VideoAlbum
+        if isinstance(elem_album,PhotoAlbum):
+            self.video_widget.player.stop()
+            self._photo_pixmap = QPixmap(elem_album.getPath())
+            self.stack.setCurrentIndex(0)
+            print("scaled4")
+            scaled = self._photo_pixmap.scaled(self.image_label.size(),Qt.KeepAspectRatio,Qt.SmoothTransformation)
+            self.image_label.setPixmap(scaled)
     
-        #code de la visionneuse 2025
-        # pm = QPixmap(nom)
+        elif isinstance(elem_album,VideoAlbum):
+            print(self.video_widget.current_rotation,elem_album.getExif().get("pivoter","none"))
+            if "pivoter" in elem_album.getExif() and elem_album.getExif()["pivoter"] != 0:
+                rotation_angle = elem_album.getExif()["pivoter"]
+                self.video_widget.newRotatedInstance(rotation_angle)
+            elif self.video_widget.current_rotation != 90:
+                self.video_widget.newRotatedInstance(90)
+            media = self.video_widget.instance.media_new(elem_album.getPath())
+            self.video_widget.player.set_media(media)
+            self.stack.setCurrentIndex(1)
+            self.video_widget.player.play()
 
-        # taille = self.size()
-        # p_larg = taille.width()
-        # p_haut = taille.height()
-        # if p_larg != 0 and p_haut != 0 :
-        #     pr = float(p_larg)/float(p_haut)
-        #     ir = float(pm.width())/float(pm.height())
-        #     if ir>pr :
-        #         w = p_larg
-        #         h = int(p_larg/ir)
-        #     else :
-        #         h = p_haut
-        #         w = int(h*ir)
-        #     #self.label.setPixmap(pm.scaled(p_larg,p_haut,Qt.KeepAspectRatio,Qt.SmoothTransformation))
-        #     self.label.setPixmap(pm.scaled(w,h))
-        #     #self.label.setScaledContents(True)
-        # else:
-        #     print("image vide")
-        if etoile: self.lbl_etoiles.setText(etoile)
-        else: self.lbl_etoiles.setText("")
-            
+        #if etoile: self.lbl_etoiles.setText(etoile)
+        #else: self.lbl_etoiles.setText("")
+    
+    def stoperVideo(self):
+        self.video_widget.player.stop()
+        
     def changeEcran(self):
         self._gestion_ecrans.changeEcran()
 
     def keyPressEvent(self,event):
         touche = event.key()
+        print('clavier',touche)
         if touche == Qt.Key_F1:
             QtWidgets.QMessageBox.warning(self.window(),'Aide',self.aide)
         if touche == Qt.Key_F2:
@@ -136,12 +194,6 @@ class FenetreVisionneuse(BaseClass,FormClass,QObject):
         #     self._Pin.send('##down##')
             
     def mouseMoveEvent(self,event):
-        print('mouseMoveEvent')
-        #if self._redraw:
-            #print '##redraw##'
-            #sys.stdout.flush()
-            #self._Pin.send('##redraw##')
-            #self._redraw = False
 #         if not self.mode_tri:
 #             x = event.x()
 #             xm = self.width()
@@ -168,10 +220,10 @@ class FenetreVisionneuse(BaseClass,FormClass,QObject):
 #             else:
 #                 self._Pin.send('##cache_filtre##')
 #                 self._filtre_aff = False
-#         if self._timer:
-#             self.killTimer(self._timer)
-#             self.setCursor(Qt.ArrowCursor)
-#         self._timer = self.startTimer(3000)
+        if self._timer:
+            self.killTimer(self._timer)
+            self.setCursor(Qt.ArrowCursor)
+        self._timer = self.startTimer(3000)
     
     def timerEvent(self,timer):
         self.setCursor(Qt.BlankCursor)
@@ -187,22 +239,17 @@ class FenetreVisionneuse(BaseClass,FormClass,QObject):
         self.quitter()
       
     def resizeEvent(self,event):
-        self._redraw = True
-        rect = self.geometry()
-        self.label.setGeometry(0,0,rect.width(),rect.height())
-        self.affichePhoto()
+        super().resizeEvent(event)
+        print('resizeEvent visionneuse')
+        self._update_image_size()
         
     def avanceDiaporama(self):
         self._Pin.send('##down##')
         
     def quitter(self,rm=False):
         if not self._quitter_ok:
-            #print 'fermer visio'
             self._quitter_ok = True
             self.window().close()
-#        self._Pin.send('##quitter##')
-#        self._Pin.send(rm)
-#        self._Pout.send('##quitter##')
         
 def monprint(*obj):
     if False:

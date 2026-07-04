@@ -61,10 +61,9 @@ class thumbnail():
     numero = 0
     ht = {}
     
-    def __init__(self, ihm,album,nom):
+    def __init__(self, ihm,elem_album):
         self._ihm_miniature = ihm
-        self._album = album
-        self._nom = nom
+        self._elem_album = elem_album
         self._ok = False # il ne faut pas considerer que les infos ont été modifiées
         self._parent = ihm.scrollArea
         self.creerWidget()
@@ -77,7 +76,7 @@ class thumbnail():
         self._nom_pano = ""
         
     def creerWidget(self):
-        self._chemin = self._album.getJPGThumb(self._nom)
+        self._chemin = self._elem_album.getThumbPath()
         if self._chemin:
             image = QImage((self._chemin),'JPG')
             isHor = image.height()<image.width()
@@ -115,7 +114,7 @@ class thumbnail():
         self._widget.label.update()
 
     def creerToolTip(self):
-        tooltip = self._nom+'\n'
+        tooltip = self._elem_album.getName()+'\n'
         #self._exif_data = Exif.getExifData(self._chemin)
         for (nom,value) in list(self.getExif().items()):
             if nom != 'orientation':
@@ -130,7 +129,7 @@ class thumbnail():
         self._widget.label.setToolTip(tooltip)
         
     def getExif(self):
-        return self._album.getExif(self._nom)
+        return self._elem_album._exif
     
     def afficherInfos(self):
         if PREF.MODE == PREF.MODE_TRI:
@@ -177,7 +176,7 @@ class thumbnail():
             self._widget.frame.setForegroundRole(3)
             
     def getName(self):
-        return self._nom
+        return self._elem_album.getName()
     
     def setName(self,n):
         self._chemin = osp.dirname(self._chemin)+'/'+n
@@ -211,12 +210,12 @@ class thumbnail():
 # Infos Etoiles
 #
     def getEtoiles(self):
-        return self._album.getInfo(self._nom)["etoiles"]
+        return self._elem_album.getInfo()["etoiles"]
     
     def setEtoiles(self,n):
         if PREF.MODE == PREF.MODE_TRI:
-            self._album.setInfo(self._nom,"etoiles",n)
-            self._album.setInfo(self._nom,"traitee",True)
+            self._elem_album.setInfo("etoiles",n)
+            self._elem_album.setInfo("traitee",True)
             #self._info.setEtoiles(n,self._ok)
             #self._info.setTraite(True,self._ok)
             self.afficheEtoiles(n)
@@ -240,11 +239,11 @@ class thumbnail():
 # Infos Traitee
 #
     def getTraitee(self):
-        return self._album.getInfo(self._nom)["traitee"]
+        return self._elem_album.getInfo()["traitee"]
         
     def setTraite(self,n):
         if self.getTraitee() != n:
-            self._album.getInfo(self._nom)["traitee"] = n
+            self._elem_album.getInfo()["traitee"] = n
         self.afficheTraite(n)
 
     def afficheTraite(self,n):
@@ -260,11 +259,11 @@ class thumbnail():
 # Infos Etoiles
 #
     def getAutre(self):
-        return self._album.getInfo(self._nom)["cochee"]
+        return self._elem_album.getInfo()["cochee"]
          
     def setAutre(self,n):
         if self.getAutre() != n:
-            self._album.getInfo(self._nom)["cochee"] = n
+            self._elem_album.getInfo()["cochee"] = n
         self.afficheAutre(n)
  
     def afficheAutre(self,n):
@@ -282,10 +281,10 @@ class thumbnail():
 # Infos Pano
 #
     def getPano(self):
-        return self._album.getInfo(self._nom)["pano"]
+        return self._elem_album.getInfo()["pano"]
     
     def setPano(self,n):
-        self._album.getInfo(self._nom)["pano"] = n
+        self._elem_album.getInfo()["pano"] = n
         self.affichePano(n)
         if not n: self.setNomPano("")
 
@@ -310,10 +309,10 @@ class thumbnail():
 # Infos Retouche
 #
     def getRetouche(self):
-        return self._album.getInfo(self._nom)["retouche"]
+        return self._elem_album.getInfo()["retouche"]
     
     def setRetouche(self,n):
-        self._album.getInfo(self._nom)["retouche"] = n
+        self._elem_album.getInfo()["retouche"] = n
         self.afficheRetouche(n)
 
     def afficheRetouche(self,n):

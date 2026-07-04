@@ -28,7 +28,7 @@ class FenetreSelection(BaseClass,FormClass):
         self._fenetre_thumbs = fen_thumbs
         self._ihm_arbo = ihm_arbo
         self._album = album
-        self._liste_photos = album.listeJPG()
+        self._liste_photos = album.listeElements()
         #self._liste_affichees = [album.repPhotos()+'/'+ph for ph in album.getListePhotos()]
         self.initialiser()
         self.afficheTaille()
@@ -49,7 +49,7 @@ class FenetreSelection(BaseClass,FormClass):
         
     def toutes(self,b):
         if b:
-            self._liste_photos = self._album.listeJPG()
+            self._liste_photos = self._album.listeElements()
             self.afficheTaille()
         
     def photosAffichees(self,b):
