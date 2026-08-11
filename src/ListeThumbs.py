@@ -206,7 +206,8 @@ class ListeThumbs():
         l = self._liste.getSelected()
         for i in copy.copy(l):
             self._liste.select(i,False)
-            self._liste[i].select(False)
+            if i < len(self._liste):
+                self._liste[i].select(False)
                 
     def select(self,thumb):
         self.unselectAll()

@@ -120,6 +120,13 @@ class Ihm(BaseClass,FormClass):
         self.comboWorkspace.addItems(PREFERENCES.getWorkspaces())
         self._gestion_ecrans.affiche()
         self.majIhmSelection()
+        if osp.isfile("version"):
+            with open("version",'r') as f:
+                version = f.read()
+                print(version)
+        else:
+            version = "dev"
+        self.setWindowTitle("Tri photo - " + version)
         self.show()
     
     def changeEcran(self):

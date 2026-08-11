@@ -135,12 +135,13 @@ class chainList:
 
     def select(self,i,b):
         if not isinstance(i,int):
-            i = self.index(i)# chercher l'�lement par son nom
-        if b:
-            self.selected.add(i)
-        else:
-            self.selected.remove(i)
-        self.liste[i].select = b
+            i = self.index(i)# chercher l'�lement par son nom        
+        if i < len(self.liste):
+            if b:
+                self.selected.add(i)
+            else:
+                self.selected.remove(i)
+            self.liste[i].select = b
             
     def isSelected(self,i):
         if not isinstance(i,int):
